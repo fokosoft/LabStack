@@ -175,6 +175,12 @@ Marcado con ⭐ lo que más recomiendo.
 - ✅ **Guardia generada y caos** (fase 3): 15 familias de averías coherentes, tres niveles, semilla reproducible, ensayo antes de jugar, descarga como incidencia; caos programado en el laboratorio libre con comprobación y revelado.
 - ✅ **Compositor** (fase 4): `compositor.html`, un formulario sobre el catálogo (cada campo sale del esquema `P.camposAveria`), con ensayo en vivo (alertas, lo que hay que dejar arreglado, pistas, solución de referencia, prioridad y SLA). Parte de cero, de un ticket, de una importada, de una guardia generada o de un fichero; guarda en la cola, abre el ticket en el puesto o descarga el `.json`.
 - ✅ **En inglés**: todo el Puesto (interfaz, 20 tickets, catálogo, guardias, solucionario y glosario, RUNBOOK y playbooks, validador y compositor) con botón EN/ES y `?lang=en`; LabStack lo abre en su mismo idioma. `ingles-test.js` falla si queda algo en español y resuelve los 20 tickets en inglés.
+
+### Puesto Cloud (`puesto-cloud/`)
+
+- ✅ **Fase 1**: cuenta de AWS simulada (VPC, subredes, rutas, NAT, security groups, EC2, EBS, snapshots, alarmas de CloudWatch) sobre el motor y la interfaz del Puesto Linux, CLI `aws` con JSON / text / table, `--filters` y `--query` (JMESPath), y 5 tickets en dos idiomas, con su batería de pruebas.
+- Siguiente: **fase 2** IAM (usuarios, roles, políticas, `AccessDenied`), S3 (buckets, versionado, el bucket público por error), balanceador y Auto Scaling · **fase 3** RDS, coste y Terraform contra la nube simulada, guardias y caos · **fase 4** catálogo de averías y compositor, como en el Puesto Linux.
+- ✅ **Solucionario** (adelantado de la fase 4): los 5 tickets paso a paso con la salida real y un glosario de 26 términos de AWS, sobre el mismo motor de página que el del Puesto Linux.
 - ✅ **Solucionario** con la salida real de cada paso (generada por el simulador) y glosario de 59 términos.
 - ✅ `puesto-test.js`: cada guion de referencia resuelve su ticket y cumple sus prácticas; cada arreglo a medias lo deja abierto; determinismo y mecánica.
 - Pendiente si se quiere: versión en inglés; más tickets (migración en frío que falla por cuota, clave SSH comprometida que hay que rotar en la flota, snapshot de Ceph que llena un pool); guardar la sesión a medias; que el profesor cargue sus propios escenarios.

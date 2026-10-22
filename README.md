@@ -57,6 +57,20 @@ Una segunda app, en **`puesto-linux/index.html`** (también enlazada desde la po
 
 Opcionales: `tipo` (incidente, peticion, cambio), `nivel` (1-3), `de`, `area`, `funciones`, `pistas` (exactamente 3), `causa`, `solucion`, `leccion`, `autor`. Lo que falte se genera a partir de las averías.
 
+## Puesto Cloud: el mismo puesto, en AWS
+
+Una tercera app, en **`puesto-cloud/index.html`** (en español y en inglés): el puesto de *Ingeniero/a de Sistemas Cloud (AWS)* de una tienda online, sobre una cuenta de AWS simulada.
+
+- **Una cuenta entera para romper**: una VPC con subredes públicas y privadas, 5 instancias EC2, security groups, volúmenes EBS, un NAT gateway y alarmas de CloudWatch.
+- **La CLI de verdad**: `aws ec2 describe-instances`, `authorize-security-group-ingress`, `modify-volume`, `replace-route`, `run-instances`, `aws cloudwatch describe-alarms`… con salida JSON, `--output table`, `--filters` y `--query`. Y dentro de las instancias, `ssh`, `systemctl`, `df`, `curl`, `resize2fs`.
+- **La red se comporta como la de AWS**: un security group no rechaza, descarta (y por eso `ssh` se queda colgado); a las IP privadas sólo se llega saltando por el bastión; una ruta a un NAT borrado es un *blackhole*; ampliar un volumen no amplía el sistema de ficheros.
+- **Solucionario** (`puesto-cloud/soluciones.html`): cada ticket paso a paso, con la salida real de cada comando, lo que no lo arregla y un glosario de 26 términos de AWS.
+- **5 tickets** para empezar: el SSH que deja de funcionar al cambiar la IP de la oficina, un frontal parado, el disco de PostgreSQL al 93 %, los pagos que fallan por un NAT gateway mal sustituido y lanzar un tercer frontal en otra zona.
+
+Comparte motor e interfaz con el Puesto Linux: no es una copia.
+
+> Simulador educativo independiente, sin relación con Amazon Web Services. AWS y los nombres de sus servicios son marcas de Amazon.com, Inc. o sus filiales.
+
 ## Estructura
 
 | Archivo | Descripción |

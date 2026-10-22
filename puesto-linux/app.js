@@ -9,7 +9,30 @@ const P = window.PUESTO, U = P.u;
 const T = P.T;
 const $ = s => document.querySelector(s);
 const h = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const CLAVE = 'puesto-linux-v1';
+// Otra app (puesto-cloud) reutiliza esta interfaz con su propia plataforma:
+// declara P.ui antes de cargar este fichero y sólo cambia lo que dice aquí.
+// Sin P.ui, todo es el Puesto Linux.
+const UI = Object.assign({
+  clave: 'puesto-linux-v1',
+  oferta: {
+    tag: T('📌 Puesto', '📌 Job opening'),
+    titulo: T('Administrador/a de Sistemas Linux', 'Linux Systems Administrator'),
+    sub: T('Proyecto retail · remoto · contrato indefinido', 'Retail project · remote · permanent, full-time'),
+    txt: T('Despliegue y mantenimiento de la plataforma OpenStack, administración y monitorización del almacenamiento Ceph, automatización con Ansible y Terraform, y monitorización y resolución de incidencias. Cada función del puesto tiene sus tickets:', 'Deploy and maintain the OpenStack platform, administer and monitor Ceph storage, automate with Ansible and Terraform, and monitor and resolve incidents. Each duty of the role has its own tickets:'),
+  },
+  como: [
+    T('<b>Doce nodos simulados</b>: bastión, 3 controladores OpenStack, 4 hipervisores, 3 nodos Ceph y monitorización.', '<b>Twelve simulated nodes</b>: a bastion, 3 OpenStack controllers, 4 hypervisors, 3 Ceph nodes and monitoring.'),
+    T('<b>Arreglas con comandos reales</b>: ssh, systemctl, ceph, openstack, ansible-playbook, terraform… Nada de elegir respuestas.', '<b>You fix things with real commands</b>: ssh, systemctl, ceph, openstack, ansible-playbook, terraform… No multiple choice.'),
+    T('<b>Se comprueba el estado</b>, no el camino. Luego se valora cómo llegaste: las buenas prácticas del oficio.', '<b>The end state is checked</b>, not the path. Then how you got there is scored: the good practices of the trade.'),
+  ],
+  guardia: true, importar: true, caos: true,
+  bienvenida: null,     // modo -> líneas de bienvenida de la terminal
+  sesionNueva: T('Nueva sesión en el bastión', 'New session on the bastion'),
+  paneles: null,        // ({ st, h, alertas, app }) -> html de la columna izquierda, bajo las alertas
+  experimentos: null,   // [[comando, explicación]] del laboratorio libre
+  alertas: T('Alertas', 'Alerts'),
+}, P.ui || {});
+const CLAVE = UI.clave;
 const leer = () => { try { return JSON.parse(localStorage.getItem(CLAVE) || '{}') || {}; } catch (e) { return {}; } };
 const guardar = d => { try { localStorage.setItem(CLAVE, JSON.stringify(d)); } catch (e) { /* sin almacenamiento: se juega igual */ } };
 
@@ -34,32 +57,30 @@ const app = { vista: 'cola', modo: null, esc: null, st: null, tabs: [], activa: 
 // ------------------------------------------------------------------ cola
 function vistaCola() {
   const res = app.progreso;
-  const funcs = P.funciones.map(f => { const es = P.escenarios.filter(e => e.funciones.indexOf(f.id) >= 0); return { f, total: es.length, n: es.filter(e => res[e.id]).length }; });
+  const funcs = P.funciones.map(f => { const es = P.escenarios.filter(e => e.funciones.indexOf(f.id) >= 0); return { f, total: es.length, n: es.filter(e => res[e.id]).length }; }).filter(x => x.total);
   const lista = P.escenarios.filter(e => !app.filtro || e.funciones.indexOf(app.filtro) >= 0);
   const hechos = P.escenarios.filter(e => res[e.id]).length;
   $('#vista').innerHTML = `
   <div class="cola-wrap">
     <section class="hero">
       <div class="card oferta">
-        <span class="oferta-tag">${T('📌 Puesto', '📌 Job opening')}</span>
-        <h1>${T('Administrador/a de Sistemas Linux', 'Linux Systems Administrator')}</h1>
-        <p class="oferta-sub">${T('Proyecto retail · remoto · contrato indefinido', 'Retail project · remote · permanent, full-time')}</p>
-        <p class="oferta-txt">${T('Despliegue y mantenimiento de la plataforma OpenStack, administración y monitorización del almacenamiento Ceph, automatización con Ansible y Terraform, y monitorización y resolución de incidencias. Cada función del puesto tiene sus tickets:', 'Deploy and maintain the OpenStack platform, administer and monitor Ceph storage, automate with Ansible and Terraform, and monitor and resolve incidents. Each duty of the role has its own tickets:')}</p>
+        <span class="oferta-tag">${UI.oferta.tag}</span>
+        <h1>${UI.oferta.titulo}</h1>
+        <p class="oferta-sub">${UI.oferta.sub}</p>
+        <p class="oferta-txt">${UI.oferta.txt}</p>
         <div class="funcs">
           ${funcs.map(x => `<button class="func ${app.filtro === x.f.id ? 'on' : ''}" data-act="filtro" data-id="${x.f.id}" aria-pressed="${app.filtro === x.f.id}">
             <span class="func-t">${h(x.f.titulo)}</span><span class="func-bar"><i style="width:${x.total ? x.n / x.total * 100 : 0}%"></i></span><span class="func-n">${x.n}/${x.total}</span></button>`).join('')}
         </div>
       </div>
       <div class="lado">
-        <button class="modo" data-act="guardia" aria-expanded="${app.guardiaPanel}"><span class="modo-ic" style="background:var(--bad-tint)">🔔</span><span class="modo-tx"><b>${T('Guardia', 'On call')}</b><small>${T('Averías al azar, sin ticket: sólo las alertas. Como a las tres de la mañana.', 'Random faults, no ticket: just the alerts. Like at three in the morning.')}</small></span></button>
-        ${app.guardiaPanel ? panelGuardia() : ''}
+        ${UI.guardia ? `<button class="modo" data-act="guardia" aria-expanded="${app.guardiaPanel}"><span class="modo-ic" style="background:var(--bad-tint)">🔔</span><span class="modo-tx"><b>${T('Guardia', 'On call')}</b><small>${T('Averías al azar, sin ticket: sólo las alertas. Como a las tres de la mañana.', 'Random faults, no ticket: just the alerts. Like at three in the morning.')}</small></span></button>
+        ${app.guardiaPanel ? panelGuardia() : ''}` : ''}
         <button class="modo" data-act="libre"><span class="modo-ic" style="background:var(--accent-tint)">🧪</span><span class="modo-tx"><b>${T('Laboratorio libre', 'Free lab')}</b><small>${T('La plataforma sana, sin ticket. Rompe cosas a propósito y mira qué pasa.', 'A healthy platform, no ticket. Break things on purpose and see what happens.')}</small></span></button>
         <div class="card como">
           <h3>${T('Cómo funciona', 'How it works')}</h3>
           <ol>
-            <li>${T('<b>Doce nodos simulados</b>: bastión, 3 controladores OpenStack, 4 hipervisores, 3 nodos Ceph y monitorización.', '<b>Twelve simulated nodes</b>: a bastion, 3 OpenStack controllers, 4 hypervisors, 3 Ceph nodes and monitoring.')}</li>
-            <li>${T('<b>Arreglas con comandos reales</b>: ssh, systemctl, ceph, openstack, ansible-playbook, terraform… Nada de elegir respuestas.', '<b>You fix things with real commands</b>: ssh, systemctl, ceph, openstack, ansible-playbook, terraform… No multiple choice.')}</li>
-            <li>${T('<b>Se comprueba el estado</b>, no el camino. Luego se valora cómo llegaste: las buenas prácticas del oficio.', '<b>The end state is checked</b>, not the path. Then how you got there is scored: the good practices of the trade.')}</li>
+            ${UI.como.map(x => '<li>' + x + '</li>').join('')}
           </ol>
         </div>
       </div>
@@ -68,7 +89,7 @@ function vistaCola() {
       <div class="cola-cab"><h2>${T('Cola de trabajo', 'Work queue')}</h2><span>${T(`${hechos} de ${P.escenarios.length} resueltos`, `${hechos} of ${P.escenarios.length} resolved`)}</span>${app.filtro ? '<button data-act="filtro" data-id="">' + T('Ver todos', 'Show all') + '</button>' : ''}</div>
       <div class="lista">${lista.map(filaTicket).join('')}</div>
     </section>
-    ${seccionImportadas()}
+    ${UI.importar ? seccionImportadas() : ''}
   </div>`;
 }
 function seccionImportadas() {
@@ -161,7 +182,7 @@ function abrir(modo, esc) {
   app.st = P.preparar(app.esc);
   app.tabs = []; app.pistas = 0; app.intentos = 0; app.pendientes = null; app.cierre = null; app.caos = []; app.caosMsg = null;
   const t = nuevaTab();
-  const bienvenida = modo === 'guardia'
+  const bienvenida = UI.bienvenida ? UI.bienvenida(modo) : modo === 'guardia'
     ? [T('Te ha saltado la guardia. No hay ticket: sólo lo que ven las alertas.', 'You have been paged. There is no ticket: only what the alerts see.'), T('Estás en el bastión. Para orientarte: amtool alert · ceph -s · help', 'You are on the bastion. To get your bearings: amtool alert · ceph -s · help')]
     : modo === 'libre'
       ? [T('Laboratorio libre: la plataforma está sana y no hay ticket.', 'Free lab: the platform is healthy and there is no ticket.'), T('Estás en el bastión. Empieza por help o por cat RUNBOOK.md', 'You are on the bastion. Start with help or cat RUNBOOK.md')]
@@ -220,7 +241,7 @@ function ejecutar(txt) {
 function pintarTerminal() {
   const t = tab();
   $('#tabs').innerHTML = app.tabs.map((x, i) => `<button class="tab ${i === app.activa ? 'on' : ''}" role="tab" aria-selected="${i === app.activa}" data-act="tab" data-i="${i}">${i + 1} · ${h(x.ses.host)}${app.tabs.length > 1 ? `<span class="x" data-act="cerrarTab" data-i="${i}" title="${T('Cerrar pestaña', 'Close tab')}" aria-label="${T('Cerrar pestaña', 'Close tab')}">×</span>` : ''}</button>`).join('')
-    + (app.tabs.length < MAX_TABS ? '<button class="tab-mas" data-act="nuevaTab" title="' + T('Nueva sesión en el bastión', 'New session on the bastion') + '" aria-label="' + T('Nueva pestaña', 'New tab') + '">+</button>' : '');
+    + (app.tabs.length < MAX_TABS ? '<button class="tab-mas" data-act="nuevaTab" title="' + UI.sesionNueva + '" aria-label="' + T('Nueva pestaña', 'New tab') + '">+</button>' : '');
   $('#termOut').innerHTML = t.lineas.map(l => l.c === 'in'
     ? `<div class="ln in"><span class="pr">${h(l.pr)}</span>${h(l.t)}</div>`
     : `<div class="ln ${l.c}">${h(l.t) || '&nbsp;'}</div>`).join('');
@@ -272,7 +293,7 @@ function pintarPaneles() {
     const col = f < 0.5 ? 'var(--ok)' : f < 0.85 ? 'var(--warn)' : 'var(--bad)';
     $('#sla').innerHTML = `<span><b>SLA ${p.p}</b><em style="font-style:normal">${Math.max(0, p.sla - pasado)} min</em></span><span class="sla-bar"><i style="width:${f * 100}%;background:${col}"></i></span>`;
   } else $('#sla').innerHTML = '';
-  $('#izq').innerHTML = panelAlertas() + panelNodos() + panelCeph();
+  $('#izq').innerHTML = panelAlertas() + (UI.paneles ? UI.paneles({ st, h, alertas: P.alertasActivas(st), app }) : panelNodos() + panelCeph());
   $('#der').innerHTML = app.modo === 'libre' ? panelLibre() : app.cierre ? panelCierre() : panelTicket() + panelResolver() + panelPistas() + panelRegistro();
 }
 function panelNodos() {
@@ -304,7 +325,7 @@ function panelCeph() {
 }
 function panelAlertas() {
   const al = P.alertasActivas(app.st);
-  return `<section class="panel"><h3>${T('Alertas', 'Alerts')} <span class="der-n">${al.length}</span></h3>${al.length ? al.map(a => `<div class="alerta al-${a.sev}"><i></i><div><b>${h(a.nombre)}</b><span>${h((a.host ? a.host + ' · ' : '') + a.res)}</span></div><small>${Math.max(0, app.st.reloj - a.desde)} min</small></div>`).join('') : '<p class="vacio">' + T('Sin alertas activas.', 'No active alerts.') + '</p>'}</section>`;
+  return `<section class="panel"><h3>${UI.alertas} <span class="der-n">${al.length}</span></h3>${al.length ? al.map(a => `<div class="alerta al-${a.sev}"><i></i><div><b>${h(a.nombre)}</b><span>${h((a.host ? a.host + ' · ' : '') + a.res)}</span></div><small>${Math.max(0, app.st.reloj - a.desde)} min</small></div>`).join('') : '<p class="vacio">' + T('Sin alertas activas.', 'No active alerts.') + '</p>'}</section>`;
 }
 function panelTicket() {
   const e = app.esc, st = app.st, p = P.prioridad(e);
@@ -366,8 +387,8 @@ const EXPERIMENTOS = [
 ];
 function panelLibre() {
   return `<section class="panel"><h3>${T('Laboratorio libre', 'Free lab')}</h3><p style="margin:0 0 10px;font-size:12px;color:var(--muted)">${T('No hay ticket ni reloj de SLA. Pulsa un experimento para escribirlo en la terminal.', 'No ticket, no SLA clock. Click an experiment to type it into the terminal.')}</p>
-    ${EXPERIMENTOS.map(([c, t]) => `<button class="experimento" data-act="escribir" data-cmd="${h(c)}"><code>${h(c)}</code><span>${h(t)}</span></button>`).join('')}
-    <button class="btn" style="width:100%;margin-top:6px" data-act="repetir">${T('Dejar la plataforma como nueva', 'Reset the platform')}</button></section>` + panelCaos() + panelRegistro();
+    ${(UI.experimentos || EXPERIMENTOS).map(([c, t]) => `<button class="experimento" data-act="escribir" data-cmd="${h(c)}"><code>${h(c)}</code><span>${h(t)}</span></button>`).join('')}
+    <button class="btn" style="width:100%;margin-top:6px" data-act="repetir">${T('Dejar la plataforma como nueva', 'Reset the platform')}</button></section>` + (UI.caos ? panelCaos() : '') + panelRegistro();
 }
 function panelCaos() {
   const c = app.caos, msg = app.caosMsg;
@@ -455,7 +476,7 @@ document.addEventListener('click', ev => {
   if (act === 'repetir') { abrir(app.modo, app.esc); return; }
   if (act === 'cerrarTab') { ev.stopPropagation(); app.tabs.splice(+b.dataset.i, 1); app.activa = Math.min(app.activa, app.tabs.length - 1); pintarTerminal(); $('#termIn').focus(); return; }
   if (act === 'tab') { app.activa = +b.dataset.i; pintarTerminal(); $('#termIn').focus(); return; }
-  if (act === 'nuevaTab') { nuevaTab(); tab().lineas.push({ t: T('Nueva sesión en el bastión.', 'New session on the bastion.'), c: 'dim' }); pintarTerminal(); pintarPaneles(); $('#termIn').focus(); return; }
+  if (act === 'nuevaTab') { nuevaTab(); tab().lineas.push({ t: UI.sesionNueva + '.', c: 'dim' }); pintarTerminal(); pintarPaneles(); $('#termIn').focus(); return; }
   if (act === 'ssh') {
     const n = b.dataset.host;
     if (app.tabs.length < MAX_TABS) nuevaTab(n); else { app.activa = app.tabs.length - 1; correrEn(tab(), 'ssh ' + n); }
@@ -483,7 +504,7 @@ document.addEventListener('dragover', ev => { const z = ev.target.closest && ev.
 document.addEventListener('dragleave', ev => { const z = ev.target.closest && ev.target.closest('#zonaImp'); if (z) z.classList.remove('encima'); });
 document.addEventListener('drop', ev => { const z = ev.target.closest && ev.target.closest('#zonaImp'); if (!z) return; ev.preventDefault(); z.classList.remove('encima'); importarFicheros(ev.dataTransfer && ev.dataTransfer.files); });
 
-recargarImportadas(leerImp());
+if (UI.importar) recargarImportadas(leerImp());
 try { const t = localStorage.getItem('puesto-tema'); if (t === 'oscuro' || (!t && window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches)) document.body.classList.add('oscuro'); } catch (e) { /* nada */ }
 // index.html#INC-4821 abre ese ticket directamente (lo usa el solucionario).
 const deHash = P.escenario(decodeURIComponent((location.hash || '').slice(1)));

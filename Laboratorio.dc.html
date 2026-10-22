@@ -9,8 +9,8 @@
 <meta property="og:site_name" content="LabStack · FOKO SOFT">
 <meta property="og:title" content="LabStack · Taller visual de infraestructura">
 <meta property="og:description" content="Aprende cómo se monta la infraestructura de una empresa, pieza a pieza. Gratis, en el navegador, sin instalar nada. Español e inglés.">
-<meta property="og:url" content="https://emicaim.github.io/LabStack/">
-<meta property="og:image" content="https://emicaim.github.io/LabStack/og-labstack.png">
+<meta property="og:url" content="https://fokosoft.github.io/LabStack/">
+<meta property="og:image" content="https://fokosoft.github.io/LabStack/og-labstack.png">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="627">
 <meta name="twitter:card" content="summary_large_image">
@@ -278,6 +278,14 @@
               <span style="display:block; font-size:12px; color:var(--text-muted); margin-top:2px;">{{ home.jobDesc }}</span>
             </span>
             <span style="flex:0 0 auto; font-size:12px; font-weight:600; color:var(--accent); white-space:nowrap;">{{ home.jobCta }} →</span>
+          </a>
+          <a href="{{ home.cloudHref }}" style="display:flex; align-items:center; gap:14px; margin-top:10px; padding:14px 18px; border-radius:14px; border:1px dashed var(--border-strong); background:var(--panel); color:var(--text); text-decoration:none; font-family:'Inter',sans-serif;" style-hover="border-color:var(--accent); border-style:solid;">
+            <span style="width:40px; height:40px; flex:0 0 auto; border-radius:10px; display:grid; place-items:center; font-size:17px; background:var(--accent-tint);">☁️</span>
+            <span style="min-width:0; flex:1 1 auto;">
+              <span style="display:block; font-size:15px; font-weight:700;">{{ home.cloudTitle }}</span>
+              <span style="display:block; font-size:12px; color:var(--text-muted); margin-top:2px;">{{ home.cloudDesc }}</span>
+            </span>
+            <span style="flex:0 0 auto; font-size:12px; font-weight:600; color:var(--accent); white-space:nowrap;">{{ home.cloudCta }} →</span>
           </a>
 
           <div style="display:flex; align-items:center; justify-content:center; gap:22px; flex-wrap:wrap; margin-top:30px; padding-top:20px; border-top:1px solid var(--border);">
@@ -4452,7 +4460,8 @@ class Component extends DCLogic {
       onContinue: ()=>this.setMode('sandbox'),
       // El Puesto Linux es otra app (puesto-linux/): otro motor, estado propio.
       // Se abre en el idioma de LabStack (?lang= lo fija allí también).
-      jobHref:'./puesto-linux/index.html?lang='+(S.lang==='en'?'en':'es'), jobTitle:t.homeJobT, jobDesc:t.homeJobD, jobCta:t.homeJobCta,
+      jobHref:'./puesto-linux/index.html?lang='+(S.lang==='en'?'en':'es'),
+      cloudHref:'./puesto-cloud/index.html?lang='+(S.lang==='en'?'en':'es'), cloudTitle:t.homeCloudT, cloudDesc:t.homeCloudD, cloudCta:t.homeCloudCta, jobTitle:t.homeJobT, jobDesc:t.homeJobD, jobCta:t.homeJobCta,
       cards: [
         { icon:'🧱', title:t.cardLearnT, desc:t.cardLearnD, meta:t.cardLearnM, color:'#6366f1', to:'sandbox' },
         { icon:'🎯', title:t.cardPracticeT, desc:t.cardPracticeD, meta:t.cardPracticeM, color:'#f59e0b', to:'mission' },

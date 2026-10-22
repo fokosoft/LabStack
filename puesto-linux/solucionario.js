@@ -12,6 +12,11 @@ const h = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp
 const TIPOS = { incidente: T('Incidente', 'Incident'), peticion: T('Petición', 'Request'), cambio: T('Cambio', 'Change') };
 const FASES = { diag: T('Diagnóstico', 'Diagnosis'), arreglo: T('Arreglo', 'Fix'), comprobar: T('Comprobación', 'Verification'), '': T('Paso', 'Step') };
 const MAX = 40;
+// Lo que cambia de una app a otra (puesto-cloud declara P.solucionarioCfg antes de cargar este fichero).
+const CFG = Object.assign({
+  buscar: T('Buscar un término: noout, cuota, idempotencia…', 'Search for a term: noout, quota, idempotence…'),
+  silencio: T('(no devuelve nada: en Linux, el silencio suele significar que ha ido bien)', '(no output: in Linux, silence usually means it worked)'),
+}, P.solucionarioCfg || {});
 
 // Ejecuta el guion y devuelve la salida de cada paso.
 function salidas(e) {
@@ -32,7 +37,7 @@ function ticket(e) {
     const o = sal[i], extra = Math.max(0, o.lineas.length - MAX);
     const cuerpo = o.lineas.length
       ? o.lineas.slice(0, MAX).map(l => `<div class="ln ${l.c}">${h(l.t) || '&nbsp;'}</div>`).join('') + (extra ? `<div class="ln dim">${T(`… ${extra} líneas más`, `… ${extra} more lines`)}</div>` : '')
-      : `<div class="ln dim">${T('(no devuelve nada: en Linux, el silencio suele significar que ha ido bien)', '(no output: in Linux, silence usually means it worked)')}</div>`;
+      : `<div class="ln dim">${CFG.silencio}</div>`;
     return `<li class="paso f-${x[1] || 'mov'}">
       <span class="paso-n">${i + 1}</span>
       <div class="paso-c">
@@ -87,7 +92,7 @@ $('#vista').innerHTML = `<div class="cola-wrap sol-wrap">
   </section>
   <section id="glosario" style="margin-top:34px">
     <div class="cola-cab"><h2>${T('Glosario', 'Glossary')}</h2><span>${T(`${P.glosario.length} términos`, `${P.glosario.length} terms`)}</span></div>
-    <input id="buscar" class="buscar" type="search" placeholder="${T('Buscar un término: noout, cuota, idempotencia…', 'Search for a term: noout, quota, idempotence…')}" aria-label="${T('Buscar en el glosario', 'Search the glossary')}">
+    <input id="buscar" class="buscar" type="search" placeholder="${CFG.buscar}" aria-label="${T('Buscar en el glosario', 'Search the glossary')}">
     <div class="glosario">${glosario()}</div>
   </section>
 </div>`;

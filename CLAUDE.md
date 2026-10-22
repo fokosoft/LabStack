@@ -323,11 +323,31 @@ The test holds the catalogue to three promises: every fault type, alone, breaks 
 
 **Language.** Spanish and English. `P.idioma` is decided **once per page load** at the top of `motor.js` (`?lang=` in the URL, then `localStorage['puesto-idioma']`, then the browser), and the EN/ES header button calls `P.cambiarIdioma()`, which **reloads**. That is what makes `T(es, en)` (= `P.T`) safe everywhere, including data built at load time: every user-visible string is `T('…', '…')` with the Spanish byte-for-byte as it was. Static HTML text carries its English in `data-en` / `data-en-title`. Never translate what code compares (ids, fault types, `impacto: 'alto'`, fase values, handler names…): displayed enums go through a map at render time. Command output imitates real tools and stays English in both; what the *team* wrote (alert summaries, playbook task names, RUNBOOK, hints) is translated. LabStack's home opens the desk with `?lang=` matching its own language. `ingles-test.js` loads everything in English, walks every string a player can see (data, alerts, pendientes, validator messages, `help`, every file on five nodes, the output of all 20 reference scripts) and fails on anything that looks Spanish; it also resolves the 20 tickets in English. Add a string without its English and it fails.
 
+**The core is shared with Puesto Cloud.** `motor.js` reads `P.topologiaInicial` if it is set before loading (otherwise the 12 OpenStack nodes); the first node is `P.entrada`, where every session starts and where you are thrown back when the node you are on goes down. A node may declare `unidades`, `discos`, `logs`, `ram`, `ramBase` and `kernel` instead of deriving them from its role, and `U.crearHost(d, min)` builds one mid-game (an EC2 launch). `app.js` reads `P.ui` (declared before it loads): offer text, "how it works", welcome lines, the left-hand panels, free-lab experiments, the storage key, and whether Guardia, imports and chaos exist. Without `P.ui` it is exactly the Linux desk. Change either file and both test suites must still pass.
+
 **Screenshot gotcha.** Headless Chrome on Windows will not lay out narrower than ~490 px whatever `--window-size` says, and then crops the capture. It looks like horizontal overflow and is not. To see a phone width, render the page inside a 375 px `<iframe>`.
+
+## Puesto Cloud (`puesto-cloud/`) — the same desk, on AWS
+
+A cloud systems engineer's job (EC2 and EBS, VPC networking and security, CloudWatch and incidents) on a simulated AWS account. Open `puesto-cloud/index.html`. **It is not a fork**: it loads `../puesto-linux/motor.js` and `../puesto-linux/app.js` and only adds what is different. Independent educational simulator: it uses AWS service and command names because that is what is taught, but never AWS branding, and the page says it is not affiliated.
+
+| File | Holds |
+|---|---|
+| `topologia.js` | Loaded **before** the motor: `P.topologiaInicial` = your workstation (`ops`, the entry point with the AWS CLI and SSH keys) plus the five EC2 instances as real Ubuntu nodes (`bastion`, `web-01/02`, `app-01`, `db-01`). Inside them `systemctl`, `journalctl`, `df`… are the Linux desk's. |
+| `nube.js` | `st.aws`: VPC, 5 subnets (3 public, 2 private), two route tables, NAT gateway, security groups (plus `default`), instances, EBS volumes, snapshots, AMIs. **Reachability** (`N.desdeInternet`, `N.desdeVpc`, `N.ipSalida`): running + OS up + public IP + route to the IGW + a security group rule from that source. Lifecycle (`N.parar/arrancar/terminar/lanzar`, with a new public IP on start), volume modifications (`modifying` → `optimizing` → `completed`), CloudWatch alarms (`N.alarmas`, replacing the motor's detectors), the workstation's files (`~/.ssh/config` with ProxyJump, `~/.aws/`, `~/LEEME.md`) and `ssh`, `curl`, `lsblk`, `growpart`, `resize2fs`. |
+| `aws.js` | The `aws` CLI, only on `ops`: `sts`, `ec2` (instances, status, start/stop/reboot/terminate/run, console output, `wait`, security groups, VPC/subnets/route tables/NAT/IGW, volumes, modifications, snapshots, images, key pairs, tags) and `cloudwatch describe-alarms`. JSON with the real field names, `--output text|table`, `--filters`, `--region` (another region is empty), `--dry-run`, and errors as `An error occurred (Code) when calling the Op operation`. `--query` is a small **JMESPath** interpreter with real projection semantics: a pipe stops a projection and a filter after a projection applies per element — the test pins both. |
+| `escenarios.js` | 5 tickets with the Linux desk's contract (`aplicar`, `objetivo`, `practicas`, `pistas`, `guion`, `trampas`); `resuelto` = `objetivo` + **no CloudWatch alarm in ALARM**. |
+| `ui.js` | `P.ui`: the job offer, the EC2 / EBS / routes panels, welcome lines and experiments. No Guardia, imports or chaos yet. |
+| `soluciones.js` + `soluciones.html` | The answer book, rendered by `../puesto-linux/solucionario.js` (which runs each `guion` live, so it shows the real output). Steps are `[fragment, phase, why]`: the fragment must appear in the command at that position of the guion (AWS ids are too long to repeat), and the test fails if they drift apart. `P.solucionarioCfg` swaps the two texts that were Linux-specific; 26-term AWS glossary. |
+| `nube-test.js` | Its suite, part of `npm test`. |
+
+What the network must keep doing, because it is the lesson: **a security group drops, it does not reject** (`ssh`/`curl` time out; only a stopped service gives `Connection refused`); a private IP is unreachable from the workstation except through the bastion (`-J` or `~/.ssh/config`); `-J` without `-i` does not use the project key; Ubuntu AMIs log in as `ubuntu`; an instance launched without `--security-group-ids` gets `default` and is invisible from outside; a route to a deleted NAT is a `blackhole`; in a public subnet there is no egress without a public IP. On EBS, `modify-volume` grows the block device (`lsblk`) but not the filesystem (`df`) until `resize2fs` (and `growpart` for the partitioned root), and a volume can be modified only once every 6 hours.
+
+Every id (instances, subnets, security groups, volumes) is deterministic, derived from `U.hex`, and so is the pool of public IPs handed out on start, which is what lets a ticket's `guion` name them.
 
 ## Tests
 
-`npm test` (or `node test.js`) runs all seven suites and prints one line each:
+`npm test` (or `node test.js`) runs all eight suites and prints one line each:
 
 | Suite | Covers |
 |---|---|
@@ -336,6 +356,7 @@ The test holds the catalogue to three promises: every fault type, alone, breaks 
 | `kids-test.js` | both Kids games end to end |
 | `desk-test.js` | 12 tickets, command hints, wrong-host nudge, coherence after resolving |
 | `events-test.js` | correlation, triage, the event to incident bridge |
+| `puesto-cloud/nube-test.js` | the cloud platform healthy at start, security groups that drop (timeout vs refused), user and key, private IPs only through the bastion, new public IP on start, volume vs filesystem and the 6-hour limit, regions, the `default` security group, `--query` semantics and output formats, the 5 tickets solved by their script with all practices, determinism and half-fixes, and the same in English with no Spanish left |
 | `puesto-linux/ingles-test.js` | the Puesto in English: no Spanish left in anything a player sees, and the 20 tickets resolved the same way |
 | `puesto-linux/puesto-test.js` | the 20 Puesto Linux tickets solved by their reference script, the fault catalogue (each fault alone, chained fixes, an invented combination, the validator), incidents from files (examples, export/re-import round trip, rejections), generated guardias (30 seeds × 3 levels) and chaos, the composer (one control per schema field for all 20 types, every exportable ticket and a level-3 guardia loading and saving as playable, a missing parameter named as such), the answer book aligned with each script, their practices, half-fixes that must not close them, `noout`, `sudo`, openrc, Terraform's folder, Ansible idempotency and `--check`, Tab |
 

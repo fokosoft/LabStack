@@ -119,7 +119,10 @@ U.tam = mb => {
 };
 
 // ------------------------------------------------------------------ topología
-const TOPO = [
+// Otra app (puesto-cloud) trae su propia plataforma: fija P.topologiaInicial
+// antes de cargar este fichero. El primer nodo es el punto de entrada: donde
+// empieza cada sesión y adonde vuelve cuando el nodo en el que estabas cae.
+const TOPO = P.topologiaInicial || [
   { n: 'bastion', rol: 'bastion', ip: '10.10.0.5' },
   { n: 'ctl01', rol: 'ctl', ip: '10.10.1.11' },
   { n: 'ctl02', rol: 'ctl', ip: '10.10.1.12' },
@@ -134,6 +137,7 @@ const TOPO = [
   { n: 'mon01', rol: 'mon', ip: '10.10.4.41' },
 ];
 P.topologia = TOPO;
+P.entrada = TOPO[0].n;
 P.roles = {
   bastion: T('Bastión: Ansible, Terraform y CLI de OpenStack', 'Bastion: Ansible, Terraform and the OpenStack CLI'),
   ctl: T('Controlador OpenStack (API, scheduler, RabbitMQ, Galera)', 'OpenStack controller (API, scheduler, RabbitMQ, Galera)'),
@@ -157,6 +161,7 @@ const DESC = {
   prometheus: 'Monitoring system and time series database', alertmanager: 'Prometheus Alertmanager',
   'grafana-server': 'Grafana instance',
 };
+U.DESC = DESC;   // otra plataforma añade aquí sus servicios
 U.desc = u => {
   if (DESC[u]) return DESC[u];
   const m = /^ceph-(osd|mon|mgr)@(.+)$/.exec(u);
@@ -174,6 +179,7 @@ U.unidad = (h, nombre) => {
 
 function unidadesDe(d, provisionado) {
   const base = ['ssh', 'chrony'];
+  if (d.unidades) return base.concat(d.unidades);
   if (d.rol === 'ctl') return base.concat(['haproxy', 'keepalived', 'mariadb', 'rabbitmq-server', 'memcached', 'apache2', 'nova-api', 'nova-scheduler', 'nova-conductor', 'neutron-server', 'neutron-l3-agent', 'neutron-dhcp-agent', 'glance-api', 'cinder-api', 'cinder-scheduler', 'cinder-volume']);
   if (d.rol === 'cmp') return provisionado ? base.concat(['libvirtd', 'nova-compute', 'openvswitch-switch', 'neutron-openvswitch-agent']) : base;
   if (d.rol === 'ceph') return base.concat(['ceph-mon@' + d.n, 'ceph-mgr@' + d.n]).concat(d.osds.map(i => 'ceph-osd@' + i));
@@ -202,27 +208,37 @@ function logsBase(h, d) {
     d.osds.forEach(i => { g['/var/log/ceph/ceph-osd.' + i + '.log'] = 70 + i; });
   }
   if (d.rol === 'mon') g['/var/log/grafana/grafana.log'] = 24;
+  if (d.logs) Object.assign(g, d.logs);
 }
 U.logsCompute = h => { h.logs['/var/log/nova/nova-compute.log'] = 210; h.logs['/var/log/libvirt/libvirtd.log'] = 12; h.logs['/var/log/neutron/neutron-openvswitch-agent.log'] = 95; };
 
 // ------------------------------------------------------------------ estado
-P.crear = function () {
-  const st = { reloj: 0, hosts: {}, registro: [], hechos: { reinicios: [], playbooks: [], tf: [] }, alertasDesde: {}, inicioFallo: 0 };
-  TOPO.forEach(d => {
-    const prov = !d.nuevo;
-    const h = {
-      nombre: d.n, rol: d.rol, ip: d.ip, osds: d.osds || [], up: true, vuelveEn: null, arrancado: -17280,
-      provisionado: prov, kernel: '5.15.0-119-generic', kernelNuevo: null, kernelDisponible: null,
-      svcs: {}, discos: {}, logs: {}, ntp: { sync: true, offset: 0.000014, deriva: 0 }, dmesg: [], extra: {},
-    };
-    unidadesDe(d, prov).forEach(u => { h.svcs[u] = U.nuevoSvc(u); });
+// Un nodo a partir de su descripción. P.crear monta así la plataforma entera;
+// la nube lo usa también en mitad de la partida, al lanzar una instancia.
+// d.unidades, d.discos, d.logs y d.ram sustituyen a lo que da el rol.
+U.crearHost = (d, min) => {
+  const prov = !d.nuevo, m = min == null ? -17280 : min;
+  const h = {
+    nombre: d.n, rol: d.rol, ip: d.ip, osds: d.osds || [], up: true, vuelveEn: null, arrancado: m,
+    provisionado: prov, kernel: d.kernel || '5.15.0-119-generic', kernelNuevo: null, kernelDisponible: null,
+    svcs: {}, discos: {}, logs: {}, ntp: { sync: true, offset: 0.000014, deriva: 0 }, dmesg: [], extra: {},
+  };
+  if (d.ram) h.ram = d.ram;
+  if (d.ramBase != null) h.ramBase = d.ramBase;
+  unidadesDe(d, prov).forEach(u => { h.svcs[u] = U.nuevoSvc(u, min); });
+  if (d.discos) Object.keys(d.discos).forEach(k => { h.discos[k] = Object.assign({}, d.discos[k]); });
+  else {
     h.discos['/'] = { dev: '/dev/mapper/vg0-root', tamG: 48, baseG: 11.6 };
     if (d.rol === 'ctl') h.discos['/var'] = { dev: '/dev/mapper/vg0-var', tamG: 40, baseG: 8.4 };
     if (d.rol === 'cmp') h.discos['/var/lib/nova'] = { dev: '/dev/mapper/vg0-nova', tamG: 800, baseG: prov ? 214 : 0.1 };
     if (d.rol === 'mon') h.discos['/var/lib/prometheus'] = { dev: '/dev/mapper/vg0-prom', tamG: 200, baseG: 91 };
-    logsBase(h, d);
-    st.hosts[d.n] = h;
-  });
+  }
+  logsBase(h, d);
+  return h;
+};
+P.crear = function () {
+  const st = { reloj: 0, hosts: {}, registro: [], hechos: { reinicios: [], playbooks: [], tf: [] }, alertasDesde: {}, inicioFallo: 0 };
+  TOPO.forEach(d => { st.hosts[d.n] = U.crearHost(d); });
   P.alCrear.forEach(f => f(st));
   P.refrescarAlertas(st);
   return st;
@@ -464,24 +480,24 @@ U.glob = (fs, cwd, arg, ses) => {
 };
 
 // ------------------------------------------------------------------ sesión
-P.nuevaSesion = () => ({ host: 'bastion', cwd: HOME, env: {}, root: false, pila: [], pendiente: null, hist: [] });
+P.nuevaSesion = () => ({ host: P.entrada, cwd: HOME, env: {}, root: false, pila: [], pendiente: null, hist: [] });
 P.prompt = ses => {
   if (ses.pendiente) return ses.pendiente.prompt || '> ';
   const hm = U.home(ses); let c = ses.cwd;
   if (c === hm) c = '~'; else if (c.indexOf(hm + '/') === 0) c = '~' + c.slice(hm.length);
-  return (ses.root ? 'root' : 'admin') + '@' + ses.host + ':' + c + (ses.root ? '# ' : '$ ');
+  return (ses.root ? 'root' : ses.usuario || 'admin') + '@' + ses.host + ':' + c + (ses.root ? '# ' : '$ ');
 };
-U.entrar = (ses, host, cwd, root) => { ses.pila.push({ host: ses.host, cwd: ses.cwd, env: ses.env, root: ses.root }); ses.host = host; ses.cwd = cwd; ses.env = {}; ses.root = !!root; };
-U.salir = ses => { const f = ses.pila.pop(); if (!f) return false; ses.host = f.host; ses.cwd = f.cwd; ses.env = f.env; ses.root = f.root; return true; };
+U.entrar = (ses, host, cwd, root, usuario) => { ses.pila.push({ host: ses.host, cwd: ses.cwd, env: ses.env, root: ses.root, usuario: ses.usuario }); ses.host = host; ses.cwd = cwd; ses.env = {}; ses.root = !!root; if (usuario !== undefined) ses.usuario = usuario; };
+U.salir = ses => { const f = ses.pila.pop(); if (!f) return false; ses.host = f.host; ses.cwd = f.cwd; ses.env = f.env; ses.root = f.root; ses.usuario = f.usuario; return true; };
 
 // Si el equipo en el que estás se ha reiniciado, te echa como haría ssh.
 P.expulsar = function (st, ses) {
   const out = [];
-  while (ses.host !== 'bastion' && !(st.hosts[ses.host] && st.hosts[ses.host].up)) {
+  while (ses.host !== P.entrada && !(st.hosts[ses.host] && st.hosts[ses.host].up)) {
     out.push(L('Connection to ' + ses.host + ' closed by remote host.', 'dim'));
     out.push(L('Connection to ' + ses.host + ' closed.', 'dim'));
     const caido = ses.host;
-    while (ses.host === caido) { if (!U.salir(ses)) { Object.assign(ses, { host: 'bastion', cwd: HOME, env: {}, root: false }); break; } }
+    while (ses.host === caido) { if (!U.salir(ses)) { Object.assign(ses, { host: P.entrada, cwd: HOME, env: {}, root: false }); break; } }
   }
   return out;
 };
@@ -766,7 +782,7 @@ U.cmd('ssh', { ayuda: T('entra en otro equipo (ssh ceph02)', 'log in to another 
 function salir(ctx) {
   const antes = ctx.ses.host;
   if (U.salir(ctx.ses)) { const out = [L('logout')]; if (ctx.ses.host !== antes) out.push(L('Connection to ' + antes + ' closed.', 'dim')); return { lineas: out, minutos: 0 }; }
-  return { lineas: [L('logout'), L(T('(esta pestaña es tu sesión del bastión y no se cierra: abre otra con +)', '(this tab is your bastion session and does not close: open another one with +)'), 'dim')], minutos: 0 };
+  return { lineas: [L('logout'), L(P.entrada === 'bastion' ? T('(esta pestaña es tu sesión del bastión y no se cierra: abre otra con +)', '(this tab is your bastion session and does not close: open another one with +)') : T('(esta pestaña es tu sesión de partida y no se cierra: abre otra con +)', '(this tab is your starting session and does not close: open another one with +)'), 'dim')], minutos: 0 };
 }
 U.cmd('exit', { ayuda: T('vuelve al equipo anterior', 'go back to the previous host'), grupo: T('Acceso', 'Access'), fn: salir });
 U.cmd('logout', { fn: salir });
@@ -797,10 +813,10 @@ const RAM = { ctl: 128, cmp: 256, ceph: 128, mon: 32, bastion: 8 };
 U.rss = (st, h, u) => { const r = P.rssUnidad && P.rssUnidad(st, h, u); return r != null ? r : /osd/.test(u) ? 3.9 : /rabbit|mariadb|nova|neutron|cinder|glance/.test(u) ? 1.1 : 0.04; };
 U.ramUsada = (st, h) => {
   if (h.rol === 'cmp' && P.ramUsadaHost) return Math.round(P.ramUsadaHost(st, h.nombre) / 1024 + 6);
-  const base = { ctl: 44, ceph: 40, mon: 11, bastion: 1.6 }[h.rol] || 2;
+  const base = h.ramBase != null ? h.ramBase : { ctl: 44, ceph: 40, mon: 11, bastion: 1.6 }[h.rol] || 2;
   return Math.round(base + Object.keys(h.svcs).filter(u => h.svcs[u].estado === 'active').reduce((a, u) => a + U.rss(st, h, u), 0));
 };
-U.ramTotal = h => RAM[h.rol] || 8;
+U.ramTotal = h => h.ram || RAM[h.rol] || 8;
 U.cmd('free', { ayuda: T('memoria (free -h)', 'memory (free -h)'), fn: ctx => {
   const h = ctx.h, t = U.ramTotal(h);
   const usada = Math.min(t - 1, U.ramUsada(ctx.st, h));
@@ -1005,7 +1021,7 @@ U.cmd('chronyc', { ayuda: 'NTP: chronyc tracking / sources / makestep', fn: ctx 
 // reinicio y paquetes -----------------------------------------------------------
 function reboot(ctx) {
   const h = ctx.h;
-  if (h.nombre === 'bastion') return [L(T('(el bastión no se reinicia en el simulador: es tu puesto)', '(the bastion does not reboot in the simulator: it is your workstation)'), 'dim')];
+  if (h.nombre === P.entrada) return [L(T('(el bastión no se reinicia en el simulador: es tu puesto)', '(the bastion does not reboot in the simulator: it is your workstation)'), 'dim')];
   const d = U.sinRoot(ctx, ['Failed to set wall message, ignoring: Interactive authentication required.', 'Failed to reboot system via logind: Interactive authentication required.']); if (d) return d;
   P.reiniciar(ctx.st, h);
   return { lineas: [], minutos: 1 };

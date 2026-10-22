@@ -2,7 +2,7 @@
 //
 //   npm test        (o: node test.js)
 //
-// Son siete y es fácil dejarse alguna al correrlas a mano. Si una falla, se ve
+// Son ocho y es fácil dejarse alguna al correrlas a mano. Si una falla, se ve
 // su salida entera y el proceso termina con código distinto de cero, para que
 // sirva también en un gancho de commit o en integración continua.
 const { execFileSync } = require('child_process');
@@ -15,6 +15,7 @@ const SUITES = [
   ['desk-test.js', 'Puesto: los 12 tickets, pistas y coherencia tras resolver'],
   ['events-test.js', 'consola de eventos: correlación, triaje y puente al ticket'],
   ['puesto-linux/puesto-test.js', 'Puesto Linux: 20 tickets resueltos con comandos, trampas y solucionario'],
+  ['puesto-cloud/nube-test.js', 'Puesto Cloud: red, discos, --query y 5 tickets resueltos con la CLI, en los dos idiomas'],
   ['puesto-linux/ingles-test.js', 'Puesto Linux en inglés: nada en español y los 20 tickets se resuelven igual'],
 ];
 
