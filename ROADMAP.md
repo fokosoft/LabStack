@@ -187,6 +187,12 @@ Marcado con ⭐ lo que más recomiendo.
 - ✅ `puesto-test.js`: cada guion de referencia resuelve su ticket y cumple sus prácticas; cada arreglo a medias lo deja abierto; determinismo y mecánica.
 - Pendiente si se quiere: versión en inglés; más tickets (migración en frío que falla por cuota, clave SSH comprometida que hay que rotar en la flota, snapshot de Ceph que llena un pool); guardar la sesión a medias; que el profesor cargue sus propios escenarios.
 
+### Puesto DevOps (`puesto-devops/`)
+
+- ✅ **Fase 1**: un clúster de Kubernetes simulado sobre el motor y la interfaz del Puesto Linux (control plane y tres workers, Deployments, ReplicaSets, pods, Services, ConfigMaps, eventos y alertas de kube-prometheus), con un bucle de reconciliación real (rolling update, scheduler, kubelet con backoff, OOMKilled y sondas), `kubectl` con sus verbos principales, el repositorio de manifiestos en `~/k8s`, 6 tickets en dos idiomas, solucionario con glosario de 30 términos y su batería de pruebas.
+- Siguiente: **fase 2** Helm, Ingress con certificados, HPA, PVC y almacenamiento, RBAC y NetworkPolicies.
+- Después: **fase 3** GitOps con Argo CD y su deriva, el pipeline de CI, guardias y caos; **fase 4** catálogo de averías, incidencias en fichero y compositor, compartidos como en la nube.
+
 ### Corto plazo (alto valor, bajo esfuerzo)
 
 - ⭐ **Glosario / índice buscable** de términos con enlaces cruzados.

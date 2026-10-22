@@ -287,6 +287,14 @@
             </span>
             <span style="flex:0 0 auto; font-size:12px; font-weight:600; color:var(--accent); white-space:nowrap;">{{ home.cloudCta }} →</span>
           </a>
+          <a href="{{ home.devopsHref }}" style="display:flex; align-items:center; gap:14px; margin-top:10px; padding:14px 18px; border-radius:14px; border:1px dashed var(--border-strong); background:var(--panel); color:var(--text); text-decoration:none; font-family:'Inter',sans-serif;" style-hover="border-color:var(--accent); border-style:solid;">
+            <span style="width:40px; height:40px; flex:0 0 auto; border-radius:10px; display:grid; place-items:center; font-size:17px; background:var(--accent-tint);">📦</span>
+            <span style="min-width:0; flex:1 1 auto;">
+              <span style="display:block; font-size:15px; font-weight:700;">{{ home.devopsTitle }}</span>
+              <span style="display:block; font-size:12px; color:var(--text-muted); margin-top:2px;">{{ home.devopsDesc }}</span>
+            </span>
+            <span style="flex:0 0 auto; font-size:12px; font-weight:600; color:var(--accent); white-space:nowrap;">{{ home.devopsCta }} →</span>
+          </a>
 
           <div style="display:flex; align-items:center; justify-content:center; gap:22px; flex-wrap:wrap; margin-top:30px; padding-top:20px; border-top:1px solid var(--border);">
             <sc-for list="{{ home.stats }}" as="hs" hint-placeholder-count="4">
@@ -4461,7 +4469,7 @@ class Component extends DCLogic {
       // El Puesto Linux es otra app (puesto-linux/): otro motor, estado propio.
       // Se abre en el idioma de LabStack (?lang= lo fija allí también).
       jobHref:'./puesto-linux/index.html?lang='+(S.lang==='en'?'en':'es'),
-      cloudHref:'./puesto-cloud/index.html?lang='+(S.lang==='en'?'en':'es'), cloudTitle:t.homeCloudT, cloudDesc:t.homeCloudD, cloudCta:t.homeCloudCta, jobTitle:t.homeJobT, jobDesc:t.homeJobD, jobCta:t.homeJobCta,
+      cloudHref:'./puesto-cloud/index.html?lang='+(S.lang==='en'?'en':'es'), cloudTitle:t.homeCloudT, cloudDesc:t.homeCloudD, cloudCta:t.homeCloudCta, devopsHref:'./puesto-devops/index.html?lang='+(S.lang==='en'?'en':'es'), devopsTitle:t.homeDevopsT, devopsDesc:t.homeDevopsD, devopsCta:t.homeDevopsCta, jobTitle:t.homeJobT, jobDesc:t.homeJobD, jobCta:t.homeJobCta,
       cards: [
         { icon:'🧱', title:t.cardLearnT, desc:t.cardLearnD, meta:t.cardLearnM, color:'#6366f1', to:'sandbox' },
         { icon:'🎯', title:t.cardPracticeT, desc:t.cardPracticeD, meta:t.cardPracticeM, color:'#f59e0b', to:'mission' },

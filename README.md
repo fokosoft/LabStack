@@ -75,6 +75,20 @@ Comparte motor e interfaz con el Puesto Linux: no es una copia.
 
 > Simulador educativo independiente, sin relación con Amazon Web Services. AWS y los nombres de sus servicios son marcas de Amazon.com, Inc. o sus filiales.
 
+## Puesto DevOps: Kubernetes en producción
+
+Una cuarta app, en **`puesto-devops/index.html`** (en español y en inglés): el puesto de *Ingeniero/a DevOps (Kubernetes)* de una plataforma de pagos, sobre un clúster de Kubernetes simulado.
+
+- **Un clúster que reconcilia de verdad**: un control plane y tres workers con la plataforma de pagos (api-pagos, web-checkout, antifraude, liquidaciones) y su monitorización. Cada minuto corre el bucle de los controladores: el rolling update con maxSurge y maxUnavailable, el scheduler que suma *requests*, el kubelet que descarga imágenes, lee el ConfigMap al arrancar, reinicia con backoff y mata por OOM.
+- **kubectl de verdad**: `get`, `describe` con sus eventos, `logs --previous`, `top`, `rollout status / history / undo / restart`, `set image / resources`, `scale`, `cordon / uncordon / drain`, `apply -f`, `diff -f`, `patch` y `exec`, con las tablas y los errores de kubectl. Y en los nodos, `systemctl status kubelet` y `crictl ps`.
+- **El repositorio es la verdad**: los manifiestos de producción están en `~/k8s`; `kubectl diff` enseña la deriva y los tickets se cierran sin dejarla.
+- **6 tickets**: un pod en CrashLoopBackOff porque alguien renombró una clave del ConfigMap (y sólo se notó al reiniciarse un nodo), una versión que no despliega por una etiqueta de imagen equivocada, antifraude muriendo por OOMKilled tras un «ajuste de costes», liquidaciones en Pending por un nodo que se quedó en cordon tras un mantenimiento, un Service sin endpoints por un selector que no casa, y un rollout atascado porque la versión nueva cambió su endpoint de salud.
+- **Solucionario** (`puesto-devops/soluciones.html`): cada ticket paso a paso, con la salida real de cada comando, lo que no lo arregla y un glosario de 30 términos de Kubernetes.
+
+Comparte motor e interfaz con los otros dos puestos. De momento es la fase 1; las siguientes traerán Helm, Ingress, HPA, RBAC, GitOps con Argo CD, guardias y el catálogo de averías.
+
+> Simulador educativo independiente, sin relación con la Cloud Native Computing Foundation ni con el proyecto Kubernetes. Kubernetes es una marca registrada de The Linux Foundation.
+
 ## Estructura
 
 | Archivo | Descripción |

@@ -61,7 +61,7 @@ function ticket(e) {
       <h4>${T('Cómo se resuelve', 'How to solve it')} <span class="sol-leyenda">${T(`diagnóstico → arreglo (${nPasos}) → comprobación`, `diagnosis → fix (${nPasos}) → verification`)}</span></h4>
       <ol class="pasos">${pasos}</ol>
       <div class="sol-dos">
-        <div><h4>${T('Lo que no lo arregla', 'What does not fix it')}</h4><ul class="trampas">${(e.trampas || []).map(t => `<li><code>${h(t.cmds.filter(c => !/^(ssh|exit|cd|source|sleep)\b/.test(c)).join(' · '))}</code><span>${h(t.porque.charAt(0).toUpperCase() + t.porque.slice(1))}.</span></li>`).join('')}</ul></div>
+        <div><h4>${T('Lo que no lo arregla', 'What does not fix it')}</h4><ul class="trampas">${(e.trampas || []).map(t => `<li><code>${h((typeof t.cmds === 'function' ? t.cmds(P.preparar(e)) : t.cmds).filter(c => !/^(ssh|exit|cd|source|sleep)\b/.test(c)).join(' · '))}</code><span>${h(t.porque.charAt(0).toUpperCase() + t.porque.slice(1))}.</span></li>`).join('')}</ul></div>
         <div><h4>${T('Buenas prácticas que se valoran', 'Good practices that earn credit')}</h4><ul class="valoran">${e.practicas.map(x => '<li>' + h(x.t) + '</li>').join('')}</ul></div>
       </div>
       <div class="sol-leccion"><h4>${T('Lo que te llevas', 'The takeaway')}</h4><p>${h(e.leccion)}</p></div>
