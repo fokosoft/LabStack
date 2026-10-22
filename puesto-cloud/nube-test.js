@@ -10,7 +10,7 @@ const fs = require('fs'), path = require('path');
 const D = __dirname, LINUX = path.join(D, '..', 'puesto-linux');
 function cargar(idioma) {
   const win = { PUESTO: { idioma } };
-  [path.join(D, 'topologia.js'), path.join(LINUX, 'motor.js'), path.join(D, 'nube.js'), path.join(D, 'aws.js'), path.join(D, 'escenarios.js'), path.join(D, 'soluciones.js')]
+  [path.join(D, 'topologia.js'), path.join(LINUX, 'motor.js'), path.join(D, 'nube.js'), path.join(D, 'aws.js'), path.join(D, 'servicios.js'), path.join(D, 'escenarios.js'), path.join(D, 'soluciones.js')]
     .forEach(f => new Function('window', fs.readFileSync(f, 'utf8'))(win));
   return win.PUESTO;
 }
@@ -76,7 +76,7 @@ console.log('\n  mecánica de la nube:');
   const ip0 = N.inst(st, ID.inst['web-02']).ipPub;
   correr(P, st, ['aws ec2 stop-instances --instance-ids ' + ID.inst['web-02'], 'sleep 60']);
   chk(P.alertasActivas(st).some(a => a.nombre === 'tienda-web-healthy-hosts'), 'parar web-02 debería disparar tienda-web-healthy-hosts');
-  correr(P, st, ['aws ec2 start-instances --instance-ids ' + ID.inst['web-02'], 'aws ec2 wait instance-running --instance-ids ' + ID.inst['web-02']]);
+  correr(P, st, ['aws ec2 start-instances --instance-ids ' + ID.inst['web-02'], 'aws ec2 wait instance-running --instance-ids ' + ID.inst['web-02'], 'aws elbv2 wait target-in-service --target-group-arn ' + ID.tg]);
   chk(N.inst(st, ID.inst['web-02']).ipPub && N.inst(st, ID.inst['web-02']).ipPub !== ip0 && !P.alertasActivas(st).length, 'al arrancar, nueva IP pública y la alarma vuelve a OK');
   // EBS: el volumen y el sistema de ficheros son dos cosas; 6 horas entre cambios.
   st = P.crear();
@@ -91,14 +91,58 @@ console.log('\n  mecánica de la nube:');
   chk(/"Reservations": \[\]/.test(lineas(r6, 0)), 'en otra región no hay instancias');
   // La CLI sólo en tu equipo.
   st = P.crear();
-  const r7 = correr(P, st, ['ssh web-01', 'aws ec2 describe-instances']);
-  chk(/command not found/.test(lineas(r7, 1)), 'en una instancia no hay CLI de AWS');
+  const r7 = correr(P, st, ['ssh db-01', 'aws ec2 describe-instances']);
+  chk(/'aws' not found/.test(lineas(r7, 1)), 'en una instancia sin rol no hay CLI de AWS');
   // Sin --security-group-ids, AWS pone el default.
   st = P.crear();
   correr(P, st, ['aws ec2 run-instances --image-id ' + ID.ami.web + ' --instance-type t3.small --subnet-id ' + ID.subred['public-c'] + ' --key-name tienda-prod --tag-specifications "ResourceType=instance,Tags=[{Key=Name,Value=web-03}]"', 'sleep 120']);
   const w3 = st.aws.instancias.find(i => i.nombre === 'web-03');
   chk(w3 && w3.sgs[0] === ID.sg.default && w3.estado === 'running' && !N.webSana(st, w3), 'una instancia lanzada sin security group lleva el default y no se ve desde fuera');
   if (!malos) bien('timeout frente a refused, usuario y clave, IPs privadas sólo por el bastión, IP nueva al arrancar, volumen frente a sistema de ficheros, 6 h entre cambios, regiones, CLI sólo en tu equipo, el security group default');
+}
+
+// ------------------------------------------------------------ IAM, S3 y balanceador
+{
+  let malos = 0;
+  const chk = (cond, m) => { if (!cond) { mal(m); malos++; } };
+  // IAM: el rol de la API puede con sus facturas y con nada más; tu usuario, con todo.
+  let st = P.crear();
+  const r1 = correr(P, st, ['ssh app-01', 'aws ec2 describe-instances', 'aws s3 cp /etc/hostname s3://tienda-facturas/x.txt', 'aws s3 cp /etc/hostname s3://tienda-config/x.txt', 'exit', 'ssh db-01', 'aws s3 ls']);
+  chk(/UnauthorizedOperation/.test(lineas(r1, 1)), 'el rol de la API no debería poder describir instancias');
+  chk(/^upload:/.test(lineas(r1, 2)) && /AccessDenied/.test(lineas(r1, 3)), 'el rol de la API escribe en tienda-facturas y en ningún otro bucket');
+  chk(/'aws' not found/.test(lineas(r1, 6)), 'una instancia sin rol no tiene CLI');
+  chk(P.nube.evaluar(st, { usuario: 'sre-ops' }, 'iam:DeleteUser', 'arn:aws:iam::123456789012:user/x').dec === 'allowed', 'sre-ops es administrador');
+  chk(P.nube.evaluar(st, { usuario: 'lucia.pardo' }, 'ec2:TerminateInstances', '*').dec === 'implicitDeny', 'ReadOnlyAccess no deja terminar instancias');
+  const r2 = correr(P, st, ['aws iam create-access-key --user-name lucia.pardo', 'aws iam create-access-key --user-name lucia.pardo']);
+  chk(/LimitExceeded/.test(lineas(r2, 1)), 'un usuario no puede tener más de dos claves');
+  // S3: público, firmado, privado.
+  st = P.crear();
+  const url = 'https://tienda-catalogo-backups.s3.eu-west-1.amazonaws.com/catalogo-2026-09-20.sql.gz';
+  const r3 = correr(P, st, ['curl -sI ' + url, 'aws s3 presign s3://tienda-catalogo-backups/catalogo-2026-09-20.sql.gz --expires-in 120']);
+  chk(/403/.test(lineas(r3, 0)), 'un bucket privado da 403 desde fuera');
+  const firmada = lineas(r3, 1).trim();
+  chk(/200 OK/.test(lineas(correr(P, st, ['curl -sI "' + firmada + '"']), 0)), 'una URL firmada da acceso aunque el bucket sea privado');
+  correr(P, st, ['sleep 240']);
+  chk(/403/.test(lineas(correr(P, st, ['curl -sI "' + firmada + '"']), 0)), 'una URL firmada caduca');
+  // Versionado: borrar deja un marcador; la versión anterior sigue ahí.
+  st = P.crear();
+  correr(P, st, ['aws s3 rm s3://tienda-config/precios.json']);
+  const b = P.nube.bucket(st, 'tienda-config');
+  chk(!P.nube.objetoActual(b, 'precios.json') && b.objetos['precios.json'].length === 3, 'en un bucket versionado, borrar deja un marcador y conserva las versiones');
+  // Balanceador: fail-open y health checks.
+  st = P.crear();
+  P.nube.tg(st).hc.path = '/healthz';
+  correr(P, st, ['sleep 60']);
+  const r4 = correr(P, st, ['curl -I http://' + ID.albDns + '/', 'aws elbv2 describe-target-health --target-group-arn ' + ID.tg]);
+  chk(/200 OK/.test(lineas(r4, 0)) && /ResponseCodeMismatch/.test(lineas(r4, 1)), 'con todos los destinos mal, el ALB sigue sirviendo (fail-open) y dice por qué están mal');
+  P.parar(st, st.hosts['web-01'], 'nginx'); P.parar(st, st.hosts['web-02'], 'nginx');
+  chk(/503/.test(lineas(correr(P, st, ['curl -I http://' + ID.albDns + '/']), 0)), 'sin nadie que sirva, el ALB da 503');
+  // Regiones: lo que está en otra región no existe para la CLI si no la nombras.
+  st = P.preparar(P.escenario('INC-7146'));
+  const malo = st.aws.instancias.find(i => i.malicia).id;
+  const r5 = correr(P, st, ['aws ec2 describe-instances --query "Reservations[].Instances[].InstanceId" --output text', 'aws ec2 terminate-instances --instance-ids ' + malo]);
+  chk(lineas(r5, 0).indexOf(malo) < 0 && /InvalidInstanceID.NotFound/.test(lineas(r5, 1)), 'una instancia de us-east-1 no aparece ni se puede terminar sin --region');
+  if (!malos) bien('IAM (rol frente a usuario, denegación implícita, dos claves como mucho), S3 (público, URL firmada que caduca, versionado), balanceador (fail-open, motivo del health check, 503) y regiones');
 }
 
 // ------------------------------------------------------------ --query y formatos

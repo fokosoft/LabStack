@@ -428,3 +428,4 @@ a.btn{text-decoration:none;color:var(--text)} a.btn.primario-in{color:#fff}
 .av-err:empty{display:none}
 .av-card.av-error{border-left-color:var(--bad);background:var(--bad-tint)}
 .aviso-legal{max-width:1200px;margin:8px auto 24px;padding:0 18px;font-size:11px;color:var(--faint);text-align:center}
+.host.ancho{grid-template-columns:10px 112px minmax(0,1fr)} .host.ancho b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}

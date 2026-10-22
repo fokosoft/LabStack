@@ -168,7 +168,7 @@ function salida(datos, o, op, resumen) {
 }
 
 // ------------------------------------------------------------------ argumentos
-const BANDERAS = ['dry-run', 'include-all-instances', 'latest', 'force', 'no-cli-pager', 'no-paginate', 'debug', 'no-verify-ssl', 'associate-public-ip-address', 'no-associate-public-ip-address'];
+const BANDERAS = ['dry-run', 'include-all-instances', 'latest', 'force', 'no-cli-pager', 'no-paginate', 'debug', 'no-verify-ssl', 'associate-public-ip-address', 'no-associate-public-ip-address', 'recursive', 'only-attached'];
 function leerArgs(args) {
   const pos = [], o = {};
   for (let k = 0; k < args.length; k++) {
@@ -176,7 +176,7 @@ function leerArgs(args) {
     if (!/^--/.test(x)) { pos.push(x); continue; }
     let n = x.slice(2), v = null;
     if (n.indexOf('=') >= 0) { v = [n.slice(n.indexOf('=') + 1)]; n = n.slice(0, n.indexOf('=')); }
-    if (!v) { v = []; while (k + 1 < args.length && !/^--/.test(args[k + 1])) v.push(args[++k]); }
+    if (!v) { v = []; if (BANDERAS.indexOf(n) < 0) while (k + 1 < args.length && !/^--/.test(args[k + 1])) v.push(args[++k]); }
     o[n] = v;
   }
   return { pos, o };
@@ -204,31 +204,34 @@ const deTags = tags => { const m = /Key=Name,Value=([^,}\]]+)/.exec(tags || '');
 const CODIGO = { pending: 0, running: 16, 'shutting-down': 32, terminated: 48, stopping: 64, stopped: 80 };
 const estadoJ = e => ({ Code: CODIGO[e], Name: e });
 function instJ(st, i) {
-  const s = N.subred(st, i.subred);
+  const s = N.subred(st, i.subred) || { az: i.az };
   const o = { AmiLaunchIndex: 0, ImageId: i.ami, InstanceId: i.id, InstanceType: i.tipo };
   if (i.clave) o.KeyName = i.clave;
   Object.assign(o, { LaunchTime: iso(i.iniciada), Monitoring: { State: 'disabled' }, Placement: { AvailabilityZone: s.az, GroupName: '', Tenancy: 'default' },
     PrivateDnsName: 'ip-' + i.ipPriv.replace(/\./g, '-') + '.eu-west-1.compute.internal', PrivateIpAddress: i.ipPriv, ProductCodes: [],
     PublicDnsName: i.ipPub ? 'ec2-' + i.ipPub.replace(/\./g, '-') + '.eu-west-1.compute.amazonaws.com' : '' });
   if (i.ipPub) o.PublicIpAddress = i.ipPub;
-  Object.assign(o, { State: estadoJ(i.estado), StateTransitionReason: i.motivo, SubnetId: i.subred, VpcId: ID.vpc, Architecture: 'x86_64',
+  Object.assign(o, { State: estadoJ(i.estado), StateTransitionReason: i.motivo, SubnetId: i.subred, VpcId: i.vpc || ID.vpc, Architecture: 'x86_64',
     BlockDeviceMappings: N.volsDe(st, i).map(v => ({ DeviceName: v.device, Ebs: { AttachTime: iso(v.creado), DeleteOnTermination: !!v.raiz, Status: 'attached', VolumeId: v.id } })),
     EbsOptimized: true, Hypervisor: 'xen', RootDeviceName: '/dev/sda1', RootDeviceType: 'ebs',
-    SecurityGroups: i.sgs.map(g => ({ GroupName: (N.sg(st, g) || {}).nombre, GroupId: g })), SourceDestCheck: true,
+    SecurityGroups: i.sgs.map(g => ({ GroupName: (N.sg(st, g) || { nombre: 'default' }).nombre, GroupId: g })), SourceDestCheck: true,
     Tags: etiquetas(i.nombre), VirtualizationType: 'hvm', PlatformDetails: 'Linux/UNIX' });
+  if (i.perfil) o.IamInstanceProfile = { Arn: 'arn:aws:iam::' + ID.cuenta + ':instance-profile/' + i.perfil, Id: 'AIPA' + U.hex('perfil' + i.perfil, 17).toUpperCase() };
   return o;
 }
 const resumenInst = d => [].concat(...d.Reservations.map(r => r.Instances)).map(i => ({ Name: (i.Tags.find(t => t.Key === 'Name') || {}).Value || '', InstanceId: i.InstanceId, Type: i.InstanceType, AZ: i.Placement.AvailabilityZone, State: i.State.Name, PrivateIp: i.PrivateIpAddress, PublicIp: i.PublicIpAddress || '-' }));
+const region = o => o._region || ID.region;
+const enRegion = (i, o) => (i.region || ID.region) === region(o);
 function instancias(st, o) {
   const ids = lista(o, 'instance-ids'), f = leerFiltros(o.filters);
   if (f && f.some(x => !x)) falla('InvalidParameterValue', 'The filter is invalid: use Name=...,Values=...');
-  ids.forEach(id => { if (!st.aws.instancias.some(i => i.id === id)) falla('InvalidInstanceID.NotFound', "The instance ID '" + id + "' does not exist"); });
-  return st.aws.instancias.filter(i => (!ids.length || ids.indexOf(i.id) >= 0) && pasaFiltros(f || [], {
-    'tag:Name': () => i.nombre, 'instance-state-name': () => i.estado, 'instance-id': () => i.id, 'subnet-id': () => i.subred, 'vpc-id': () => ID.vpc,
-    'private-ip-address': () => i.ipPriv, 'ip-address': () => i.ipPub, 'availability-zone': () => N.subred(st, i.subred).az, 'instance-type': () => i.tipo,
+  ids.forEach(id => { if (!st.aws.instancias.some(i => i.id === id && enRegion(i, o))) falla('InvalidInstanceID.NotFound', "The instance ID '" + id + "' does not exist"); });
+  return st.aws.instancias.filter(i => enRegion(i, o) && (!ids.length || ids.indexOf(i.id) >= 0) && pasaFiltros(f || [], {
+    'tag:Name': () => i.nombre, 'instance-state-name': () => i.estado, 'instance-id': () => i.id, 'subnet-id': () => i.subred, 'vpc-id': () => i.vpc || ID.vpc,
+    'private-ip-address': () => i.ipPriv, 'ip-address': () => i.ipPub, 'availability-zone': () => (N.subred(st, i.subred) || { az: i.az }).az, 'instance-type': () => i.tipo,
     'instance.group-id': () => i.sgs, 'key-name': () => i.clave, 'image-id': () => i.ami }));
 }
-const idsObligatorios = (st, o) => { requiere(o, 'instance-ids'); return lista(o, 'instance-ids').map(id => N.inst(st, id) && N.inst(st, id).id === id ? N.inst(st, id) : falla('InvalidInstanceID.NotFound', "The instance ID '" + id + "' does not exist")); };
+const idsObligatorios = (st, o) => { requiere(o, 'instance-ids'); return lista(o, 'instance-ids').map(id => { const i = st.aws.instancias.find(x => x.id === id && enRegion(x, o)); return i || falla('InvalidInstanceID.NotFound', "The instance ID '" + id + "' does not exist"); }); };
 function cambioEstado(clave, st, o, accion) {
   const is = idsObligatorios(st, o);
   return { [clave]: is.map(i => { const antes = i.estado; accion(i); return { CurrentState: estadoJ(i.estado), InstanceId: i.id, PreviousState: estadoJ(antes) }; }) };
@@ -245,9 +248,9 @@ function consola(st, i) {
     '', 'Ubuntu 22.04.4 LTS ' + (i.nombre || 'ip-' + i.ipPriv.replace(/\./g, '-')) + ' ttyS0', ''].filter(x => x !== '').join('\n');
 }
 function estadoInst(st, i) {
-  const listo = N.viva(st, i), arrancando = st.reloj - i.iniciada < 2;
+  const listo = N.viva(st, i) || (!i.host && i.estado === 'running'), arrancando = st.reloj - i.iniciada < 2;
   const s = !listo ? 'initializing' : arrancando ? 'initializing' : 'ok', d = s === 'ok' ? 'passed' : 'initializing';
-  return { AvailabilityZone: N.subred(st, i.subred).az, InstanceId: i.id, InstanceState: estadoJ(i.estado),
+  return { AvailabilityZone: (N.subred(st, i.subred) || { az: i.az }).az, InstanceId: i.id, InstanceState: estadoJ(i.estado),
     InstanceStatus: { Details: [{ Name: 'reachability', Status: d }], Status: s }, SystemStatus: { Details: [{ Name: 'reachability', Status: d }], Status: s } };
 }
 
@@ -340,14 +343,14 @@ function alarmaJ(st, a) {
 const REGIONES = ['us-east-1', 'us-east-2', 'us-west-1', 'us-west-2', 'eu-west-1', 'eu-west-2', 'eu-west-3', 'eu-central-1', 'eu-south-2', 'eu-north-1', 'ap-southeast-1', 'sa-east-1'];
 const OPS = {
   sts: {
-    'get-caller-identity': () => ({ datos: { UserId: 'AIDA' + U.hex('sre-ops', 17).toUpperCase(), Account: ID.cuenta, Arn: 'arn:aws:iam::' + ID.cuenta + ':user/sre-ops' } }),
+    'get-caller-identity': (st, o) => { const yo = o._yo; return { datos: yo.rol ? { UserId: 'AROA' + U.hex('rol' + yo.rol, 17).toUpperCase() + ':' + yo.sesion, Account: ID.cuenta, Arn: yo.arn } : { UserId: 'AIDA' + U.hex(yo.usuario, 17).toUpperCase(), Account: ID.cuenta, Arn: yo.arn } }; },
   },
   ec2: {
     'describe-instances': (st, o) => ({ datos: { Reservations: instancias(st, o).map(i => ({ Groups: [], Instances: [instJ(st, i)], OwnerId: ID.cuenta, ReservationId: 'r-0' + U.hex('res' + i.id, 16) })) }, resumen: resumenInst }),
     'describe-instance-status': (st, o) => ({ datos: { InstanceStatuses: instancias(st, o).filter(i => o['include-all-instances'] ? i.estado !== 'terminated' : i.estado === 'running').map(i => estadoInst(st, i)) } }),
     'start-instances': (st, o) => ({ datos: cambioEstado('StartingInstances', st, o, i => { if (i.estado === 'stopped') N.arrancar(st, i); else if (i.estado !== 'running' && i.estado !== 'pending') falla('IncorrectInstanceState', "The instance '" + i.id + "' is not in a state from which it can be started."); }) }),
     'stop-instances': (st, o) => ({ datos: cambioEstado('StoppingInstances', st, o, i => { if (i.estado === 'running' || i.estado === 'pending') N.parar(st, i); else if (i.estado === 'terminated') falla('IncorrectInstanceState', "The instance '" + i.id + "' is not in a state from which it can be stopped."); }) }),
-    'reboot-instances': (st, o) => { idsObligatorios(st, o).forEach(i => { if (i.estado !== 'running') falla('IncorrectState', "The instance '" + i.id + "' is not in the 'running' state."); P.reiniciar(st, st.hosts[i.host]); }); return { datos: undefined }; },
+    'reboot-instances': (st, o) => { idsObligatorios(st, o).forEach(i => { if (i.estado !== 'running') falla('IncorrectState', "The instance '" + i.id + "' is not in the 'running' state."); if (st.hosts[i.host]) P.reiniciar(st, st.hosts[i.host]); }); return { datos: undefined }; },
     'terminate-instances': (st, o) => ({ datos: cambioEstado('TerminatingInstances', st, o, i => { if (i.estado !== 'terminated' && i.estado !== 'shutting-down') N.terminar(st, i); }) }),
     'run-instances': (st, o) => {
       requiere(o, 'image-id');
@@ -365,7 +368,7 @@ const OPS = {
       const nuevas = []; for (let k = 0; k < n; k++) nuevas.push(N.lanzar(st, { ami, tipo, subred: sub, sgs: sgs.length ? sgs : [ID.sg.default], clave, nombre }));
       return { datos: { Groups: [], Instances: nuevas.map(i => instJ(st, i)), OwnerId: ID.cuenta, ReservationId: 'r-0' + U.hex('res' + nuevas[0].id, 16) } };
     },
-    'get-console-output': (st, o) => { requiere(o, 'instance-id'); const i = N.inst(st, uno(o, 'instance-id')); if (!i) falla('InvalidInstanceID.NotFound', "The instance ID '" + uno(o, 'instance-id') + "' does not exist"); return { datos: { InstanceId: i.id, Output: consola(st, i), Timestamp: iso(st.reloj) }, texto: d => d.Output ? d.Output.split('\n') : [] }; },
+    'get-console-output': (st, o) => { requiere(o, 'instance-id'); const i = st.aws.instancias.find(x => x.id === uno(o, 'instance-id') && enRegion(x, o)); if (!i) falla('InvalidInstanceID.NotFound', "The instance ID '" + uno(o, 'instance-id') + "' does not exist"); return { datos: { InstanceId: i.id, Output: consola(st, i), Timestamp: iso(st.reloj) }, texto: d => d.Output ? d.Output.split('\n') : [] }; },
     'wait': (st, o, pos) => {
       const que = pos[0], es = () => instancias(st, o).filter(i => i.estado !== 'terminated' || que === 'instance-terminated');
       const cond = { 'instance-running': () => es().length && es().every(i => i.estado === 'running'), 'instance-stopped': () => es().length && es().every(i => i.estado === 'stopped'),
@@ -459,22 +462,28 @@ const OPS = {
 };
 // Lo que no está pero existe en la CLI real: se dice claramente.
 const AYUDA_SERVICIOS = ['ec2', 'cloudwatch', 'sts', 'configure'];
+const PREFIJO = { ec2: 'ec2', cloudwatch: 'cloudwatch', iam: 'iam', elbv2: 'elasticloadbalancing', s3api: 's3', sts: 'sts' };
 
 function errorAws(op, e) {
   if (e.codigo == null) return [L(''), L(e.msg, 'err')];
   return [L(''), L('An error occurred (' + e.codigo + ') when calling the ' + opNombre(op) + ' operation: ' + e.msg, 'err')];
 }
-U.cmd('aws', { donde: ['ops'], fuera: T('(la CLI de AWS está en tu equipo, no en las instancias: vuelve con exit)', '(the AWS CLI lives on your workstation, not on the instances: go back with exit)'),
+U.cmd('aws', {
   ayuda: T('la CLI de AWS: aws ec2 ..., aws cloudwatch ..., aws sts get-caller-identity', 'the AWS CLI: aws ec2 ..., aws cloudwatch ..., aws sts get-caller-identity'), grupo: 'AWS',
   completar: () => AYUDA_SERVICIOS.concat(Object.keys(OPS.ec2), Object.keys(OPS.cloudwatch), ['get-caller-identity', '--output', 'table', 'text', 'json', '--query', '--filters', '--instance-ids', '--group-id', '--region']),
   fn: ctx => {
     const st = ctx.st, a = ctx.args;
+    // Tu equipo trae la CLI con tus claves; las instancias con rol, con las del rol;
+    // las demás ni la tienen instalada.
+    const yo = N.identidad(st, ctx.ses);
+    if (!yo) return { lineas: [L("Command 'aws' not found, but can be installed with:", 'err'), L(''), L('sudo snap install aws-cli --classic', 'err'), L(T('(esta instancia no tiene rol de IAM, así que tampoco tiene la CLI: los comandos de AWS se lanzan desde tu equipo)', '(this instance has no IAM role, so it has no CLI either: AWS commands are run from your workstation)'), 'dim')], minutos: 0 };
     if (!a.length) return [L('usage: aws [options] <command> <subcommand> [<subcommand> ...] [parameters]', 'err'), L('To see help text, you can run:', 'err'), L(''), L('  aws help'), L('  aws <command> help'), L('  aws <command> <subcommand> help'), L(''), L('aws: error: the following arguments are required: command', 'err')];
     if (a[0] === '--version') return [L('aws-cli/2.17.40 Python/3.11.9 Linux/6.8.0-45-generic exe/x86_64.ubuntu.24')];
     const { pos, o } = leerArgs(a);
     const g = { output: uno(o, 'output'), query: o.query ? o.query.join(' ') : null, region: uno(o, 'region') };
     ['output', 'query', 'region', 'profile', 'no-cli-pager', 'no-paginate', 'debug', 'no-verify-ssl'].forEach(k => delete o[k]);
     const svc = pos[0], op = pos[1];
+    o._region = g.region || ID.region; o._yo = yo;
     if (svc === 'help' || (!op && OPS[svc]) || op === 'help') {
       const s = OPS[svc];
       return [L(T('Servicios y operaciones que entiende esta CLI simulada:', 'Services and operations this simulated CLI understands:'), 'dim'), L('')]
@@ -487,15 +496,19 @@ U.cmd('aws', { donde: ['ops'], fuera: T('(la CLI de AWS está en tu equipo, no e
     if (g.output && ['json', 'text', 'table', 'yaml'].indexOf(g.output) < 0) return [L(''), L("aws: error: argument --output: Invalid choice, valid choices are: json | text | table | yaml | yaml-stream", 'err')];
     if (g.output === 'yaml') g.output = 'json';
     if (g.region && REGIONES.indexOf(g.region) < 0) return [L(''), L('Could not connect to the endpoint URL: "https://' + svc + '.' + g.region + '.amazonaws.com/"', 'err')];
-    // Otra región: la cuenta está entera en eu-west-1. Allí no hay nada.
+    // Otra región: la red de la tienda está entera en eu-west-1. Las instancias sí
+    // se buscan donde estén (alguien pudo lanzarlas en otra región).
     if (g.region && g.region !== ID.region && svc === 'ec2' && /^describe-/.test(op)) {
-      const vacio = { 'describe-instances': { Reservations: [] }, 'describe-security-groups': { SecurityGroups: [] }, 'describe-volumes': { Volumes: [] }, 'describe-route-tables': { RouteTables: [] }, 'describe-subnets': { Subnets: [] }, 'describe-vpcs': { Vpcs: [] } }[op];
+      const vacio = { 'describe-security-groups': { SecurityGroups: [] }, 'describe-volumes': { Volumes: [] }, 'describe-route-tables': { RouteTables: [] }, 'describe-subnets': { Subnets: [] }, 'describe-vpcs': { Vpcs: [] } }[op];
       if (vacio) return salida(vacio, g, op);
     }
     if (o['dry-run']) return [L(''), L('An error occurred (DryRunOperation) when calling the ' + opNombre(op) + ' operation: Request would have succeeded, but DryRun flag is set.', 'err')];
     try {
-      const r = fn(st, o, pos.slice(2));
-      if (r.lineas) return { lineas: r.lineas };
+      // Permisos: lo que la operación necesita, contra las políticas de quien la lanza.
+      const permiso = fn.permiso ? fn.permiso(o, pos.slice(2), st) : (svc === 'sts' || op === 'wait' || svc === 'configure') ? null : { accion: (PREFIJO[svc] || svc) + ':' + opNombre(op), recurso: '*' };
+      [].concat(permiso || []).forEach(p => N.autorizar(st, yo, p.accion, p.recurso, opNombre(op), svc));
+      const r = fn(st, o, pos.slice(2), ctx);
+      if (r.lineas) return { lineas: r.lineas, fallo: r.fallo };
       if (r.texto && g.output === 'text' && !g.query) return { lineas: r.texto(r.datos).map(x => L(x)) };
       return { lineas: salida(r.datos, g, op, r.resumen), minutos: r.minutos };
     } catch (e) {
@@ -504,4 +517,10 @@ U.cmd('aws', { donde: ['ops'], fuera: T('(la CLI de AWS está en tu equipo, no e
     }
   } });
 
+// servicios.js (IAM, S3, ELB) se engancha aquí: añade sus operaciones a OPS y
+// usa las mismas utilidades.
+N.cli = { OPS, AYUDA: AYUDA_SERVICIOS, PREFIJO, ErrorAws, falla, requiere, uno, lista, leerFiltros, pasaFiltros, etiquetas, deTags, iso, opNombre, instJ, instancias, salida };
+// Sin servicios.js: tu equipo puede con todo y las instancias no tienen CLI.
+N.identidad = N.identidad || ((st, ses) => ses.host === P.entrada ? { usuario: 'sre-ops', arn: 'arn:aws:iam::' + ID.cuenta + ':user/sre-ops' } : null);
+N.autorizar = N.autorizar || (() => true);
 })(window.PUESTO = window.PUESTO || {});

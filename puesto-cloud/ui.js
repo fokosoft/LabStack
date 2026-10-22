@@ -40,6 +40,22 @@ function panelEbs({ st, h }) {
   const mods = [].concat(...st.aws.volumenes.map(v => v.mods.filter(m => m.estado !== 'completed').map(m => v.id.slice(0, 12) + '… → ' + m.objetivo + ' GiB · ' + m.estado)));
   return `<section class="panel"><h3>EBS <span class="der-n">${T('uso del sistema de ficheros', 'filesystem usage')}</span></h3>${grupos}${mods.length ? '<div class="flags">' + mods.map(x => '<span class="flag">' + h(x) + '</span>').join('') + '</div>' : ''}</section>`;
 }
+function panelAlb({ st, h }) {
+  const tg = N.tg(st), sanos = N.sanos(st).length;
+  const filas = tg.targets.map(t => {
+    const i = st.aws.instancias.find(x => x.id === t.id), s = N.salud(st, tg, t);
+    const e = s.estado === 'healthy' ? 'ok' : s.estado === 'initial' ? 'aviso' : s.estado === 'unused' ? 'reserva' : 'fallo';
+    return `<div class="host e-${e}" title="${h(s.desc || '')}"><i class="punto"></i><b>${h(i ? i.nombre || i.id.slice(0, 10) : t.id)}</b><span>${h(s.estado)}${s.razon ? ' · ' + h(s.razon.replace(/^(Target|Elb)\./, '')) : ''}</span></div>`;
+  }).join('');
+  return `<section class="panel"><h3>${T('Balanceador', 'Load balancer')} <span class="der-n">${sanos}/${tg.targets.length} healthy</span></h3><p class="grupo-t">tienda-web-tg · GET ${h(tg.hc.path)}</p>${filas}</section>`;
+}
+function panelS3({ st, h }) {
+  return `<section class="panel"><h3>S3</h3>${st.aws.s3.buckets.map(b => {
+    const pub = N.s3Publico(b);
+    const nota = (pub ? T('PÚBLICO', 'PUBLIC') : T('privado', 'private')) + (b.versionado === 'Enabled' ? ' · ' + T('versionado', 'versioned') : '') + ' · ' + Object.keys(b.objetos).filter(k => N.objetoActual(b, k)).length + T(' objetos', ' objects');
+    return `<div class="host ancho e-${pub ? 'fallo' : 'ok'}"><i class="punto"></i><b>${h(b.nombre.replace(/^tienda-/, ''))}</b><span>${h(nota)}</span></div>`;
+  }).join('')}</section>`;
+}
 function panelRutas({ st, h }) {
   return `<section class="panel"><h3>${T('Rutas a internet', 'Routes to the internet')}</h3>${st.aws.rts.map(t => {
     const r = t.rutas.find(x => x.dest === '0.0.0.0/0'), ok = r && N.rutaActiva(st, r);
@@ -54,10 +70,10 @@ P.ui = {
     tag: T('📌 Puesto', '📌 Job opening'),
     titulo: T('Ingeniero/a de Sistemas Cloud (AWS)', 'Cloud Systems Engineer (AWS)'),
     sub: T('Comercio electrónico · remoto · contrato indefinido', 'E-commerce · remote · permanent, full-time'),
-    txt: T('Administración de la infraestructura de una tienda online en AWS: instancias EC2 y almacenamiento EBS, redes y seguridad en la VPC, monitorización con CloudWatch y resolución de incidencias. Cada función del puesto tiene sus tickets:', 'Run an online store\'s infrastructure on AWS: EC2 instances and EBS storage, VPC networking and security, CloudWatch monitoring and incident resolution. Each duty of the role has its own tickets:'),
+    txt: T('Administración de la infraestructura de una tienda online en AWS: instancias EC2, almacenamiento EBS y balanceo, redes y seguridad en la VPC, identidades y permisos con IAM, S3, y monitorización con CloudWatch y resolución de incidencias. Cada función del puesto tiene sus tickets:', 'Run an online store\'s infrastructure on AWS: EC2 instances, EBS storage and load balancing, VPC networking and security, identities and permissions with IAM, S3, and CloudWatch monitoring and incident resolution. Each duty of the role has its own tickets:'),
   },
   como: [
-    T('<b>Una cuenta de AWS simulada</b>: una VPC con subredes públicas y privadas, 5 instancias, security groups, volúmenes EBS, un NAT gateway y alarmas de CloudWatch.', '<b>A simulated AWS account</b>: a VPC with public and private subnets, 5 instances, security groups, EBS volumes, a NAT gateway and CloudWatch alarms.'),
+    T('<b>Una cuenta de AWS simulada</b>: una VPC con subredes públicas y privadas, 5 instancias detrás de un balanceador, security groups, volúmenes EBS, un NAT gateway, usuarios y roles de IAM, buckets de S3 y alarmas de CloudWatch.', '<b>A simulated AWS account</b>: a VPC with public and private subnets, 5 instances behind a load balancer, security groups, EBS volumes, a NAT gateway, IAM users and roles, S3 buckets and CloudWatch alarms.'),
     T('<b>Arreglas con comandos reales</b>: aws ec2…, aws cloudwatch…, ssh, systemctl, df, curl… La red se comporta como la de AWS: un security group no rechaza, descarta.', '<b>You fix things with real commands</b>: aws ec2…, aws cloudwatch…, ssh, systemctl, df, curl… The network behaves like AWS: a security group does not reject, it drops.'),
     T('<b>Se comprueba el estado</b>, no el camino. Luego se valora cómo llegaste: las buenas prácticas del oficio.', '<b>The end state is checked</b>, not the path. Then how you got there is scored: the good practices of the trade.'),
   ],
@@ -67,13 +83,16 @@ P.ui = {
     : [T('Estás en tu equipo (ops), con la CLI de AWS ya configurada para la cuenta de producción.', 'You are on your workstation (ops), with the AWS CLI already configured for the production account.'), T('Para orientarte: cat ~/LEEME.md · aws ec2 describe-instances --output table · aws cloudwatch describe-alarms --state-value ALARM', 'To get your bearings: cat ~/LEEME.md · aws ec2 describe-instances --output table · aws cloudwatch describe-alarms --state-value ALARM')],
   sesionNueva: T('Nueva sesión en tu equipo', 'New session on your workstation'),
   alertas: T('Alarmas (CloudWatch)', 'Alarms (CloudWatch)'),
-  paneles: ctx => panelInstancias(ctx) + panelEbs(ctx) + panelRutas(ctx),
+  paneles: ctx => panelInstancias(ctx) + panelAlb(ctx) + panelEbs(ctx) + panelS3(ctx) + panelRutas(ctx),
   experimentos: [
     ['aws ec2 describe-instances --output table', T('Mira la cuenta: qué instancias hay, en qué zona y con qué IP.', 'Look at the account: which instances there are, in which zone and with which IP.')],
     ['aws ec2 describe-security-groups --group-ids ' + ID.sg.web, T('Lee las reglas de un security group: quién puede hablar con los frontales.', 'Read a security group\'s rules: who may talk to the web servers.')],
     ['aws ec2 stop-instances --instance-ids ' + ID.inst['web-01'], T('Para un frontal y mira qué alarma salta, y qué IP pública tiene al volver a arrancarlo.', 'Stop a web server and see which alarm fires, and what public IP it gets when you start it again.')],
     ['ssh -i ~/.ssh/tienda-prod.pem ubuntu@10.0.11.30', T('Intenta entrar directamente en una IP privada. Después prueba con -J bastion.', 'Try to log straight into a private IP. Then try with -J bastion.')],
     ['aws ec2 describe-route-tables --query "RouteTables[].[Tags[0].Value,Routes[?DestinationCidrBlock==\'0.0.0.0/0\']|[0].[NatGatewayId,GatewayId,State]]" --output text', T('Por dónde sale cada subred a internet.', 'How each subnet reaches the internet.')],
+    ['ssh app-01', T('Entra en app-01 y prueba aws sts get-caller-identity: la instancia habla con AWS con su rol, sin claves.', 'Log into app-01 and try aws sts get-caller-identity: the instance talks to AWS with its role, no keys.')],
+    ['aws elbv2 describe-target-health --target-group-arn ' + ID.tg, T('Cómo ve el balanceador a cada frontal. Para nginx en uno y vuelve a mirar.', 'How the load balancer sees each web server. Stop nginx on one and look again.')],
+    ['aws s3 ls', T('Los buckets de la cuenta. Prueba a leer uno desde fuera con curl: https://BUCKET.s3.eu-west-1.amazonaws.com/FICHERO', 'The account\'s buckets. Try reading one from outside with curl: https://BUCKET.s3.eu-west-1.amazonaws.com/FILE')],
     ['cat ~/LEEME.md', T('Las normas de la casa.', 'The house rules.')],
   ],
 };

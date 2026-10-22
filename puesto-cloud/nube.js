@@ -42,11 +42,16 @@ const INSTANCIAS = [
 INSTANCIAS.forEach(i => { ID.inst[i[0]] = idDe('i', i[0]); ID.vol[i[0]] = idDe('vol', i[0] + '-raiz'); });
 ID.vol['db-01-datos'] = idDe('vol', 'db-01-datos');
 const TAM_RAIZ = { bastion: 8, 'web-01': 20, 'web-02': 20, 'app-01': 20, 'db-01': 20 };
+// El perfil de instancia (rol de IAM) de cada una: con él tiene credenciales y CLI.
+const PERFIL = { 'web-01': 'tienda-web-role', 'web-02': 'tienda-web-role', 'app-01': 'tienda-api-role' };
+N.PERFIL = PERFIL;
 N.OFICINA = '203.0.113.10';
 N.CLAVE = 'tienda-prod';
 N.TIPOS = { 't3.micro': { cpu: 2, ram: 1 }, 't3.small': { cpu: 2, ram: 2 }, 't3.medium': { cpu: 2, ram: 4 }, 't3.large': { cpu: 2, ram: 8 }, 'm6i.large': { cpu: 2, ram: 8 }, 'm6i.xlarge': { cpu: 4, ram: 16 } };
 // Las IP públicas que va dando AWS al arrancar: siempre las mismas, en orden.
 const POOL_IP = ['34.245.112.83', '52.49.201.37', '54.170.66.145', '34.242.9.211', '52.214.180.28', '63.33.75.190', '34.251.140.6', '54.155.23.97'];
+// El id que tendrá la n-ésima instancia lanzada en la partida (los guiones lo nombran).
+N.idLanzada = n => idDe('i', 'lanzada-' + n);
 N.siguienteIpPublica = st => POOL_IP[st.aws.ipsDadas % POOL_IP.length];
 
 // ------------------------------------------------------------------ estado
@@ -73,7 +78,7 @@ P.alCrear.push(st => {
   ];
   a.instancias = INSTANCIAS.map(([n, tipo, sub, sg, ipPub, ami]) => ({
     id: ID.inst[n], nombre: n, tipo, subred: ID.subred[sub], sgs: [ID.sg[sg]], ipPriv: st.hosts[n].ip, ipPub, ami: ID.ami[ami],
-    clave: N.CLAVE, estado: 'running', lanzada: -43200, iniciada: -43200, motivo: '', host: n, listoEn: null,
+    clave: N.CLAVE, estado: 'running', lanzada: -43200, iniciada: -43200, motivo: '', host: n, listoEn: null, perfil: PERFIL[n] || null,
   }));
   a.volumenes = INSTANCIAS.map(([n]) => ({ id: ID.vol[n], inst: ID.inst[n], tam: TAM_RAIZ[n], visible: TAM_RAIZ[n], part: TAM_RAIZ[n] - 0.11, raiz: true, device: '/dev/sda1', nvme: 'nvme0n1', montaje: '/', creado: -43200, mods: [] }));
   a.volumenes.push({ id: ID.vol['db-01-datos'], inst: ID.inst['db-01'], tam: 100, visible: 100, raiz: false, device: '/dev/sdf', nvme: 'nvme1n1', montaje: '/var/lib/postgresql', creado: -43200, mods: [] });
@@ -138,6 +143,10 @@ N.escucha = (st, i, puerto) => {
   return !!(svc && h.svcs[svc] && h.svcs[svc].estado === 'active');
 };
 N.webSana = (st, i) => N.desdeInternet(st, i, 80, '198.51.100.200') && N.escucha(st, i, 80);
+// Lo que sirve nginx en los frontales: la portada y la comprobación de salud. Lo demás, 404.
+N.rutaWeb = ruta => ['', '/', '/index.html', '/health'].indexOf((ruta || '').split('?')[0]) >= 0;
+// Otros servicios contestan en curl: buckets de S3, el balanceador (servicios.js).
+N.webExterna = [];
 N.webs = st => st.aws.instancias.filter(i => /^web-/.test(i.nombre) && i.estado !== 'terminated');
 N.sshAbierto = st => st.aws.sgs.filter(g => g.reglas.some(r => r.cidr === '0.0.0.0/0' && (r.proto === '-1' || (r.desde <= 22 && r.hasta >= 22))));
 
@@ -180,7 +189,7 @@ N.lanzar = (st, o) => {
   st.hosts[host] = h;
   a.lanzadas++;
   const i = { id: idDe('i', 'lanzada-' + a.lanzadas), nombre: o.nombre || '', tipo: o.tipo, subred: s.id, sgs: o.sgs.slice(), ipPriv: ip, ipPub: null, ami: ami.id,
-    clave: o.clave || null, estado: 'pending', lanzada: st.reloj, iniciada: st.reloj + 1, motivo: '', host, listoEn: st.reloj + 1 };
+    clave: o.clave || null, estado: 'pending', lanzada: st.reloj, iniciada: st.reloj + 1, motivo: '', host, listoEn: st.reloj + 1, perfil: o.perfil || null };
   if (s.publica) { i.ipPub = N.siguienteIpPublica(st); a.ipsDadas++; }
   a.instancias.push(i);
   a.volumenes.push({ id: idDe('vol', 'lanzada-' + a.lanzadas), inst: i.id, tam: 8, visible: 8, part: 7.89, raiz: true, device: '/dev/sda1', nvme: 'nvme0n1', montaje: '/', creado: st.reloj, mods: [] });
@@ -238,6 +247,7 @@ DEFS.push({ nombre: 'tienda-api-payment-errors', ns: 'Tienda/API', metrica: 'Pay
 DEFS.push({ nombre: 'sg-ssh-open-to-world', ns: 'Tienda/Security', metrica: 'OpenSshToWorld', dim: [['ConfigRule', 'restricted-ssh']], umbral: 1, op: 'GreaterThanOrEqualToThreshold', host: null,
   desc: T('Algún security group abre el puerto 22 a 0.0.0.0/0', 'A security group opens port 22 to 0.0.0.0/0'),
   eval: st => { const g = N.sshAbierto(st); return { estado: g.length ? 'ALARM' : 'OK', valor: g.length, sev: 'warning', res: T('el puerto 22 está abierto a todo internet en ' + g.map(x => x.nombre).join(', '), 'port 22 is open to the whole internet on ' + g.map(x => x.nombre).join(', ')) }; } });
+N.DEFS = DEFS;
 N.alarmas = st => DEFS.map(d => Object.assign({ nombre: d.nombre, def: d, sev: 'warning', host: d.host }, d.eval(st)));
 
 // Las alertas del motor en esta app son las alarmas de CloudWatch, y sólo ellas.
@@ -416,15 +426,19 @@ U.cmd('curl', { ayuda: T('peticiones HTTP: curl -I http://IP, curl -s https://ch
   const aqui = N.instDeHost(st, ctx.ses.host), enOps = ctx.ses.host === P.entrada;
   const ipSalida = enOps ? st.aws.miIp : N.ipSalida(st, aqui);
   const corta = () => ({ lineas: [L('curl: (28) Failed to connect to ' + dom + ' port ' + puerto + ' after 130041 ms: Connection timed out', 'err')], minutos: 2 });
+  const no404 = () => cab ? [L('HTTP/1.1 404 Not Found'), L('Server: nginx/1.18.0 (Ubuntu)'), L('Date: ' + U.larga(st.reloj)), L('Content-Type: text/html')] : [L('<html>'), L('<head><title>404 Not Found</title></head>'), L('<body><center><h1>404 Not Found</h1></center><hr><center>nginx/1.18.0 (Ubuntu)</center></body>'), L('</html>')];
   const ok = (cuerpo, servidor) => cab ? [L('HTTP/1.1 200 OK'), L('Server: ' + servidor), L('Date: ' + U.larga(st.reloj)), L('Content-Type: ' + (/^[{\[]/.test(cuerpo[0]) ? 'application/json' : 'text/html')), L('Connection: keep-alive')] : cuerpo.map(x => L(x));
   // localhost
   if (dom === 'localhost' || dom === '127.0.0.1') {
     const h = ctx.h, svc = { 80: 'nginx', 443: 'nginx', 8080: 'tienda-api' }[puerto];
     if (!svc || !h.svcs[svc] || h.svcs[svc].estado !== 'active') return [L('curl: (7) Failed to connect to ' + dom + ' port ' + puerto + ' after 0 ms: Connection refused', 'err')];
-    return svc === 'nginx' ? ok(['<!doctype html>', '<html lang="es"><head><title>Tienda</title></head>', '<body>…</body></html>'], 'nginx/1.18.0 (Ubuntu)') : ok(['{"status":"ok","db":"up"}'], 'tienda-api');
+    if (svc === 'nginx' && !N.rutaWeb(m[4])) return no404();
+    return svc === 'nginx' ? (m[4] === '/health' ? ok(['ok'], 'nginx/1.18.0 (Ubuntu)') : ok(['<!doctype html>', '<html lang="es"><head><title>Tienda</title></head>', '<body>…</body></html>'], 'nginx/1.18.0 (Ubuntu)')) : ok(['{"status":"ok","db":"up"}'], 'tienda-api');
   }
   // tu IP pública vista desde fuera
   if (/^(checkip\.amazonaws\.com|ifconfig\.me|api\.ipify\.org)$/.test(dom)) return ipSalida ? cab ? ok(['x'], 'nginx') : [L(ipSalida)] : corta();
+  // buckets de S3, el balanceador...
+  for (const f of N.webExterna) { const r = f(st, { dom, puerto, ruta: m[4] || '/', cab, ipSalida, enOps, aqui, ok, corta, no404 }); if (r) return r; }
   // una IP de la VPC (privada o pública)
   if (/^\d+\.\d+\.\d+\.\d+$/.test(dom)) {
     const i = N.instPorIp(st, dom);
@@ -434,6 +448,8 @@ U.cmd('curl', { ayuda: T('peticiones HTTP: curl -I http://IP, curl -s https://ch
     else llegaA = !!ipSalida && N.desdeInternet(st, i, puerto, ipSalida);
     if (!llegaA) return corta();
     if (!N.escucha(st, i, puerto)) return [L('curl: (7) Failed to connect to ' + dom + ' port ' + puerto + ' after 2 ms: Connection refused', 'err')];
+    if (puerto !== 8080 && !N.rutaWeb(m[4])) return no404();
+    if (puerto !== 8080 && m[4] === '/health') return ok(['ok'], 'nginx/1.18.0 (Ubuntu)');
     return puerto === 8080 ? ok(['{"status":"ok","db":"up"}'], 'tienda-api') : ok(['<!doctype html>', '<html lang="es"><head><title>Tienda</title></head>', '<body>…</body></html>'], 'nginx/1.18.0 (Ubuntu)');
   }
   // cualquier otro sitio de internet: hace falta salida

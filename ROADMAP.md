@@ -179,7 +179,8 @@ Marcado con ⭐ lo que más recomiendo.
 ### Puesto Cloud (`puesto-cloud/`)
 
 - ✅ **Fase 1**: cuenta de AWS simulada (VPC, subredes, rutas, NAT, security groups, EC2, EBS, snapshots, alarmas de CloudWatch) sobre el motor y la interfaz del Puesto Linux, CLI `aws` con JSON / text / table, `--filters` y `--query` (JMESPath), y 5 tickets en dos idiomas, con su batería de pruebas.
-- Siguiente: **fase 2** IAM (usuarios, roles, políticas, `AccessDenied`), S3 (buckets, versionado, el bucket público por error), balanceador y Auto Scaling · **fase 3** RDS, coste y Terraform contra la nube simulada, guardias y caos · **fase 4** catálogo de averías y compositor, como en el Puesto Linux.
+- ✅ **Fase 2**: IAM (usuarios, grupos, roles, perfiles de instancia, políticas con versiones y un evaluador de permisos real), S3 (políticas, bloqueo de acceso público, versionado, URL firmadas), balanceador de aplicación con health checks y fail-open, y regiones. 5 tickets nuevos (10 en total) con su solucionario; glosario de 45 términos.
+- Siguiente: **fase 3** Auto Scaling, RDS, coste (la factura que se dispara), Terraform contra la nube simulada, guardias y caos · **fase 4** catálogo de averías y compositor, como en el Puesto Linux.
 - ✅ **Solucionario** (adelantado de la fase 4): los 5 tickets paso a paso con la salida real y un glosario de 26 términos de AWS, sobre el mismo motor de página que el del Puesto Linux.
 - ✅ **Solucionario** con la salida real de cada paso (generada por el simulador) y glosario de 59 términos.
 - ✅ `puesto-test.js`: cada guion de referencia resuelve su ticket y cumple sus prácticas; cada arreglo a medias lo deja abierto; determinismo y mecánica.
