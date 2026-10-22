@@ -16,8 +16,7 @@ const usado = (st, re) => idx(st, re) >= 0;
 const antes = (st, a, b) => { const i = idx(st, a), j = idx(st, b); return i >= 0 && (j < 0 || i < j); };
 const despues = (st, a, b) => { const j = ultimo(st, b); return j >= 0 && idx(st, a, j + 1) >= 0; };
 // Lo que dejaron las pruebas de carga (INC-7162).
-const CARGA = { inst: 'i-0' + U.hex('carga-01', 16), vol: 'vol-0' + U.hex('carga-datos', 16), eip: 'eipalloc-0' + U.hex('carga-eip', 16) };
-const idMalo = k => 'i-0' + U.hex('malo:' + k, 16);   // las instancias que lanza el atacante (INC-7146)
+const CARGA = N.CARGA, idMalo = N.idMalo;   // ids fijos del catálogo (averias.js): las pruebas de carga y el atacante
 const esc = s => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 P.ayudasEscenario = { usado, antes, despues, idx, ultimo };
 
@@ -48,11 +47,7 @@ P.escenarios = [
   cuerpo: [T('Desde esta mañana, ssh bastion se queda colgado un buen rato y acaba en «Connection timed out». Ayer funcionaba perfectamente.', 'Since this morning, ssh bastion hangs for a long while and ends in "Connection timed out". It worked perfectly yesterday.'),
     T('Esta mañana han cambiado el router de la oficina; no sé si tiene algo que ver.', 'The office router was replaced this morning; not sure whether that has anything to do with it.')],
   inicio: -45, abierto: -20,
-  aplicar(st) { st.aws.miIp = NUEVA_IP; },
-  objetivo(st) {
-    const b = N.inst(st, I.bastion);
-    return N.permite(st, b, 22, { ip: st.aws.miIp }) ? [] : [T('Desde la oficina (' + st.aws.miIp + ') sigue sin llegarse al puerto 22 del bastión', 'The bastion\'s port 22 is still unreachable from the office (' + st.aws.miIp + ')')];
-  },
+  averias: [{ tipo: 'ip-oficina', nueva: NUEVA_IP, hace: 45 }],
   practicas: [
     { t: T('Averiguaste tu IP pública antes de tocar el security group', 'You found out your public IP before touching the security group'), ok: st => antes(st, /curl .*(checkip|ifconfig\.me|ipify)/, /authorize-security-group-ingress/) },
     { t: T('Abriste sólo la IP de la oficina, con /32', 'You opened only the office IP, as a /32'), ok: st => N.sg(st, SG.bastion).reglas.some(r => r.cidr === NUEVA_IP + '/32') },
@@ -83,18 +78,7 @@ P.escenarios = [
   cuerpo: [T('La alarma tienda-web-healthy-hosts lleva desde anoche en ALARM. La web funciona, pero con un solo frontal: si web-01 cae, la tienda se queda sin web.', 'The tienda-web-healthy-hosts alarm has been in ALARM since last night. The site works, but on a single web server: if web-01 goes down, the store has no website.'),
     T('Ayer por la tarde se hicieron pruebas de carga en web-02.', 'Load tests were run on web-02 yesterday afternoon.')],
   inicio: -1110, abierto: -15,
-  aplicar(st) {
-    const i = N.inst(st, I['web-02']), h = st.hosts[i.host];
-    P.parado(st, h, 'nginx', -1125, true);
-    N.parar(st, i, -1110);
-  },
-  objetivo(st) {
-    const i = N.inst(st, I['web-02']), h = st.hosts[i.host], out = [];
-    if (i.estado !== 'running') out.push(T('web-02 está ' + i.estado, 'web-02 is ' + i.estado));
-    else if (h && h.svcs.nginx.estado !== 'active') out.push(T('nginx no está corriendo en web-02', 'nginx is not running on web-02'));
-    if (h && !h.svcs.nginx.enabled) out.push(T('nginx de web-02 no está habilitado: volverá a caer en el próximo reinicio', 'nginx on web-02 is not enabled: it will go down again on the next reboot'));
-    return out;
-  },
+  averias: [{ tipo: 'servicio-caido', instancia: 'web-02', servicio: 'nginx', deshabilitado: true, hace: 1125 }, { tipo: 'instancia-parada', instancia: 'web-02', hace: 1110 }],
   practicas: [
     { t: T('Miraste el estado y el motivo de la parada antes de arrancarla', 'You checked the state and the stop reason before starting it'), ok: st => antes(st, /describe-instances/, /start-instances/) },
     { t: T('Esperaste a que estuviera running antes de entrar', 'You waited for it to be running before logging in'), ok: st => usado(st, /aws ec2 wait instance-(running|status-ok)|describe-instance-status/) },
@@ -127,16 +111,7 @@ P.escenarios = [
   cuerpo: [T('Salta la alarma db-01-disk-data-high: el volumen de datos de PostgreSQL está al 93 % y crece unos 2 GB al día con los pedidos.', 'The db-01-disk-data-high alarm has fired: the PostgreSQL data volume is at 93% and grows about 2 GB a day with orders.'),
     T('Si se llena, PostgreSQL se para y la tienda deja de vender. Hay que darle espacio hoy; los datos no se pueden borrar.', 'If it fills up, PostgreSQL stops and the store stops selling. It needs more room today; the data cannot be deleted.')],
   inicio: -180, abierto: -30,
-  aplicar(st) { st.hosts['db-01'].discos['/var/lib/postgresql'].baseG = 91.3; },
-  objetivo(st) {
-    const h = st.hosts['db-01'], v = N.vol(st, ID.vol['db-01-datos']);
-    if (!h) return [T('db-01 no existe', 'db-01 does not exist')];
-    const p = U.pctDisco(h, '/var/lib/postgresql');
-    if (p < 80) return [];
-    return [v.visible > 100 && h.discos['/var/lib/postgresql'].tamG < v.visible * 0.9
-      ? T('El volumen ya mide ' + v.visible + ' GiB, pero el sistema de ficheros sigue con el tamaño antiguo: /var/lib/postgresql al ' + p + ' % (df -h)', 'The volume is already ' + v.visible + ' GiB, but the filesystem still has the old size: /var/lib/postgresql at ' + p + '% (df -h)')
-      : T('/var/lib/postgresql sigue al ' + p + ' %', '/var/lib/postgresql is still at ' + p + '%')];
-  },
+  averias: [{ tipo: 'disco-lleno', usadoG: 91.3, hace: 180 }],
   practicas: [
     { t: T('Hiciste un snapshot del volumen antes de modificarlo', 'You took a snapshot of the volume before modifying it'), ok: st => antes(st, /create-snapshot/, /modify-volume/) },
     { t: T('Ampliaste con cabeza: entre 150 y 400 GiB', 'You resized sensibly: between 150 and 400 GiB'), ok: st => { const v = N.vol(st, ID.vol['db-01-datos']); return v.tam >= 150 && v.tam <= 400; } },
@@ -168,17 +143,7 @@ P.escenarios = [
   cuerpo: [T('Desde hace una hora los clientes llenan el carrito pero el pago falla con «Error al contactar con la pasarela». La alarma tienda-api-payment-errors está en ALARM.', 'For the last hour customers can fill their carts but payment fails with "Error contacting the payment gateway". The tienda-api-payment-errors alarm is in ALARM.'),
     T('Anoche Redes sustituyó el NAT gateway por uno nuevo (el viejo estaba en una sola zona). Dicen que lo dejaron todo listo.', 'Last night the network team replaced the NAT gateway with a new one (the old one sat in a single zone). They say everything was left ready.')],
   inicio: -60, abierto: -10,
-  aplicar(st) {
-    st.aws.nats.unshift({ id: ID.natViejo, nombre: 'tienda-nat-old', subred: ID.subred['public-b'], estado: 'deleted', ipPub: '34.250.18.95', ipPriv: '10.0.2.140', creado: -400000, borrado: -60 });
-    st.aws.nats.find(n => n.id === ID.nat).creado = -95;
-    N.rt(st, ID.rtPriv).rutas.find(r => r.dest === '0.0.0.0/0').nat = ID.natViejo;
-  },
-  objetivo(st) {
-    const out = [], r = N.rutaDefecto(st, ID.subred['private-a']);
-    if (r && r.gw === ID.igw) out.push(T('La tabla de rutas privada sale por el internet gateway: la API y la base de datos no deben tener ruta directa a internet', 'The private route table goes out through the internet gateway: the API and the database must not have a direct route to the internet'));
-    if (!N.ipSalida(st, N.inst(st, I['app-01']))) out.push(T('app-01 sigue sin salida a internet', 'app-01 still has no internet egress'));
-    return out;
-  },
+  averias: [{ tipo: 'ruta-rota', modo: 'nat-borrado', hace: 60 }],
   practicas: [
     { t: T('Comprobaste la salida desde app-01 antes de tocar nada', 'You checked egress from app-01 before touching anything'), ok: st => antes(st, /curl .*pasarela/, /(replace|create|delete)-route/) },
     { t: T('Leíste la tabla de rutas: la ruta en blackhole era el problema', 'You read the route table: the blackhole route was the problem'), ok: st => antes(st, /describe-route-tables/, /(replace|create)-route/) },
@@ -261,18 +226,7 @@ P.escenarios = [
   cuerpo: [T('Desde ayer por la tarde no se genera ni una factura en el bucket tienda-facturas. La alarma tienda-api-invoice-errors está en ALARM y el log de la API dice «AccessDenied».', 'Since yesterday afternoon not a single invoice has been written to the tienda-facturas bucket. The tienda-api-invoice-errors alarm is in ALARM and the API log says "AccessDenied".'),
     T('Ayer Seguridad estuvo «ajustando permisos» de las aplicaciones. No ha habido ningún despliegue.', 'Yesterday the security team was "tightening permissions" on the applications. There has been no deployment.')],
   inicio: -1050, abierto: -40,
-  aplicar(st) {
-    const p = st.aws.iam.politicas[ID.pol.api];
-    p.versiones.push({ id: 'v2', doc: N.POL_API_V2_MALA, creada: -1052 });
-    p.defecto = 'v2';
-  },
-  objetivo(st) {
-    const out = [], r = N.iam.rol(st, 'tienda-api-role');
-    if (N.evaluar(st, { rol: 'tienda-api-role' }, 's3:PutObject', 'arn:aws:s3:::tienda-facturas/facturas/2026/09/F-2026-092301.pdf').dec !== 'allowed') out.push(T('tienda-api-role sigue sin poder escribir facturas en tienda-facturas', 'tienda-api-role still cannot write invoices to tienda-facturas'));
-    const anchas = r.politicas.filter(a => /AdministratorAccess|AmazonS3FullAccess|PowerUserAccess/.test(a));
-    if (anchas.length) out.push(T('tienda-api-role tiene una política demasiado amplia (' + anchas.map(a => a.split('/').pop()).join(', ') + '): sólo necesita su bucket', 'tienda-api-role has an overly broad policy (' + anchas.map(a => a.split('/').pop()).join(', ') + '): it only needs its bucket'));
-    return out;
-  },
+  averias: [{ tipo: 'politica-api', hace: 1052 }],
   practicas: [
     { t: T('Reprodujiste el error desde app-01, con las credenciales del rol', 'You reproduced the error from app-01, with the role\'s credentials'), ok: st => antes(st, /s3 cp .*tienda-facturas/, /set-default-policy-version|attach-role-policy|detach-role-policy/) },
     { t: T('Comparaste la versión nueva de la política con la anterior', 'You compared the new policy version with the previous one'), ok: st => usado(st, /get-policy-version .*v1/) && usado(st, /get-policy-version .*v2/) },
@@ -304,17 +258,7 @@ P.escenarios = [
   cuerpo: [T('Security Hub marca como crítico que tienda-catalogo-backups se puede leer desde internet, y la alarma tienda-s3-public-bucket está en ALARM. En ese bucket están las copias del catálogo y de los clientes.', 'Security Hub flags as critical that tienda-catalogo-backups can be read from the internet, and the tienda-s3-public-bucket alarm is in ALARM. That bucket holds the catalogue and customer backups.'),
     T('Ayer Compras pidió compartir el último backup del catálogo con un proveedor. Cerradlo ya y avisad de si había algo sensible a la vista.', 'Yesterday Purchasing asked to share the latest catalogue backup with a supplier. Lock it down now and tell us whether anything sensitive was exposed.')],
   inicio: -1260, abierto: -10,
-  aplicar(st) {
-    const b = N.bucket(st, 'tienda-catalogo-backups');
-    b.bloqueo = { BlockPublicAcls: false, IgnorePublicAcls: false, BlockPublicPolicy: false, RestrictPublicBuckets: false };
-    b.politica = { Version: '2012-10-17', Statement: [{ Sid: 'CompartirProveedor', Effect: 'Allow', Principal: '*', Action: 's3:GetObject', Resource: 'arn:aws:s3:::tienda-catalogo-backups/*' }] };
-  },
-  objetivo(st) {
-    const b = N.bucket(st, 'tienda-catalogo-backups'), out = [];
-    if (N.s3Publico(b)) out.push(T('tienda-catalogo-backups sigue siendo público', 'tienda-catalogo-backups is still public'));
-    else if (!b.bloqueo || !b.bloqueo.BlockPublicPolicy || !b.bloqueo.RestrictPublicBuckets) out.push(T('tienda-catalogo-backups no está protegido: sin el bloqueo de acceso público, cualquiera puede volver a publicarlo con una política', 'tienda-catalogo-backups is not protected: without the public access block, anyone can make it public again with a policy'));
-    return out;
-  },
+  averias: [{ tipo: 'bucket-publico', bucket: 'tienda-catalogo-backups', hace: 1260 }],
   practicas: [
     { t: T('Miraste qué había dentro antes de cerrarlo: tienes que poder decir qué se expuso', 'You looked at what was inside before closing it: you must be able to say what was exposed'), ok: st => antes(st, /s3 ls .*tienda-catalogo-backups|list-object/, /put-public-access-block|delete-bucket-policy/) },
     { t: T('Leíste la política que lo abría', 'You read the policy that opened it'), ok: st => antes(st, /get-bucket-policy/, /put-public-access-block|delete-bucket-policy/) },
@@ -348,16 +292,7 @@ P.escenarios = [
   cuerpo: [T('Desde hace media hora la web muestra los productos a 0 € y «sin stock». La alarma tienda-prices-config está en ALARM.', 'For the last half hour the site has shown products at €0 and "out of stock". The tienda-prices-config alarm is in ALARM.'),
     T('La web lee los precios de s3://tienda-config/precios.json. El pipeline de precios ha subido una versión nueva esta mañana.', 'The site reads prices from s3://tienda-config/precios.json. The pricing pipeline uploaded a new version this morning.')],
   inicio: -25, abierto: -8,
-  aplicar(st) {
-    const b = N.bucket(st, 'tienda-config');
-    b.objetos['precios.json'].unshift(N.verS3('precios-413', N.PRECIOS_MALOS, -25));
-  },
-  objetivo(st) {
-    const v = N.objetoActual(N.bucket(st, 'tienda-config'), 'precios.json');
-    if (!v) return [T('precios.json no existe: la web no tiene precios', 'precios.json does not exist: the site has no prices')];
-    return v.contenido.some(l => /"productos": 0\b/.test(l)) ? [T('precios.json sigue trayendo 0 productos', 'precios.json still has 0 products')]
-      : v.contenido.some(l => /"version": 412/.test(l)) ? [] : [T('precios.json no es la última versión buena (la 412)', 'precios.json is not the last good version (412)')];
-  },
+  averias: [{ tipo: 'precios-vacios', hace: 25 }],
   practicas: [
     { t: T('Miraste el contenido de precios.json antes de tocar nada', 'You looked at the contents of precios.json before touching anything'), ok: st => antes(st, /s3 cp s3:\/\/tienda-config\/precios\.json -|get-object .*precios\.json/, /copy-object/) },
     { t: T('Listaste las versiones para encontrar la última buena', 'You listed the versions to find the last good one'), ok: st => antes(st, /list-object-versions/, /copy-object/) },
@@ -392,15 +327,7 @@ P.escenarios = [
   cuerpo: [T('Desde el despliegue de las 8:30 están en ALARM tienda-alb-unhealthy-hosts y tienda-web-healthy-hosts: el balanceador dice que no tiene ni un frontal sano.', 'Since the 8:30 deployment, tienda-alb-unhealthy-hosts and tienda-web-healthy-hosts have been in ALARM: the load balancer says it does not have a single healthy web server.'),
     T('Lo raro es que la web carga con normalidad. El despliegue fue del equipo de plataforma, que cambió «la configuración del target group».', 'The odd thing is that the site loads normally. The deployment was done by the platform team, who changed "the target group configuration".')],
   inicio: -42, abierto: -12,
-  aplicar(st) {
-    const tg = N.tg(st);
-    tg.hc.path = '/healthz'; tg.cambiado = -42;
-    tg.targets.forEach(t => { tg.salud[t.id] = { real: 'unhealthy', desde: -41, antes: 'healthy', razon: 'Target.ResponseCodeMismatch', desc: 'Health checks failed with these codes: [404]' }; });
-  },
-  objetivo(st) {
-    const tg = N.tg(st), malos = tg.targets.filter(t => { const i = st.aws.instancias.find(x => x.id === t.id); return i && i.estado === 'running' && N.salud(st, tg, t).estado !== 'healthy'; });
-    return malos.length ? [T(malos.length + ' destino' + (malos.length > 1 ? 's' : '') + ' de tienda-web-tg sin pasar el health check', malos.length + ' target' + (malos.length > 1 ? 's' : '') + ' in tienda-web-tg not passing the health check')] : [];
-  },
+  averias: [{ tipo: 'health-check', ruta: '/healthz', hace: 42 }],
   practicas: [
     { t: T('Leíste el motivo exacto con describe-target-health antes de cambiar nada', 'You read the exact reason with describe-target-health before changing anything'), ok: st => antes(st, /describe-target-health/, /modify-target-group/) },
     { t: T('Comprobaste desde dentro de un frontal qué contesta cada ruta', 'You checked from inside a web server what each path returns'), ok: st => antes(st, /curl .*localhost\/health/, /modify-target-group/) },
@@ -433,25 +360,7 @@ P.escenarios = [
   cuerpo: [T('El escaneo de secretos de GitHub ha encontrado la clave de acceso ' + ID.clave.ci + ' en un commit público del repositorio tienda-scripts, subido hace 40 minutos. Están en ALARM iam-access-key-exposed y guardduty-high-severity.', 'GitHub secret scanning has found the access key ' + ID.clave.ci + ' in a public commit of the tienda-scripts repository, pushed 40 minutes ago. iam-access-key-exposed and guardduty-high-severity are in ALARM.'),
     T('Hay que cortarla ya y averiguar qué han hecho con ella. Ojo: si es la del pipeline de despliegue, el pipeline necesita seguir funcionando.', 'It must be cut off now and we need to find out what was done with it. Careful: if it is the deployment pipeline\'s key, the pipeline needs to keep working.')],
   inicio: -40, abierto: -6,
-  aplicar(st) {
-    const a = st.aws, u = N.iam.usuario(st, 'ci-deploy');
-    a.iam.filtrada = { usuario: 'ci-deploy', clave: ID.clave.ci };
-    u.claves[0].uso = { min: -22, svc: 'ec2', region: 'us-east-1' };
-    for (let k = 1; k <= 3; k++) {
-      a.instancias.push({ id: idMalo(k), nombre: '', tipo: 'c5.4xlarge', region: 'us-east-1', az: 'us-east-1' + 'abc'[k - 1], subred: 'subnet-0' + U.hex('use1-sub' + k, 16), vpc: 'vpc-0' + U.hex('use1-vpc', 16),
-        sgs: ['sg-0' + U.hex('use1-sg', 16)], ipPriv: '172.31.' + (20 + k) + '.' + (40 + k * 7), ipPub: '3.' + (80 + k) + '.' + (11 * k) + '.' + (200 + k), ami: 'ami-0' + U.hex('xmrig', 16),
-        clave: null, estado: 'running', lanzada: -21, iniciada: -21, motivo: '', host: null, listoEn: null, perfil: null, malicia: true });
-    }
-  },
-  objetivo(st) {
-    const out = [], u = N.iam.usuario(st, 'ci-deploy');
-    const k = u.claves.find(x => x.id === ID.clave.ci);
-    if (k && k.estado === 'Active') out.push(T('La clave filtrada ' + ID.clave.ci + ' sigue activa', 'The leaked key ' + ID.clave.ci + ' is still active'));
-    if (!u.claves.some(x => x.id !== ID.clave.ci && x.estado === 'Active')) out.push(T('ci-deploy no tiene ninguna clave activa nueva: el pipeline de despliegue se ha quedado sin credenciales', 'ci-deploy has no new active key: the deployment pipeline has been left without credentials'));
-    const malas = st.aws.instancias.filter(i => i.malicia && i.estado !== 'terminated' && i.estado !== 'shutting-down');
-    if (malas.length) out.push(T('Siguen vivas ' + malas.length + ' instancias que no son vuestras', malas.length + ' instances that are not yours are still alive'));
-    return out;
-  },
+  averias: [{ tipo: 'clave-filtrada', intrusas: 3, hace: 40 }],
   practicas: [
     { t: T('Desactivaste la clave filtrada antes de nada más', 'You deactivated the leaked key before anything else'), ok: st => { const i = idx(st, /update-access-key .*Inactive|delete-access-key/); return i >= 0 && [/terminate-instances/, /create-access-key/].every(re => { const j = idx(st, re); return j < 0 || i < j; }); } },
     { t: T('Miraste dónde y cuándo se usó la clave por última vez', 'You checked where and when the key was last used'), ok: st => usado(st, /get-access-key-last-used/) },
@@ -485,16 +394,7 @@ P.escenarios = [
   cuerpo: [T('Saltan tienda-api-order-errors y tienda-pedidos-free-storage: la base de pedidos de RDS está en storage-full y rechaza las escrituras. Los clientes pagan pero el pedido no se guarda.', 'tienda-api-order-errors and tienda-pedidos-free-storage are firing: the RDS orders database is in storage-full and rejects writes. Customers pay but the order is not saved.'),
     T('Es la temporada de rebajas: el volumen de pedidos se ha multiplicado esta semana.', 'It is sales season: the order volume has multiplied this week.')],
   inicio: -8, abierto: -5,
-  aplicar(st) {
-    const x = N.rds(st, 'tienda-pedidos'); x.usadoG = 100; x.estado = 'storage-full';
-    st.aws.rds.eventos.push({ min: -40, id: x.id, msg: 'The free storage capacity for DB Instance: tienda-pedidos is low at 3% of the provisioned storage [Provisioned Storage: 100.00 GB, Free Storage: 3.00 GB]. You may want to increase the provisioned storage to address this issue.' },
-      { min: -8, id: x.id, msg: 'DB instance has a storage-full status' });
-  },
-  objetivo(st) {
-    const x = N.rds(st, 'tienda-pedidos');
-    if (x.estado === 'storage-full') return [T('tienda-pedidos sigue en storage-full', 'tienda-pedidos is still in storage-full') + (x.pendientes.almacen ? T(' (el cambio a ' + x.pendientes.almacen + ' GiB espera a la ventana de mantenimiento)', ' (the change to ' + x.pendientes.almacen + ' GiB is waiting for the maintenance window)') : '')];
-    return N.rdsLibreG(x) < x.almacen * 0.2 ? [T('A tienda-pedidos le queda menos del 20 % libre: volverá a llenarse esta semana', 'tienda-pedidos has less than 20% free: it will fill up again this week')] : [];
-  },
+  averias: [{ tipo: 'rds-lleno', hace: 8 }],
   practicas: [
     { t: T('Leíste los eventos de la base antes de tocar nada', 'You read the database events before touching anything'), ok: st => antes(st, /rds describe-events/, /modify-db-instance/) },
     { t: T('Hiciste un snapshot manual antes de modificarla', 'You took a manual snapshot before modifying it'), ok: st => antes(st, /create-db-snapshot/, /modify-db-instance/) },
@@ -529,7 +429,7 @@ P.escenarios = [
   cuerpo: [T('A las 08:41 un comercial borró por error el pedido P-2026-48213 (842,10 €) desde el backoffice. Necesitamos sus datos para volver a darlo de alta: el cliente ya ha pagado.', 'At 08:41 a sales rep deleted order P-2026-48213 (€842.10) by mistake from the back office. We need its data to recreate it: the customer has already paid.'),
     T('Importante: la base de producción no se puede parar ni restaurar encima, que está vendiendo. Dejadnos una copia de la que podamos leer el pedido desde la API.', 'Important: the production database cannot be stopped or restored over, it is selling. Leave us a copy we can read the order from, from the API.')],
   inicio: -31, abierto: -14,
-  aplicar(st) { st.aws.rds.borradoMin = -31; N.rds(st, 'tienda-pedidos').pedidos -= 1; },
+  averias: [{ tipo: 'pedido-borrado', hace: 31 }],
   objetivo(st) {
     const copias = st.aws.rds.instancias.filter(x => x.origen && x.origen.fuente === 'tienda-pedidos' && x.estado !== 'deleted' && x.estado !== 'deleting');
     if (!copias.length) return [T('No hay ninguna copia restaurada de tienda-pedidos', 'There is no restored copy of tienda-pedidos')];
@@ -572,21 +472,7 @@ P.escenarios = [
   cuerpo: [T('Desde hace casi una hora no se procesa ni una etiqueta de envío y la cola no para de crecer. La alarma tienda-workers-inservice está en ALARM: el grupo de Auto Scaling tiene 0 workers.', 'For almost an hour not a single shipping label has been processed and the queue keeps growing. The tienda-workers-inservice alarm is in ALARM: the Auto Scaling group has 0 workers.'),
     T('Anoche AWS retiró las dos instancias por mantenimiento del hardware. Se supone que el grupo las repone solo…', 'Last night AWS retired both instances for hardware maintenance. The group is supposed to replace them by itself…')],
   inicio: -55, abierto: -20,
-  aplicar(st) {
-    st.aws.amis = st.aws.amis.filter(a => a.id !== ID.ami.worker1);
-    st.aws.instancias.filter(i => i.asg).forEach(i => { i.estado = 'terminated'; i.fin = -55; i.motivo = 'Service initiated (2026-09-23 08:17:00 GMT)'; });
-    const causa = 'At 2026-09-23T08:17:00Z an instance was taken out of service in response to an EC2 scheduled retirement event.';
-    st.aws.instancias.filter(i => i.asg).forEach(i => { st.aws.asg.actN++; st.aws.asg.actividades.unshift({ id: U.uuid('ret' + i.id), desc: 'Terminating EC2 instance: ' + i.id, causa, ok: true, min: -55 }); });
-    for (let m = -54; m < 0; m += 8) { st.aws.asg.actN++; st.aws.asg.actividades.unshift({ id: U.uuid('fallo' + m), desc: 'Launching a new EC2 instance.  Status Reason: The image id \'[' + ID.ami.worker1 + ']\' does not exist. Launching EC2 instance failed.', causa: 'At ' + U.iso(m) + 'Z an instance was started in response to a difference between desired and actual capacity, increasing the capacity from 0 to 2.', ok: false, msg: 'The image id \'[' + ID.ami.worker1 + ']\' does not exist. Launching EC2 instance failed.', min: m }); }
-    N.asg(st).reintento = 2;
-  },
-  objetivo(st) {
-    const out = [], n = st.aws.instancias.filter(i => i.asg && i.estado === 'running').length;
-    const d = N.datosLtAsg(st, N.asg(st));
-    if (!d || !N.ami(st, d.ImageId)) out.push(T('La plantilla que usa el grupo sigue apuntando a una AMI que no existe', 'The template the group uses still points at an AMI that does not exist'));
-    if (n < 2) out.push(T('tienda-workers tiene ' + n + ' workers en servicio y hacen falta 2', 'tienda-workers has ' + n + ' workers in service and 2 are needed'));
-    return out;
-  },
+  averias: [{ tipo: 'ami-borrada', hace: 55 }],
   practicas: [
     { t: T('Leíste el historial de actividad del grupo antes de tocar', 'You read the group\'s activity history before touching anything'), ok: st => antes(st, /describe-scaling-activities/, /create-launch-template-version|modify-launch-template|update-auto-scaling-group|set-desired-capacity/) },
     { t: T('Comprobaste que la AMI nueva existe antes de usarla', 'You checked that the new AMI exists before using it'), ok: st => antes(st, /describe-images/, /create-launch-template-version/) },
@@ -622,20 +508,7 @@ P.escenarios = [
   cuerpo: [T('Cost Anomaly Detection avisa de un gasto diario muy por encima de lo normal desde hace tres semanas, y la previsión del mes casi dobla el presupuesto de 900 $.', 'Cost Anomaly Detection reports daily spending well above normal for the last three weeks, and the month\'s forecast almost doubles the $900 budget.'),
     T('QA nos dice que las pruebas de carga de principios de mes terminaron hace dos semanas y que ya no necesitan nada de aquello. Lo que esté gastado, gastado está: que no siga.', 'QA tells us the load tests from early in the month finished two weeks ago and they no longer need any of it. What has been spent is spent: just make it stop.')],
   inicio: -30300, abierto: -60,
-  aplicar(st) {
-    const a = st.aws, tg = [{ Key: 'Entorno', Value: 'pruebas' }, { Key: 'Propietario', Value: 'qa' }];
-    a.instancias.push({ id: CARGA.inst, nombre: 'carga-01', tipo: 'm6i.4xlarge', subred: ID.subred['public-b'], sgs: [ID.sg.web], ipPriv: '10.0.2.88', ipPub: '34.247.18.120', ami: ID.ami.base,
-      clave: N.CLAVE, estado: 'running', lanzada: -30300, iniciada: -30300, motivo: '', host: null, listoEn: null, perfil: null, tags: tg });
-    a.volumenes.push({ id: CARGA.vol, inst: null, tam: 1000, visible: 1000, tipo: 'io2', iops: 10000, raiz: false, device: null, nvme: null, montaje: null, creado: -30300, mods: [], tags: [{ Key: 'Name', Value: 'carga-datos' }].concat(tg) });
-    a.eips.push({ id: CARGA.eip, ip: '52.48.210.17', inst: null, creado: -30300, tags: [{ Key: 'Name', Value: 'carga-eip' }].concat(tg) });
-  },
-  objetivo(st) {
-    const out = [], i = st.aws.instancias.find(x => x.id === CARGA.inst);
-    if (i && i.estado !== 'terminated' && i.estado !== 'shutting-down') out.push(T('carga-01 (m6i.4xlarge) sigue existiendo: ' + i.estado, 'carga-01 (m6i.4xlarge) still exists: ' + i.estado));
-    if (N.vol(st, CARGA.vol)) out.push(T('El volumen io2 de 1000 GiB carga-datos sigue existiendo', 'The 1000 GiB io2 volume carga-datos still exists'));
-    if (st.aws.eips.some(e => e.id === CARGA.eip && e.liberada == null)) out.push(T('La IP elástica de las pruebas sigue reservada', 'The tests\' Elastic IP is still allocated'));
-    return out;
-  },
+  averias: [{ tipo: 'recursos-olvidados', instancia: true, volumen: true, eip: true, hace: 30300 }],
   practicas: [
     { t: T('Buscaste dónde está el gasto con Cost Explorer antes de borrar nada', 'You found where the spending is with Cost Explorer before deleting anything'), ok: st => antes(st, /ce get-cost-and-usage/, /terminate-instances|delete-volume|release-address/) },
     { t: T('Agrupaste el gasto por etiqueta para separar pruebas de producción', 'You grouped spending by tag to separate tests from production'), ok: st => usado(st, /group-by Type=TAG/) },
@@ -672,12 +545,7 @@ P.escenarios = [
   cuerpo: [T('La revisión diaria de cumplimiento marca deriva en el security group tienda-web: tiene reglas que no están en el código de ~/infra. Además, la alarma sg-ssh-open-to-world está en ALARM.', 'The daily compliance review flags drift on the tienda-web security group: it has rules that are not in the ~/infra code. And the sg-ssh-open-to-world alarm is in ALARM.'),
     T('Ese security group lo gestiona Terraform. Dejadlo como dice el código.', 'That security group is managed by Terraform. Make it match the code.')],
   inicio: -200, abierto: -15,
-  aplicar(st) {
-    const g = N.sg(st, ID.sg.web);
-    g.reglas.push({ proto: 'tcp', desde: 22, hasta: 22, cidr: '0.0.0.0/0', desc: T('depuracion desde casa (temporal)', 'debugging from home (temporary)'), id: 'sgr-0' + U.hex('deriva22', 16) },
-      { proto: 'tcp', desde: 8080, hasta: 8080, cidr: '0.0.0.0/0', desc: T('API directa (pruebas)', 'direct API (tests)'), id: 'sgr-0' + U.hex('deriva8080', 16) });
-  },
-  objetivo(st) { const d = N.derivaTf(st); return d.sobran.length || d.faltan.length ? [T('tienda-web no coincide con el código: ' + d.sobran.map(r => r.desde + '/' + (r.cidr || r.sg)).join(', ') + ' de más' + (d.faltan.length ? ', ' + d.faltan.length + ' de menos' : ''), 'tienda-web does not match the code: ' + d.sobran.map(r => r.desde + '/' + (r.cidr || r.sg)).join(', ') + ' extra' + (d.faltan.length ? ', ' + d.faltan.length + ' missing' : ''))] : []; },
+  averias: [{ tipo: 'deriva-terraform', puertos: [22, 8080], hace: 200 }],
   practicas: [
     { t: T('Leíste las reglas y su descripción antes de tocar', 'You read the rules and their descriptions before touching anything'), ok: st => antes(st, /describe-security-groups/, /terraform apply|revoke-security-group-ingress/) },
     { t: T('Revisaste el plan antes de aplicarlo', 'You reviewed the plan before applying it'), ok: st => antes(st, /terraform plan/, /terraform apply/) },
@@ -702,8 +570,13 @@ P.escenarios = [
 ];
 
 // ------------------------------------------------------------------ uso
+// Un ticket declara sus averías (del catálogo, averias.js) y, si es una petición
+// o un cambio, un objetivo. Está resuelto cuando no queda nada de las dos cosas
+// ni ninguna alarma de CloudWatch en ALARM.
 P.normalizarEscenario = e => {
-  e.resuelto = st => (e.objetivo ? e.objetivo(st, P) : []).concat(alarmas(st));
+  e.averias = e.averias || [];
+  if (!e.aplicar) e.aplicar = st => P.aplicarAverias(st, e.averias);
+  e.resuelto = st => P.pendientesAverias(st, e.averias).concat(e.objetivo ? e.objetivo(st, P) : [], alarmas(st));
   return e;
 };
 P.escenarios.forEach(P.normalizarEscenario);

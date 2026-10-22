@@ -74,6 +74,22 @@ P.familias = [
     arreglo: () => ['aws ec2 create-launch-template-version --launch-template-name tienda-worker --source-version 1 --launch-template-data \'{"ImageId":"' + ID.ami.worker2 + '"}\'', 'aws ec2 modify-launch-template --launch-template-name tienda-worker --default-version 2', 'sleep 180'] },
 ];
 const famPorId = id => P.familias.find(f => f.id === id);
+// La misma familia dicha con el catálogo (averias.js): es lo que añade el compositor
+// con «+ Añadir familia» y lo que lleva una guardia cuando se abre como fichero.
+const COMO = {
+  'web-parada': p => [{ tipo: 'instancia-parada', instancia: p.web }],
+  'nginx-caido': p => [{ tipo: 'servicio-caido', instancia: p.web, servicio: 'nginx' }],
+  'ssh-mundo': p => [{ tipo: 'sg-abierto', sg: p.sg, puerto: 22 }],
+  'ruta-igw': () => [{ tipo: 'ruta-rota', modo: 'igw' }],
+  'bucket-publico': p => [{ tipo: 'bucket-publico', bucket: p.b }],
+  'health-check': p => [{ tipo: 'health-check', ruta: p.ruta }],
+  'disco-db': p => [{ tipo: 'disco-lleno', usadoG: p.g }],
+  'precios': () => [{ tipo: 'precios-vacios' }],
+  'politica-api': () => [{ tipo: 'politica-api' }],
+  'rds-lleno': () => [{ tipo: 'rds-lleno' }],
+  'workers-ami': () => [{ tipo: 'ami-borrada' }],
+};
+P.familias.forEach(f => { f.averias = p => COMO[f.id](p); f.crear = rnd => f.averias(f.params(rnd)); });
 
 // ------------------------------------------------------------------ guardia
 const choca = (a, b) => a.some(x => b.indexOf(x) >= 0);
@@ -115,6 +131,11 @@ function guardiaDe(nivel, semilla, intento) {
     guion: st => ['aws cloudwatch describe-alarms --state-value ALARM'].concat(...elegidas.map(x => x.f.arreglo(st, x.p)), ['aws cloudwatch describe-alarms --state-value ALARM']),
     trampas: [],
     guardia: { nivel, semilla, familias: elegidas.map(x => x.f.id) },
+    // La misma noche como incidencia en fichero (el compositor parte de aquí).
+    def: { formato: P.FORMATO_INCIDENCIA || 'puesto-incidencia/1', tipo: 'incidente', nivel, impacto: nivel === 1 ? 'medio' : 'alto', urgencia: 'alta', hace, abiertoHace: Math.min(10, hace),
+      asunto: T('Guardia ' + P.nivelesGuardia[nivel].toLowerCase() + ' · semilla ' + semilla, P.nivelesGuardia[nivel] + ' on-call shift · seed ' + semilla), de: T('Busca de guardia', 'On-call pager'),
+      cuerpo: [T('Te ha saltado la guardia. No hay ticket: sólo lo que dicen las alarmas.', 'You have been paged. There is no ticket: only what the alarms say.')],
+      averias: [].concat(...elegidas.map(x => x.f.averias(x.p))).map(a => Object.assign(a, { hace })) },
   };
   return P.normalizarEscenario(e);
 }
@@ -125,7 +146,7 @@ P.generarGuardia = (nivel, semilla) => {
     if (!e.resuelto(st, P).length) continue;
     const ses = P.nuevaSesion();
     P.guionDe(e, st).forEach(c => { P.ejecutar(st, ses, c); P.expulsar(st, ses); });
-    if (!e.resuelto(st, P).length) return { ok: true, escenario: e, intentos: k + 1 };
+    if (!e.resuelto(st, P).length) return { ok: true, escenario: e, def: e.def, intentos: k + 1 };
   }
   return { ok: false };
 };

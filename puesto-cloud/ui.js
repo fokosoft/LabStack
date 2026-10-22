@@ -74,6 +74,7 @@ function panelRutas({ st, h }) {
 
 P.ui = {
   clave: 'puesto-cloud-v1',
+  claveImp: P.compositorCfg.claveImp,
   oferta: {
     tag: T('📌 Puesto', '📌 Job opening'),
     titulo: T('Ingeniero/a de Sistemas Cloud (AWS)', 'Cloud Systems Engineer (AWS)'),
@@ -85,7 +86,7 @@ P.ui = {
     T('<b>Arreglas con comandos reales</b>: aws ec2…, aws cloudwatch…, ssh, systemctl, df, curl… La red se comporta como la de AWS: un security group no rechaza, descarta.', '<b>You fix things with real commands</b>: aws ec2…, aws cloudwatch…, ssh, systemctl, df, curl… The network behaves like AWS: a security group does not reject, it drops.'),
     T('<b>Se comprueba el estado</b>, no el camino. Luego se valora cómo llegaste: las buenas prácticas del oficio.', '<b>The end state is checked</b>, not the path. Then how you got there is scored: the good practices of the trade.'),
   ],
-  guardia: true, importar: false, caos: true,
+  guardia: true, importar: true, caos: true,
   bienvenida: modo => modo === 'libre'
     ? [T('Laboratorio libre: la cuenta está sana y no hay ticket.', 'Free lab: the account is healthy and there is no ticket.'), T('Estás en tu equipo, con la CLI de AWS configurada. Empieza por cat ~/LEEME.md', 'You are on your workstation, with the AWS CLI configured. Start with cat ~/LEEME.md')]
     : [T('Estás en tu equipo (ops), con la CLI de AWS ya configurada para la cuenta de producción.', 'You are on your workstation (ops), with the AWS CLI already configured for the production account.'), T('Para orientarte: cat ~/LEEME.md · aws ec2 describe-instances --output table · aws cloudwatch describe-alarms --state-value ALARM', 'To get your bearings: cat ~/LEEME.md · aws ec2 describe-instances --output table · aws cloudwatch describe-alarms --state-value ALARM')],

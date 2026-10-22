@@ -10,7 +10,7 @@ const fs = require('fs'), path = require('path');
 const D = __dirname, LINUX = path.join(D, '..', 'puesto-linux');
 function cargar(idioma) {
   const win = { PUESTO: { idioma } };
-  [path.join(D, 'topologia.js'), path.join(LINUX, 'motor.js'), path.join(D, 'nube.js'), path.join(D, 'aws.js'), path.join(D, 'servicios.js'), path.join(D, 'rds.js'), path.join(D, 'asg.js'), path.join(D, 'coste.js'), path.join(D, 'terraform.js'), path.join(D, 'escenarios.js'), path.join(D, 'guardia.js'), path.join(D, 'soluciones.js')]
+  [path.join(D, 'topologia.js'), path.join(LINUX, 'motor.js'), path.join(D, 'nube.js'), path.join(D, 'aws.js'), path.join(D, 'servicios.js'), path.join(D, 'rds.js'), path.join(D, 'asg.js'), path.join(D, 'coste.js'), path.join(D, 'terraform.js'), path.join(D, 'averias.js'), path.join(D, 'escenarios.js'), path.join(LINUX, 'incidencias.js'), path.join(D, 'guardia.js'), path.join(D, 'soluciones.js')]
     .forEach(f => new Function('window', fs.readFileSync(f, 'utf8'))(win));
   return win.PUESTO;
 }
@@ -307,6 +307,162 @@ function probarSolucionario(P, etiqueta) {
   [E.solucionarioCfg.buscar, E.solucionarioCfg.silencio].forEach(x => { if (ES.test(x)) raros.push('cfg: ' + x); });
   raros.forEach(x => mal('[en] el solucionario parece español: ' + x));
   if (!(probarSolucionario(P, '') + probarSolucionario(E, '[en] ') + raros.length)) bien(P.escenarios.length + ' tickets con sus pasos alineados con el guion, cada uno con fase y explicación, en los dos idiomas; ' + P.glosario.length + ' términos de glosario');
+}
+
+// ------------------------------------------------------------ catálogo de averías (fase 4)
+// Las tres promesas del catálogo del Puesto Linux, en la nube: cada avería, sola,
+// rompe algo y su arreglo deja la cuenta sana; los tickets hechos sólo de averías
+// se cierran encadenando sus arreglos; y una combinación inventada también.
+console.log('\n  catálogo de averías:');
+const ALARMAS = 'aws cloudwatch describe-alarms --state-value ALARM';
+const ES_TXT = /[áéíóúñ¿¡«»]|(^|[^a-zA-Z\-_./])(el|los|las|que|para|con|sin|una|del|está|hay|pero|sigue|antes|después|nada|cada|desde|tiene)(?=$|[^a-zA-Z\-_./])/i;
+for (const [Q, et] of [[P, ''], [cargar('en'), '[en] ']]) {
+  const tipos = Object.keys(Q.averias), rompen = tipos.filter(t => !Q.averias[t].condicion);
+  let malos = 0;
+  tipos.forEach(t => {
+    const a = Object.assign({ tipo: t }, Q.averias[t].ejemplo), v = Q.validarAverias([a]);
+    if (v.length) { mal(et + t + ': su ejemplo no valida: ' + v.join(' | ')); malos++; return; }
+    const st = Q.crear(); Q.aplicarAverias(st, [a]); Q.refrescarAlertas(st);
+    if (et && [Q.averias[t].titulo, Q.averias[t].descripcion].some(x => ES_TXT.test(x))) { mal(et + t + ': el título o la descripción parecen español'); malos++; }
+    if (Q.averias[t].condicion) return;
+    const antes = Q.pendientesAverias(st, [a]);
+    if (!antes.length) { mal(et + t + ': aplicada sola no rompe nada'); malos++; return; }
+    if (et && antes.some(x => ES_TXT.test(x))) { mal(et + t + ': lo pendiente parece español: ' + antes.join(' | ')); malos++; }
+    const r = correr(Q, st, Q.arregloAverias(st, [a]));
+    const raros = r.salida.filter(x => x.lineas.some(l => /: command not found|^An error occurred/.test(l.t)));
+    if (raros.length) { mal(et + t + ': su arreglo falla en ' + raros.map(x => x.cmd).join(', ')); malos++; }
+    Q.refrescarAlertas(st);
+    const quedan = Q.pendientesAverias(st, [a]).concat(Q.alertasActivas(st).map(x => x.nombre));
+    if (quedan.length) { mal(et + t + ': su arreglo no la arregla: ' + quedan.join(' | ')); malos++; }
+  });
+  if (!malos) bien(et + tipos.length + ' tipos de avería (' + rompen.length + ' que rompen, ' + (tipos.length - rompen.length) + ' condición): cada una, sola, rompe algo y su arreglo deja la cuenta sana y sin alarmas');
+}
+{
+  // Cada parámetro tiene su campo en el compositor, y cada campo es un parámetro.
+  const sinCampo = [];
+  Object.keys(P.averias).forEach(t => {
+    const c = P.camposAveria[t], ks = (c || []).map(x => x.k), ps = Object.keys(P.averias[t].params);
+    if (!c) { sinCampo.push(t + ' (sin campos)'); return; }
+    ps.filter(k => ks.indexOf(k) < 0).forEach(k => sinCampo.push(t + '.' + k));
+    ks.filter(k => ps.indexOf(k) < 0).forEach(k => sinCampo.push(t + '.' + k + ' (campo sin parámetro)'));
+  });
+  if (sinCampo.length) mal('parámetros que el compositor no puede editar: ' + sinCampo.join(', '));
+  else bien('el compositor tiene un campo para cada parámetro de los ' + Object.keys(P.averias).length + ' tipos');
+
+  // Los tickets hechos sólo de averías se cierran encadenando sus arreglos, sin su guion.
+  const compuestos = P.escenarios.filter(e => !e.objetivo && e.averias.some(a => !P.averias[a.tipo].condicion));
+  let malos = 0;
+  compuestos.forEach(e => {
+    const st = P.preparar(e);
+    correr(P, st, [ALARMAS].concat(P.arregloAverias(st, e.averias), [ALARMAS]));
+    const q = e.resuelto(st, P);
+    if (q.length) { mal(e.id + ': encadenar los arreglos de sus averías no lo cierra: ' + q.join(' | ')); malos++; }
+  });
+  if (!malos) bien(compuestos.length + ' tickets hechos sólo de averías se cierran encadenando los arreglos del catálogo, sin su guion');
+
+  // Una combinación que no está en ningún ticket.
+  const inventada = [{ tipo: 'ruta-rota', modo: 'igw', hace: 20 }, { tipo: 'servicio-caido', instancia: 'web-01', servicio: 'nginx', deshabilitado: true, hace: 15 },
+    { tipo: 'bucket-publico', bucket: 'tienda-facturas', hace: 30 }, { tipo: 'rds-lleno', hace: 10 }, { tipo: 'sg-abierto', sg: 'db', puerto: 5432 }];
+  const v = P.validarAverias(inventada);
+  if (v.length) mal('la combinación inventada no valida: ' + v.join(' | '));
+  else {
+    const st = P.crear(); P.aplicarAverias(st, inventada); P.refrescarAlertas(st);
+    const al = P.alertasActivas(st).length, antes = P.pendientesAverias(st, inventada).length;
+    correr(P, st, P.arregloAverias(st, inventada)); P.refrescarAlertas(st);
+    const q = P.pendientesAverias(st, inventada).concat(P.alertasActivas(st).map(x => x.nombre));
+    if (!al || !antes || q.length) mal('la combinación inventada: ' + al + ' alarmas, ' + antes + ' pendientes, y tras arreglar quedan: ' + q.join(' | '));
+    else bien('una combinación inventada de 5 averías valida, dispara ' + al + ' alarmas y se cierra encadenando sus arreglos');
+  }
+  // El validador: lo que debe rechazar.
+  const rechazos = [
+    [[{ tipo: 'kaboom' }], /desconocido/], [[{ tipo: 'bucket-publico' }], /falta bucket/], [[{ tipo: 'instancia-parada', instancia: 'web-09' }], /instancia/],
+    [[{ tipo: 'sg-abierto', sg: 'web', puerto: 22 }, { tipo: 'deriva-terraform', puertos: [8080] }], /tocan lo mismo/],
+    [[{ tipo: 'health-check', ruta: '/health' }], /no rompería/], [[{ tipo: 'deriva-terraform', puertos: [443] }], /no habría deriva/], [[{ tipo: 'ip-oficina', nueva: N.OFICINA }], /no cambiaría/],
+  ].filter(([l, re]) => !P.validarAverias(l).some(x => re.test(x)));
+  if (rechazos.length) rechazos.forEach(([l]) => mal('el validador acepta ' + JSON.stringify(l)));
+  else bien('el validador rechaza tipos inventados, parámetros que faltan, recursos que no existen, dos averías sobre lo mismo y averías que no romperían nada');
+}
+
+// ------------------------------------------------------------ incidencias en fichero
+console.log('\n  incidencias en fichero:');
+for (const [Q, et] of [[P, ''], [cargar('en'), '[en] ']]) {
+  let malos = 0;
+  const ex = Q.exportables();
+  ex.forEach(e => {
+    const d = Q.exportarIncidencia(e), r = Q.cargarIncidencia(JSON.stringify(d));
+    if (!r.ok) { mal(et + e.id + ' exportado no se acepta al reimportarlo: ' + r.errores.join(' | ')); malos++; return; }
+    const st = Q.preparar(r.escenario);
+    correr(Q, st, Q.guionDe(r.escenario, st));
+    const q = r.escenario.resuelto(st, Q);
+    if (q.length) { mal(et + d.id + ': su solución generada no lo cierra: ' + q.join(' | ')); malos++; }
+    if (r.escenario.pistas.length !== 3) { mal(et + d.id + ': no tiene tres pistas'); malos++; }
+  });
+  // Una incidencia sin textos didácticos: se generan, y en inglés no queda nada en español.
+  const d = { formato: 'puesto-incidencia/1', id: 'EXT-900', asunto: 'Noche movida', cuerpo: ['Todo a la vez.'], impacto: 'alto', urgencia: 'alta',
+    averias: [{ tipo: 'clave-filtrada', intrusas: 2, hace: 30 }, { tipo: 'disco-lleno', usadoG: 90, hace: 60 }, { tipo: 'recursos-olvidados', instancia: true, hace: 20000 }] };
+  const r = Q.cargarIncidencia(d);
+  if (!r.ok) { mal(et + 'una incidencia sin textos didácticos no se acepta: ' + r.errores.join(' | ')); malos++; }
+  else {
+    const e = r.escenario, txt = e.pistas.concat(e.causa, e.solucion, e.leccion, e.area, e.practicas.map(p => p.t));
+    if (et && txt.some(x => ES_TXT.test(x.replace(/aws [^·]*/g, '')))) { mal(et + 'lo generado parece español: ' + txt.filter(x => ES_TXT.test(x)).join(' | ')); malos++; }
+    if (e.funciones.join() !== 'iam,ec2,coste,incid') { mal(et + 'funciones derivadas: ' + e.funciones.join()); malos++; }
+    const st = Q.preparar(e); correr(Q, st, Q.guionDe(e, st));
+    if (!e.practicas.every(p => p.ok(st))) { mal(et + 'su propio guion no cumple sus buenas prácticas: ' + e.practicas.filter(p => !p.ok(st)).map(p => p.t).join(' | ')); malos++; }
+  }
+  if (!malos) bien(et + ex.length + ' tickets exportados como plantilla se reimportan y su solución generada los cierra; una incidencia sin textos los genera y su guion cumple sus prácticas');
+}
+{
+  // Rechazos del cargador.
+  const base = { formato: 'puesto-incidencia/1', asunto: 'x', cuerpo: ['y'], impacto: 'medio', urgencia: 'media', averias: [{ tipo: 'precios-vacios' }] };
+  const casos = [
+    ['{ esto no es json', /JSON/], [Object.assign({}, base, { formato: 'otro/1' }), /formato/], [Object.assign({}, base, { id: 'INC-7101' }), /ya es un ticket/],
+    [Object.assign({}, base, { averias: [{ tipo: 'pedido-borrado' }] }), /No rompe nada/], [Object.assign({}, base, { hace: 50000 }), /43200/],
+    [Object.assign({}, base, { impacto: 'alto', urgencia: 'alta', abiertoHace: 50, hace: 60 }), /SLA/],
+  ].filter(([d, re]) => { const r = P.cargarIncidencia(typeof d === 'string' ? d : JSON.stringify(d)); return r.ok || !r.errores.some(x => re.test(x)); });
+  if (casos.length) casos.forEach(([d]) => mal('el cargador acepta o no explica: ' + (typeof d === 'string' ? d : JSON.stringify(d))));
+  else bien('rechaza JSON roto, otro formato, el id de un ticket, lo que no rompe nada, más de un mes y un P1 que nace con medio SLA gastado');
+
+  // Las guardias generadas también son incidencias en fichero, y cada familia se dice con el catálogo.
+  let malos = 0;
+  P.familias.forEach(f => { for (let s = 1; s <= 5; s++) { const v = P.validarAverias(f.crear(P.azar(s))); if (v.length) { mal('la familia ' + f.id + ' no se dice con el catálogo: ' + v.join(' | ')); malos++; break; } } });
+  [1, 2, 3].forEach(n => [7, 1234, 98765].forEach(s => {
+    const g = P.generarGuardia(n, s), r = g.ok && P.cargarIncidencia(Object.assign({}, g.def));
+    if (!r || !r.ok) { mal('la guardia ' + n + '/' + s + ' como fichero no se acepta: ' + (r ? r.errores.join(' | ') : 'no se genera')); malos++; }
+  }));
+  if (!malos) bien(P.familias.length + ' familias se dicen con el catálogo, y 9 guardias generadas se aceptan como fichero');
+}
+
+// ------------------------------------------------------------ compositor
+console.log('\n  compositor:');
+{
+  const win = { PUESTO: { idioma: 'es' } };
+  [path.join(D, 'topologia.js'), path.join(LINUX, 'motor.js'), path.join(D, 'nube.js'), path.join(D, 'aws.js'), path.join(D, 'servicios.js'), path.join(D, 'rds.js'), path.join(D, 'asg.js'), path.join(D, 'coste.js'), path.join(D, 'terraform.js'), path.join(D, 'averias.js'), path.join(D, 'escenarios.js'), path.join(LINUX, 'incidencias.js'), path.join(D, 'guardia.js')]
+    .forEach(f => new Function('window', fs.readFileSync(f, 'utf8'))(win));
+  const Q = win.PUESTO, els = {}, almacen = {};
+  const el = () => ({ innerHTML: '', textContent: '', classList: { add() {}, toggle() {} }, querySelector: () => null });
+  const documento = { querySelector: s => els[s] || (els[s] = el()), querySelectorAll: () => [], addEventListener() {}, body: el() };
+  const ls = { getItem: k => (k in almacen ? almacen[k] : null), setItem: (k, v) => { almacen[k] = String(v); }, removeItem: k => { delete almacen[k]; } };
+  new Function('window', 'document', 'localStorage', 'location', fs.readFileSync(path.join(LINUX, 'compositor.js'), 'utf8'))(win, documento, ls, {});
+  const C = Q.compositor, html = () => els['#vista'].innerHTML;
+  let malos = 0;
+  Object.keys(Q.averias).forEach(t => {
+    C.cargar({ asunto: 'x', cuerpo: ['y'], averias: [Object.assign({ tipo: t }, JSON.parse(JSON.stringify(Q.averias[t].ejemplo)))] }, t);
+    const falta = (Q.camposAveria[t] || []).filter(c => html().indexOf('data-k="' + c.k + '"') < 0).map(c => c.k);
+    if (falta.length) { mal('el compositor no pinta ' + t + '.' + falta.join(', ')); malos++; }
+    if (!Q.averias[t].condicion && !C.est.res.ok) { mal('el ejemplo de ' + t + ' no sale jugable en el compositor: ' + C.est.res.errores.join(' | ')); malos++; }
+  });
+  Q.exportables().forEach(e => {
+    C.cargar(Q.exportarIncidencia(e), e.id);
+    const id = C.guardarEnCola(), g = JSON.parse(almacen['puesto-cloud-importadas'] || '[]').find(x => x.id === id);
+    if (!C.est.res.ok || !C.est.vista || !g || !Q.cargarIncidencia(g).ok) { mal('partir de ' + e.id + ' y guardarlo no da una incidencia jugable: ' + (C.est.res.errores || []).join(' | ')); malos++; }
+  });
+  if (almacen['puesto-linux-importadas'] || almacen['puesto-linux-borrador']) { mal('el compositor de la nube escribe en la cola del Puesto Linux'); malos++; }
+  const gd = JSON.parse(JSON.stringify(Q.generarGuardia(3, 4242).def));
+  C.cargar(gd, 'guardia');
+  if (!C.est.res.ok) { mal('una guardia de nivel 3 no sale jugable en el compositor: ' + C.est.res.errores.join(' | ')); malos++; }
+  C.cargar({ asunto: 'x', cuerpo: [''], averias: [{ tipo: 'bucket-publico' }] }, 'a medias');
+  if (!C.est.res.errores.some(x => /falta bucket/.test(x))) { mal('con el ticket a medias, el ensayo no avisa del bucket sin elegir'); malos++; }
+  if (!malos) bien('pinta los ' + Object.keys(Q.averias).length + ' tipos con un control por campo; ' + Q.exportables().length + ' tickets y una guardia de nivel 3 cargan, se guardan en su propia cola y siguen siendo jugables');
 }
 
 console.log('\n' + (fallos ? fallos + ' fallo' + (fallos === 1 ? '' : 's') : 'Todo en orden'));

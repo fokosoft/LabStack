@@ -47,41 +47,50 @@ function sitios(lista) {
   });
   return s;
 }
+// Lo que cambia de un puesto a otro (el Puesto Cloud trae el suyo en P.incidenciasCfg).
+const CFG = Object.assign({
+  funcionesDe, areaDe, sitios,
+  alertas: 'amtool alert',
+  pista: T('Empieza por lo que ven las alertas: amtool alert. Si Ceph está implicado, ceph -s y ceph health detail.', 'Start with what the alerts see: amtool alert. If Ceph is involved, ceph -s and ceph health detail.'),
+  mirar: /amtool|ceph (-s|status|health|osd (tree|df))|systemctl status|journalctl|\bdf\b|\bdu\b|openstack .*(list|show)|\bfree\b|\btop\b|ps aux|dmesg|timedatectl|chronyc tracking/,
+  tocar: /systemctl (start|restart|enable|reset-failed)|truncate|\brm\b|ansible-playbook|terraform apply|ceph osd (out|in|unset|set)|ceph balancer on|ceph config (set|rm)|volume (set|delete)|server create|chronyc makestep/,
+  sinReiniciar: { t: T('No reiniciaste nodos enteros para arreglarlo', 'You did not reboot whole nodes to fix it'), ok: st => !st.hechos.reinicios.length },
+  maxHace: 10080,   // una semana
+  etiqueta: a => a.nodo ? ' (' + (a.servicio ? a.servicio + T(' en ', ' on ') : '') + a.nodo + ')' : a.osd != null ? ' (osd.' + a.osd + ')' : '',
+}, P.incidenciasCfg || {});
 const PRACTICAS = () => {
   const { antes, despues } = P.ayudasEscenario;
-  const MIRAR = /amtool|ceph (-s|status|health|osd (tree|df))|systemctl status|journalctl|\bdf\b|\bdu\b|openstack .*(list|show)|\bfree\b|\btop\b|ps aux|dmesg|timedatectl|chronyc tracking/;
-  const TOCAR = /systemctl (start|restart|enable|reset-failed)|truncate|\brm\b|ansible-playbook|terraform apply|ceph osd (out|in|unset|set)|ceph balancer on|ceph config (set|rm)|volume (set|delete)|server create|chronyc makestep/;
   return [
-    { t: T('Miraste antes de tocar: alertas, estado o logs antes del primer cambio', 'You looked before touching: alerts, status or logs before the first change'), ok: st => antes(st, MIRAR, TOCAR) },
-    { t: T('Comprobaste que estaba arreglado después del último cambio', 'You verified it was fixed after the last change'), ok: st => despues(st, MIRAR, TOCAR) },
-    { t: T('No reiniciaste nodos enteros para arreglarlo', 'You did not reboot whole nodes to fix it'), ok: st => !st.hechos.reinicios.length },
+    { t: T('Miraste antes de tocar: alertas, estado o logs antes del primer cambio', 'You looked before touching: alerts, status or logs before the first change'), ok: st => antes(st, CFG.mirar, CFG.tocar) },
+    { t: T('Comprobaste que estaba arreglado después del último cambio', 'You verified it was fixed after the last change'), ok: st => despues(st, CFG.mirar, CFG.tocar) },
+    CFG.sinReiniciar,
   ];
 };
 
 // ------------------------------------------------------------------ construir
 function construir(d) {
   const lista = d.averias;
-  const hace = d.hace != null ? d.hace : Math.max(0, ...lista.map(a => a.hace || 0).filter(x => x <= 10080));
+  const hace = d.hace != null ? d.hace : Math.max(0, ...lista.map(a => a.hace || 0).filter(x => x <= CFG.maxHace));
   const e = {
     id: d.id || ('EXT-' + U.hex(d.asunto + JSON.stringify(lista), 4).toUpperCase()),
     clave: 'importada', importada: true, autor: d.autor || '', fuente: d,
-    tipo: d.tipo || 'incidente', nivel: d.nivel || 2, area: d.area || areaDe(lista), funciones: d.funciones || funcionesDe(lista),
+    tipo: d.tipo || 'incidente', nivel: d.nivel || 2, area: d.area || CFG.areaDe(lista), funciones: d.funciones || CFG.funcionesDe(lista),
     impacto: d.impacto, urgencia: d.urgencia, de: d.de || T('Incidencia importada', 'Imported incident'), asunto: d.asunto, cuerpo: d.cuerpo,
     inicio: -hace, abierto: -(d.abiertoHace != null ? d.abiertoHace : Math.min(hace, 10)),
     averias: lista, trampas: [], practicas: PRACTICAS(),
-    causa: d.causa || T('Varias cosas a la vez: ', 'Several things at once: ') + rompen(lista).map(a => P.averias[a.tipo].titulo.toLowerCase() + (a.nodo ? ' (' + (a.servicio ? a.servicio + T(' en ', ' on ') : '') + a.nodo + ')' : a.osd != null ? ' (osd.' + a.osd + ')' : '')).join('; ') + '.',
+    causa: d.causa || T('Varias cosas a la vez: ', 'Several things at once: ') + rompen(lista).map(a => P.averias[a.tipo].titulo.toLowerCase() + CFG.etiqueta(a)).join('; ') + '.',
     solucion: d.solucion || T('Arreglar cada avería de abajo arriba: primero lo que otros necesitan (servicios base, discos, flags), luego lo que depende de ello y al final los recursos. Y comprobar al terminar.', 'Fix each fault from the bottom up: first what others need (base services, disks, flags), then what depends on it, and resources last. And verify when you finish.'),
     leccion: d.leccion || T('Cuando fallan varias cosas a la vez, el orden importa: lo que otros necesitan va primero. Y una alerta que desaparece no es un arreglo comprobado: se mira el estado al terminar.', 'When several things fail at once, order matters: what others need comes first. And an alert that goes away is not a verified fix: check the state when you finish.'),
   };
   // La solución de referencia: mirar, arreglar cada avería en orden, comprobar.
-  e.guion = st => ['amtool alert'].concat(P.arregloAverias(st, e.averias), ['amtool alert']);
+  e.guion = st => [CFG.alertas].concat(P.arregloAverias(st, e.averias), [CFG.alertas]);
   P.normalizarEscenario(e);
   if (Array.isArray(d.pistas) && d.pistas.length === 3) e.pistas = d.pistas.slice();
   else {
     const st = P.preparar(e), sol = P.arregloAverias(st, lista).filter(c => !/^(exit|cd|sleep)\b/.test(c));
     e.pistas = [
-      T('Empieza por lo que ven las alertas: amtool alert. Si Ceph está implicado, ceph -s y ceph health detail.', 'Start with what the alerts see: amtool alert. If Ceph is involved, ceph -s and ceph health detail.'),
-      T('Hay que mirar en: ' + sitios(lista).join(', ') + '. Antes de arreglar, averigua qué necesita cada cosa para funcionar: lo que otros necesitan va primero.', 'Places to look: ' + sitios(lista).join(', ') + '. Before fixing, find out what each thing needs in order to work: what others need comes first.'),
+      CFG.pista,
+      T('Hay que mirar en: ' + CFG.sitios(lista).join(', ') + '. Antes de arreglar, averigua qué necesita cada cosa para funcionar: lo que otros necesitan va primero.', 'Places to look: ' + CFG.sitios(lista).join(', ') + '. Before fixing, find out what each thing needs in order to work: what others need comes first.'),
       T('Una solución, en orden: ', 'One solution, in order: ') + sol.join(' · '),
     ];
   }
@@ -117,7 +126,7 @@ P.cargarIncidencia = function (entrada) {
   if (['alta', 'media', 'baja'].indexOf(d.urgencia) < 0) errores.push(T('urgencia: alta, media o baja', 'urgencia: alta, media or baja'));
   if (d.tipo != null && ['incidente', 'peticion', 'cambio'].indexOf(d.tipo) < 0) errores.push(T('tipo: incidente, peticion o cambio', 'tipo: incidente, peticion or cambio'));
   if (d.nivel != null && [1, 2, 3].indexOf(d.nivel) < 0) errores.push(T('nivel: 1, 2 o 3', 'nivel: 1, 2 or 3'));
-  ['hace', 'abiertoHace'].forEach(k => { if (d[k] != null && !(Number.isInteger(d[k]) && d[k] >= 0 && d[k] <= 10080)) errores.push(k + T(': minutos enteros entre 0 y 10080 (una semana)', ': whole minutes between 0 and 10080 (one week)')); });
+  ['hace', 'abiertoHace'].forEach(k => { if (d[k] != null && !(Number.isInteger(d[k]) && d[k] >= 0 && d[k] <= CFG.maxHace)) errores.push(k + (CFG.maxHace === 10080 ? T(': minutos enteros entre 0 y 10080 (una semana)', ': whole minutes between 0 and 10080 (one week)') : T(': minutos enteros entre 0 y ' + CFG.maxHace, ': whole minutes between 0 and ' + CFG.maxHace))); });
   if (d.hace != null && d.abiertoHace != null && d.abiertoHace > d.hace) errores.push(T('abiertoHace: el ticket no puede abrirse antes de que empiece la avería', 'abiertoHace: the ticket cannot be opened before the fault starts'));
   if (d.pistas != null && (!Array.isArray(d.pistas) || d.pistas.length !== 3 || d.pistas.some(x => typeof x !== 'string' || !x.trim() || x.length > 400))) errores.push(T('pistas: exactamente 3 textos (máximo 400 caracteres cada uno), o ninguna para que se generen', 'pistas: exactly 3 texts (maximum 400 characters each), or none to have them generated'));
   if (d.funciones != null && (!Array.isArray(d.funciones) || d.funciones.some(f => !P.funciones.some(x => x.id === f)))) errores.push(T('funciones: una lista con ', 'funciones: a list of ') + P.funciones.map(f => f.id).join(', '));
@@ -155,7 +164,7 @@ P.exportarIncidencia = e => {
   return d;
 };
 P.construirIncidencia = construir;   // para la vista previa del compositor, aunque el ensayo falle
-P.exportables = () => P.escenarios.filter(e => !e.objetivo && e.averias.some(a => !P.averias[a.tipo].condicion));
+P.exportables = () => P.escenarios.filter(e => !e.objetivo && e.averias && e.averias.some(a => !P.averias[a.tipo].condicion));
 
 // Para quien escribe incidencias: el catálogo, legible.
 P.catalogoLegible = () => Object.keys(P.averias).map(t => { const a = P.averias[t]; return { tipo: t, titulo: a.titulo, descripcion: a.descripcion || '', condicion: a.condicion, params: a.params, ejemplo: Object.assign({ tipo: t }, a.ejemplo) }; });

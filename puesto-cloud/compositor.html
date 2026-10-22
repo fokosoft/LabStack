@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Compositor de incidencias · Puesto Cloud</title>
+<meta name="titulo-en" content="Incident composer · Puesto Cloud">
+<meta name="description" content="Compón incidencias para el Puesto Cloud combinando averías del catálogo de AWS, con ensayo en vivo de su solución.">
+<link href="../vendor/fuentes.css" rel="stylesheet">
+<link href="../puesto-linux/estilos.css" rel="stylesheet">
+</head>
+<body>
+<header class="top">
+  <a class="marca" href="./index.html" style="text-decoration:none;color:inherit;border:0;padding:0;background:none"><b>PUESTO CLOUD</b><span data-en="Incident composer">Compositor de incidencias</span></a>
+  <div class="top-sp"></div>
+  <a href="./soluciones.html" data-en="Answer book">Solucionario</a>
+  <a href="./index.html" data-en="← Desk">← Puesto</a>
+  <button class="icono" data-act="idioma" data-en="ES" title="Read it in English" data-en-title="Leer en español">EN</button>
+  <button class="icono" data-act="tema" title="Tema claro u oscuro" aria-label="Cambiar tema" data-en-title="Light or dark theme">◐</button>
+</header>
+<div id="vista"></div>
+<p class="aviso-legal" data-en="Independent educational simulator, not affiliated with Amazon Web Services. AWS and its service names are trademarks of Amazon.com, Inc. or its affiliates.">Simulador educativo independiente, sin relación con Amazon Web Services. AWS y los nombres de sus servicios son marcas de Amazon.com, Inc. o sus filiales.</p>
+
+<script src="./topologia.js"></script>
+<script src="../puesto-linux/motor.js"></script>
+<script src="./nube.js"></script>
+<script src="./aws.js"></script>
+<script src="./servicios.js"></script>
+<script src="./rds.js"></script>
+<script src="./asg.js"></script>
+<script src="./coste.js"></script>
+<script src="./terraform.js"></script>
+<script src="./averias.js"></script>
+<script src="./escenarios.js"></script>
+<script src="../puesto-linux/incidencias.js"></script>
+<script src="./guardia.js"></script>
+<script src="../puesto-linux/compositor.js"></script>
+</body>
+</html>

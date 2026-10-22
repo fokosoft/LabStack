@@ -11,7 +11,10 @@ const P = window.PUESTO, U = P.u;
 const T = P.T;
 const $ = s => document.querySelector(s);
 const h = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-const CLAVE_IMP = 'puesto-linux-importadas', CLAVE_BORRADOR = 'puesto-linux-borrador';
+// Otro puesto (puesto-cloud) declara P.compositorCfg con sus claves de almacenamiento.
+const CFG = Object.assign({ claveImp: 'puesto-linux-importadas', claveBorrador: 'puesto-linux-borrador', nuevoTipo: 'servicio-caido' }, P.compositorCfg || {});
+const CLAVE_IMP = CFG.claveImp, CLAVE_BORRADOR = CFG.claveBorrador;
+const MAX_HACE = (P.incidenciasCfg && P.incidenciasCfg.maxHace) || 10080;
 const leer = (k, def) => { try { const v = JSON.parse(localStorage.getItem(k)); return v == null ? def : v; } catch (e) { return def; } };
 const escribir = (k, v) => { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) { /* sin almacenamiento */ } };
 const copia = o => JSON.parse(JSON.stringify(o));
@@ -20,7 +23,7 @@ const copia = o => JSON.parse(JSON.stringify(o));
 const BASE = P.crear();
 const NODOS = P.topologia.filter(d => d.n !== 'bastion');
 const ROL = { ctl: T('controlador', 'controller'), cmp: T('hipervisor', 'hypervisor'), ceph: 'Ceph', mon: T('monitorización', 'monitoring') };
-const VMS_COPIA = BASE.os.imagenesExtra.filter(i => /-20260923$/.test(i.nombre)).map(i => i.nombre.replace(/^backup-/, '').replace(/-20260923$/, ''));
+const VMS_COPIA = !BASE.os ? [] : BASE.os.imagenesExtra.filter(i => /-20260923$/.test(i.nombre)).map(i => i.nombre.replace(/^backup-/, '').replace(/-20260923$/, ''));
 
 const nueva = () => ({ formato: P.FORMATO_INCIDENCIA, asunto: '', de: '', cuerpo: [''], impacto: 'medio', urgencia: 'alta', tipo: 'incidente', nivel: 2, hace: 30, abiertoHace: 10, autor: '', averias: [] });
 const est = { def: leer(CLAVE_BORRADOR, null) || nueva(), res: null, vista: null, msg: null, errAv: [] };
@@ -130,8 +133,8 @@ function pintar() {
           <label class="cf"><span>${T('impacto', 'impact')}</span><select data-top="impacto">${opciones([['alto', T('alto', 'high')], ['medio', T('medio', 'medium')], ['bajo', T('bajo', 'low')]], d.impacto)}</select></label>
           <label class="cf"><span>${T('urgencia', 'urgency')}</span><select data-top="urgencia">${opciones([['alta', T('alta', 'high')], ['media', T('media', 'medium')], ['baja', T('baja', 'low')]], d.urgencia)}</select></label>
           <label class="cf"><span>${T('nivel', 'level')}</span><select data-top="nivel" data-num="1">${opciones([[1, T('1 · fácil', '1 · easy')], [2, T('2 · medio', '2 · medium')], [3, T('3 · difícil', '3 · hard')]], d.nivel)}</select></label>
-          <label class="cf"><span>${T('la avería empezó hace (min)', 'fault started (min ago)')}</span><input type="number" min="0" max="10080" data-top="hace" data-num="1" value="${d.hace == null ? '' : d.hace}"></label>
-          <label class="cf"><span>${T('el ticket se abrió hace (min)', 'ticket opened (min ago)')}</span><input type="number" min="0" max="10080" data-top="abiertoHace" data-num="1" value="${d.abiertoHace == null ? '' : d.abiertoHace}"></label>
+          <label class="cf"><span>${T('la avería empezó hace (min)', 'fault started (min ago)')}</span><input type="number" min="0" max="${MAX_HACE}" data-top="hace" data-num="1" value="${d.hace == null ? '' : d.hace}"></label>
+          <label class="cf"><span>${T('el ticket se abrió hace (min)', 'ticket opened (min ago)')}</span><input type="number" min="0" max="${MAX_HACE}" data-top="abiertoHace" data-num="1" value="${d.abiertoHace == null ? '' : d.abiertoHace}"></label>
           <label class="cf"><span>${T('id <em>opcional</em>', 'id <em>optional</em>')}</span><input type="text" data-top="id" value="${h(d.id || '')}" placeholder="EXT-001"></label>
           <label class="cf"><span>${T('autor <em>opcional</em>', 'author <em>optional</em>')}</span><input type="text" data-top="autor" value="${h(d.autor || '')}"></label>
         </div>
@@ -141,7 +144,7 @@ function pintar() {
         <h2>${T('Las averías', 'The faults')} <span class="der-n">${T(`${d.averias.length} de 12`, `${d.averias.length} of 12`)}</span></h2>
         <div class="av-lista">${d.averias.map(tarjetaAveria).join('') || '<p class="vacio">' + T('Todavía ninguna. Añade una avería suelta o una familia entera (averías que tienen sentido juntas).', 'None yet. Add a single fault or a whole family (faults that make sense together).') + '</p>'}</div>
         <div class="av-nueva">
-          <select id="nuevoTipo" aria-label="${T('Tipo de avería que añadir', 'Type of fault to add')}">${tipoOpciones('servicio-caido')}</select>
+          <select id="nuevoTipo" aria-label="${T('Tipo de avería que añadir', 'Type of fault to add')}">${tipoOpciones(CFG.nuevoTipo)}</select>
           <button class="btn" data-act="anadir"${d.averias.length >= 12 ? ' disabled' : ''}>${T('+ Añadir avería', '+ Add fault')}</button>
           <select id="nuevaFamilia" aria-label="${T('Familia que añadir', 'Family to add')}">${P.familias.map(f => `<option value="${f.id}">${h(f.titulo)} · ${T('nivel', 'level')} ${f.nivel}</option>`).join('')}</select>
           <button class="btn" data-act="familia"${d.averias.length >= 12 ? ' disabled' : ''}>${T('+ Añadir familia', '+ Add family')}</button>

@@ -14,6 +14,7 @@ const h = s => String(s == null ? '' : s).replace(/[&<>"']/g, c => ({ '&': '&amp
 // Sin P.ui, todo es el Puesto Linux.
 const UI = Object.assign({
   clave: 'puesto-linux-v1',
+  claveImp: 'puesto-linux-importadas',   // la misma que escribe el compositor
   oferta: {
     tag: T('📌 Puesto', '📌 Job opening'),
     titulo: T('Administrador/a de Sistemas Linux', 'Linux Systems Administrator'),
@@ -43,7 +44,7 @@ const nv = x => NIVEL_ITSM[x] || x;
 const MAX_LINEAS = 1500, MAX_TABS = 6;
 // Incidencias importadas: se guarda el fichero tal cual y se vuelve a validar
 // (y a ensayar) en cada arranque. Si una deja de ser válida, se ve y se puede borrar.
-const CLAVE_IMP = 'puesto-linux-importadas';
+const CLAVE_IMP = UI.claveImp;
 const leerImp = () => { try { const v = JSON.parse(localStorage.getItem(CLAVE_IMP) || '[]'); return Array.isArray(v) ? v : []; } catch (e) { return []; } };
 const guardarImp = l => { try { localStorage.setItem(CLAVE_IMP, JSON.stringify(l)); } catch (e) { /* sin almacenamiento: vive hasta recargar */ } };
 let importadas = [];   // [{ fuente, r }]
@@ -105,9 +106,9 @@ function seccionImportadas() {
       <div class="imp-acc">
         <a class="btn primario-in" href="./compositor.html">${T('Componer una incidencia', 'Compose an incident')}</a>
         <button class="btn" data-act="importar">${T('Importar .json', 'Import .json')}</button>
-        <span class="imp-sep">${T('o parte de un ticket del puesto:', 'or start from one of the desk\'s tickets:')}</span>
+        ${P.exportables().length ? `<span class="imp-sep">${T('o parte de un ticket del puesto:', 'or start from one of the desk\'s tickets:')}</span>
         <select id="plantilla" aria-label="${T('Ticket que usar como plantilla', 'Ticket to use as a template')}">${P.exportables().map(e => `<option value="${e.id}">${e.id} · ${h(e.asunto)}</option>`).join('')}</select>
-        <button class="btn" data-act="exportar">${T('Descargar como plantilla', 'Download as template')}</button>
+        <button class="btn" data-act="exportar">${T('Descargar como plantilla', 'Download as template')}</button>` : ''}
       </div>
       <input type="file" id="fichero" accept=".json,application/json" multiple hidden>
       ${aviso}
