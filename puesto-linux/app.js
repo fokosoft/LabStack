@@ -323,9 +323,11 @@ function panelCeph() {
   const rec = c.rec ? `<div class="rec">${c.rec.tipo === 'reparto' ? T('Rebalanceando', 'Rebalancing') : c.rec.tipo === 'log' ? T('Poniéndose al día', 'Catching up') : T('Reconstruyendo réplicas', 'Rebuilding replicas')} · ${T(`quedan ${c.rec.restante} min`, `${c.rec.restante} min left`)}<span class="sla-bar"><i style="width:${(1 - c.rec.restante / c.rec.total) * 100}%"></i></span></div>` : '';
   return `<section class="panel"><h3>Ceph <span class="salud s-${s.estado} der-n">${s.estado}</span></h3>${hosts}${flags.length ? '<div class="flags">' + flags.map(f => '<span class="flag">' + f + '</span>').join('') + '</div>' : ''}${rec}</section>`;
 }
+// Cuánto lleva una alerta: minutos, y horas o días cuando es vieja.
+const hace = m => { m = Math.max(0, m); return m < 120 ? m + ' min' : m < 2880 ? Math.floor(m / 60) + ' h' : Math.floor(m / 1440) + T(' días', ' days'); };
 function panelAlertas() {
   const al = P.alertasActivas(app.st);
-  return `<section class="panel"><h3>${UI.alertas} <span class="der-n">${al.length}</span></h3>${al.length ? al.map(a => `<div class="alerta al-${a.sev}"><i></i><div><b>${h(a.nombre)}</b><span>${h((a.host ? a.host + ' · ' : '') + a.res)}</span></div><small>${Math.max(0, app.st.reloj - a.desde)} min</small></div>`).join('') : '<p class="vacio">' + T('Sin alertas activas.', 'No active alerts.') + '</p>'}</section>`;
+  return `<section class="panel"><h3>${UI.alertas} <span class="der-n">${al.length}</span></h3>${al.length ? al.map(a => `<div class="alerta al-${a.sev}"><i></i><div><b>${h(a.nombre)}</b><span>${h((a.host ? a.host + ' · ' : '') + a.res)}</span></div><small>${hace(app.st.reloj - a.desde)}</small></div>`).join('') : '<p class="vacio">' + T('Sin alertas activas.', 'No active alerts.') + '</p>'}</section>`;
 }
 function panelTicket() {
   const e = app.esc, st = app.st, p = P.prioridad(e);
@@ -372,7 +374,7 @@ function panelCierre() {
     <div class="bloque"><h4>${T('Lo que te llevas', 'What you take away')}</h4><p>${h(e.leccion)}</p></div>
     <div class="acciones">
       <button class="btn primario" data-act="informe">${T('Descargar el informe (.md)', 'Download the report (.md)')}</button>
-      ${e.guardia ? `<button class="btn" data-act="guardiaNivel" data-n="${e.guardia.nivel}">${T(`Otra guardia ${P.nivelesGuardia[e.guardia.nivel].toLowerCase()}`, `Another ${P.nivelesGuardia[e.guardia.nivel].toLowerCase()} shift`)}</button><button class="btn" data-act="guardiaJson">${T('Descargar como incidencia (.json)', 'Download as an incident (.json)')}</button>` : ''}
+      ${e.guardia ? `<button class="btn" data-act="guardiaNivel" data-n="${e.guardia.nivel}">${T(`Otra guardia ${P.nivelesGuardia[e.guardia.nivel].toLowerCase()}`, `Another ${P.nivelesGuardia[e.guardia.nivel].toLowerCase()} shift`)}</button>${e.fuente ? `<button class="btn" data-act="guardiaJson">${T('Descargar como incidencia (.json)', 'Download as an incident (.json)')}</button>` : ''}` : ''}
       <button class="btn" data-act="repetir">${e.guardia ? T('Repetir esta misma guardia (semilla ' + e.guardia.semilla + ')', 'Replay this same shift (seed ' + e.guardia.semilla + ')') : T('Repetir desde cero', 'Start over')}</button>
       <button class="btn" data-act="cola">${T('Volver a la cola', 'Back to the queue')}</button>
     </div>

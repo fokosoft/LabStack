@@ -176,7 +176,7 @@ function leerArgs(args) {
     if (!/^--/.test(x)) { pos.push(x); continue; }
     let n = x.slice(2), v = null;
     if (n.indexOf('=') >= 0) { v = [n.slice(n.indexOf('=') + 1)]; n = n.slice(0, n.indexOf('=')); }
-    if (!v) { v = []; if (BANDERAS.indexOf(n) < 0) while (k + 1 < args.length && !/^--/.test(args[k + 1])) v.push(args[++k]); }
+    if (!v) { v = []; if (BANDERAS.indexOf(n) < 0 && (N.banderasCli || []).indexOf(n) < 0) while (k + 1 < args.length && !/^--/.test(args[k + 1])) v.push(args[++k]); }
     o[n] = v;
   }
   return { pos, o };
@@ -190,7 +190,12 @@ function leerFiltros(vals) {
 }
 const coincide = (patron, val) => val != null && new RegExp('^' + String(patron).replace(/[.+^${}()|[\]\\]/g, '\\$&').replace(/\*/g, '.*').replace(/\?/g, '.') + '$').test(String(val));
 // Un filtro de AWS: cada Name es una función que saca el (o los) valores del recurso.
-const pasaFiltros = (filtros, campos) => filtros.every(f => { const g = campos[f.n]; if (!g) return true; const vs = [].concat(g()); return f.v.some(p => vs.some(v => coincide(p, v))); });
+const pasaFiltros = (filtros, campos, tags) => filtros.every(f => {
+  let g = campos[f.n];
+  if (!g && /^tag:/.test(f.n) && tags) { const t = tags.find(x => x.Key === f.n.slice(4)); g = () => t ? t.Value : null; }
+  if (!g) return true;
+  const vs = [].concat(g()).filter(v => v != null); return f.v.some(p => vs.some(v => coincide(p, v)));
+});
 
 class ErrorAws { constructor(codigo, msg) { this.codigo = codigo; this.msg = msg; } }
 const falla = (codigo, msg) => { throw new ErrorAws(codigo, msg); };
@@ -215,7 +220,7 @@ function instJ(st, i) {
     BlockDeviceMappings: N.volsDe(st, i).map(v => ({ DeviceName: v.device, Ebs: { AttachTime: iso(v.creado), DeleteOnTermination: !!v.raiz, Status: 'attached', VolumeId: v.id } })),
     EbsOptimized: true, Hypervisor: 'xen', RootDeviceName: '/dev/sda1', RootDeviceType: 'ebs',
     SecurityGroups: i.sgs.map(g => ({ GroupName: (N.sg(st, g) || { nombre: 'default' }).nombre, GroupId: g })), SourceDestCheck: true,
-    Tags: etiquetas(i.nombre), VirtualizationType: 'hvm', PlatformDetails: 'Linux/UNIX' });
+    Tags: etiquetas(i.nombre).concat(i.tags || []), VirtualizationType: 'hvm', PlatformDetails: 'Linux/UNIX' });
   if (i.perfil) o.IamInstanceProfile = { Arn: 'arn:aws:iam::' + ID.cuenta + ':instance-profile/' + i.perfil, Id: 'AIPA' + U.hex('perfil' + i.perfil, 17).toUpperCase() };
   return o;
 }
@@ -229,7 +234,7 @@ function instancias(st, o) {
   return st.aws.instancias.filter(i => enRegion(i, o) && (!ids.length || ids.indexOf(i.id) >= 0) && pasaFiltros(f || [], {
     'tag:Name': () => i.nombre, 'instance-state-name': () => i.estado, 'instance-id': () => i.id, 'subnet-id': () => i.subred, 'vpc-id': () => i.vpc || ID.vpc,
     'private-ip-address': () => i.ipPriv, 'ip-address': () => i.ipPub, 'availability-zone': () => (N.subred(st, i.subred) || { az: i.az }).az, 'instance-type': () => i.tipo,
-    'instance.group-id': () => i.sgs, 'key-name': () => i.clave, 'image-id': () => i.ami }));
+    'instance.group-id': () => i.sgs, 'key-name': () => i.clave, 'image-id': () => i.ami }, etiquetas(i.nombre).concat(i.tags || [])));
 }
 const idsObligatorios = (st, o) => { requiere(o, 'instance-ids'); return lista(o, 'instance-ids').map(id => { const i = st.aws.instancias.find(x => x.id === id && enRegion(x, o)); return i || falla('InvalidInstanceID.NotFound', "The instance ID '" + id + "' does not exist"); }); };
 function cambioEstado(clave, st, o, accion) {
@@ -319,7 +324,7 @@ const volJ = (st, v) => {
   const i = st.aws.instancias.find(x => x.id === v.inst);
   return { Attachments: i ? [{ AttachTime: iso(v.creado), Device: v.device, InstanceId: i.id, State: 'attached', VolumeId: v.id, DeleteOnTermination: !!v.raiz }] : [],
     AvailabilityZone: i ? N.subred(st, i.subred).az : 'eu-west-1a', CreateTime: iso(v.creado), Encrypted: true, Size: v.tam, SnapshotId: v.raiz ? 'snap-0' + U.hex('ami' + v.id, 16) : '',
-    State: i ? 'in-use' : 'available', VolumeId: v.id, Iops: 3000, Tags: etiquetas((i ? i.nombre : 'vol') + (v.raiz ? '-root' : '-data')), VolumeType: 'gp3', MultiAttachEnabled: false, Throughput: 125 };
+    State: i ? 'in-use' : 'available', VolumeId: v.id, Iops: v.iops || 3000, Tags: v.tags || etiquetas((i ? i.nombre : 'vol') + (v.raiz ? '-root' : '-data')), VolumeType: v.tipo || 'gp3', MultiAttachEnabled: false, Throughput: v.tipo === 'io2' ? undefined : 125 };
 };
 const modJ = (v, m) => ({ VolumeId: v.id, ModificationState: m.estado, TargetSize: m.objetivo, TargetIops: 3000, TargetVolumeType: 'gp3', TargetThroughput: 125, TargetMultiAttachEnabled: false,
   OriginalSize: m.original, OriginalIops: 3000, OriginalVolumeType: 'gp3', OriginalThroughput: 125, OriginalMultiAttachEnabled: false,
@@ -413,7 +418,7 @@ const OPS = {
     'delete-route': (st, o) => { const t = rtDe(st, o); requiere(o, 'destination-cidr-block'); const d = uno(o, 'destination-cidr-block'), k = t.rutas.findIndex(x => x.dest === d); if (k < 0 || t.rutas[k].gw === 'local') falla('InvalidRoute.NotFound', "no route with destination-cidr-block " + d + " in route table " + t.id); t.rutas.splice(k, 1); return { datos: undefined }; },
     'describe-nat-gateways': (st, o) => { const f = leerFiltros(o.filters) || []; return { datos: { NatGateways: st.aws.nats.filter(n => pasaFiltros(f, { state: () => n.estado, 'nat-gateway-id': () => n.id, 'subnet-id': () => n.subred, 'vpc-id': () => ID.vpc })).map(n => Object.assign({ CreateTime: iso(n.creado) }, n.estado === 'deleted' ? { DeleteTime: iso(n.borrado) } : {}, { NatGatewayAddresses: [{ AllocationId: 'eipalloc-0' + U.hex('eip' + n.id, 16), NetworkInterfaceId: 'eni-0' + U.hex('eni' + n.id, 16), PrivateIp: n.ipPriv, PublicIp: n.ipPub, IsPrimary: true, Status: n.estado === 'deleted' ? 'disassociating' : 'succeeded' }], NatGatewayId: n.id, State: n.estado, SubnetId: n.subred, VpcId: ID.vpc, Tags: etiquetas(n.nombre), ConnectivityType: 'public' })) } }; },
     'describe-internet-gateways': () => ({ datos: { InternetGateways: [{ Attachments: [{ State: 'available', VpcId: ID.vpc }], InternetGatewayId: ID.igw, OwnerId: ID.cuenta, Tags: etiquetas('tienda-igw') }] } }),
-    'describe-volumes': (st, o) => { const ids = lista(o, 'volume-ids'), f = leerFiltros(o.filters) || []; ids.forEach(id => { if (!N.vol(st, id)) falla('InvalidVolume.NotFound', "The volume '" + id + "' does not exist."); }); return { datos: { Volumes: st.aws.volumenes.filter(v => (!ids.length || ids.indexOf(v.id) >= 0) && pasaFiltros(f, { 'attachment.instance-id': () => v.inst, 'volume-id': () => v.id, status: () => 'in-use', 'tag:Name': () => volJ(st, v).Tags.map(t => t.Value) })).map(v => volJ(st, v)) } }; },
+    'describe-volumes': (st, o) => { const ids = lista(o, 'volume-ids'), f = leerFiltros(o.filters) || []; ids.forEach(id => { if (!N.vol(st, id)) falla('InvalidVolume.NotFound', "The volume '" + id + "' does not exist."); }); return { datos: { Volumes: st.aws.volumenes.filter(v => (!ids.length || ids.indexOf(v.id) >= 0) && pasaFiltros(f, { 'attachment.instance-id': () => v.inst, 'volume-id': () => v.id, status: () => volJ(st, v).State, 'volume-type': () => v.tipo || 'gp3' }, volJ(st, v).Tags)).map(v => volJ(st, v)) } }; },
     'modify-volume': (st, o) => {
       const v = volDe(st, o), tam = uno(o, 'size') == null ? v.tam : +uno(o, 'size');
       if (uno(o, 'volume-type') && uno(o, 'volume-type') !== 'gp3') falla('InvalidParameterValue', 'This simulator only keeps gp3 volumes');

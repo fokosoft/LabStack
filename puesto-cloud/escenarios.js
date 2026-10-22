@@ -15,6 +15,8 @@ const ultimo = (st, re) => { for (let i = st.registro.length - 1; i >= 0; i--) i
 const usado = (st, re) => idx(st, re) >= 0;
 const antes = (st, a, b) => { const i = idx(st, a), j = idx(st, b); return i >= 0 && (j < 0 || i < j); };
 const despues = (st, a, b) => { const j = ultimo(st, b); return j >= 0 && idx(st, a, j + 1) >= 0; };
+// Lo que dejaron las pruebas de carga (INC-7162).
+const CARGA = { inst: 'i-0' + U.hex('carga-01', 16), vol: 'vol-0' + U.hex('carga-datos', 16), eip: 'eipalloc-0' + U.hex('carga-eip', 16) };
 const idMalo = k => 'i-0' + U.hex('malo:' + k, 16);   // las instancias que lanza el atacante (INC-7146)
 const esc = s => String(s).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 P.ayudasEscenario = { usado, antes, despues, idx, ultimo };
@@ -28,6 +30,8 @@ P.funciones = [
   { id: 'red', titulo: T('Redes y seguridad en la VPC', 'VPC networking and security'), corto: 'VPC' },
   { id: 'incid', titulo: T('Monitorización con CloudWatch y resolución de incidencias', 'CloudWatch monitoring and incident resolution'), corto: T('Incidencias', 'Incidents') },
   { id: 'iam', titulo: T('Seguridad, identidades y almacenamiento (IAM, S3)', 'Security, identities and storage (IAM, S3)'), corto: 'IAM · S3' },
+  { id: 'datos', titulo: T('Bases de datos gestionadas (RDS) y copias', 'Managed databases (RDS) and backups'), corto: 'RDS' },
+  { id: 'coste', titulo: T('Coste y optimización', 'Cost and optimisation'), corto: T('Coste', 'Cost') },
   { id: 'iac', titulo: T('Automatización e infraestructura como código', 'Automation and infrastructure as code'), corto: 'IaC' },
 ];
 
@@ -471,6 +475,228 @@ P.escenarios = [
   trampas: [
     { cmds: ['aws iam delete-access-key --user-name ci-deploy --access-key-id ' + ID.clave.ci], porque: T('la clave queda cortada, pero las instancias del atacante siguen minando y el pipeline se queda sin credenciales', 'the key is cut off, but the attacker\'s instances keep mining and the pipeline is left without credentials') },
     { cmds: ['aws iam update-access-key --user-name ci-deploy --access-key-id ' + ID.clave.ci + ' --status Inactive', 'aws ec2 describe-instances', 'aws iam create-access-key --user-name ci-deploy'], porque: T('mirar sólo en eu-west-1 no encuentra lo que se lanzó en otra región', 'looking only in eu-west-1 does not find what was launched in another region') },
+  ],
+},
+// ============================================================================ 11
+{
+  id: 'INC-7150', clave: 'rds-lleno', tipo: 'incidente', nivel: 2, area: 'RDS', funciones: ['datos', 'incid'],
+  impacto: 'alto', urgencia: 'alta', de: T('Monitorización (CloudWatch)', 'Monitoring (CloudWatch)'),
+  asunto: T('No se pueden guardar pedidos: tienda-pedidos sin espacio', 'Orders cannot be saved: tienda-pedidos is out of space'),
+  cuerpo: [T('Saltan tienda-api-order-errors y tienda-pedidos-free-storage: la base de pedidos de RDS está en storage-full y rechaza las escrituras. Los clientes pagan pero el pedido no se guarda.', 'tienda-api-order-errors and tienda-pedidos-free-storage are firing: the RDS orders database is in storage-full and rejects writes. Customers pay but the order is not saved.'),
+    T('Es la temporada de rebajas: el volumen de pedidos se ha multiplicado esta semana.', 'It is sales season: the order volume has multiplied this week.')],
+  inicio: -8, abierto: -5,
+  aplicar(st) {
+    const x = N.rds(st, 'tienda-pedidos'); x.usadoG = 100; x.estado = 'storage-full';
+    st.aws.rds.eventos.push({ min: -40, id: x.id, msg: 'The free storage capacity for DB Instance: tienda-pedidos is low at 3% of the provisioned storage [Provisioned Storage: 100.00 GB, Free Storage: 3.00 GB]. You may want to increase the provisioned storage to address this issue.' },
+      { min: -8, id: x.id, msg: 'DB instance has a storage-full status' });
+  },
+  objetivo(st) {
+    const x = N.rds(st, 'tienda-pedidos');
+    if (x.estado === 'storage-full') return [T('tienda-pedidos sigue en storage-full', 'tienda-pedidos is still in storage-full') + (x.pendientes.almacen ? T(' (el cambio a ' + x.pendientes.almacen + ' GiB espera a la ventana de mantenimiento)', ' (the change to ' + x.pendientes.almacen + ' GiB is waiting for the maintenance window)') : '')];
+    return N.rdsLibreG(x) < x.almacen * 0.2 ? [T('A tienda-pedidos le queda menos del 20 % libre: volverá a llenarse esta semana', 'tienda-pedidos has less than 20% free: it will fill up again this week')] : [];
+  },
+  practicas: [
+    { t: T('Leíste los eventos de la base antes de tocar nada', 'You read the database events before touching anything'), ok: st => antes(st, /rds describe-events/, /modify-db-instance/) },
+    { t: T('Hiciste un snapshot manual antes de modificarla', 'You took a manual snapshot before modifying it'), ok: st => antes(st, /create-db-snapshot/, /modify-db-instance/) },
+    { t: T('Activaste el autoescalado de almacenamiento (--max-allocated-storage)', 'You turned on storage autoscaling (--max-allocated-storage)'), ok: st => { const x = N.rds(st, 'tienda-pedidos'); return !!x.maxAlmacen && x.maxAlmacen > x.almacen; } },
+    { t: T('Comprobaste el estado de la base después del cambio', 'You checked the database status after the change'), ok: st => despues(st, /describe-db-instances|wait db-instance-available/, /modify-db-instance/) },
+  ],
+  pistas: [
+    T('aws rds describe-db-instances --db-instance-identifier tienda-pedidos te da el estado (DBInstanceStatus) y el tamaño (AllocatedStorage). aws rds describe-events --source-identifier tienda-pedidos --source-type db-instance --duration 120 te cuenta qué ha pasado.', 'aws rds describe-db-instances --db-instance-identifier tienda-pedidos gives you the status (DBInstanceStatus) and size (AllocatedStorage). aws rds describe-events --source-identifier tienda-pedidos --source-type db-instance --duration 120 tells you what happened.'),
+    T('Antes de tocar, un snapshot: aws rds create-db-snapshot --db-instance-identifier tienda-pedidos --db-snapshot-identifier NOMBRE. Luego aws rds modify-db-instance con --allocated-storage. Tiene que crecer al menos un 10 %.', 'Before touching it, a snapshot: aws rds create-db-snapshot --db-instance-identifier tienda-pedidos --db-snapshot-identifier NAME. Then aws rds modify-db-instance with --allocated-storage. It has to grow by at least 10%.'),
+    T('Sin --apply-immediately, RDS deja el cambio para la ventana de mantenimiento (el domingo). Añade --apply-immediately, y --max-allocated-storage para que la próxima vez crezca sola.', 'Without --apply-immediately, RDS leaves the change for the maintenance window (Sunday). Add --apply-immediately, and --max-allocated-storage so it grows by itself next time.'),
+  ],
+  causa: T('El crecimiento de pedidos de las rebajas llenó los 100 GiB de tienda-pedidos. Con el disco lleno, RDS pone la base en storage-full y deja de aceptar escrituras para no corromperla. No tenía autoescalado de almacenamiento.', 'The sales-season order growth filled tienda-pedidos\' 100 GiB. With the disk full, RDS puts the database in storage-full and stops accepting writes so as not to corrupt it. It had no storage autoscaling.'),
+  solucion: T('Snapshot manual, almacenamiento a 150 GiB con --apply-immediately y autoescalado de almacenamiento hasta 500 GiB.', 'Manual snapshot, storage raised to 150 GiB with --apply-immediately and storage autoscaling up to 500 GiB.'),
+  leccion: T('En RDS no hay resize2fs: amplías y AWS se encarga del resto, en caliente. Pero un modify-db-instance sin --apply-immediately no hace nada hasta la ventana de mantenimiento, y es el error más común: «ya lo he cambiado» y la base sigue llena. Con --max-allocated-storage, RDS crece sola antes de llenarse.', 'In RDS there is no resize2fs: you grow it and AWS does the rest, online. But a modify-db-instance without --apply-immediately does nothing until the maintenance window, and it is the most common mistake: "I already changed it" and the database is still full. With --max-allocated-storage, RDS grows by itself before filling up.'),
+  guion: ['aws cloudwatch describe-alarms --state-value ALARM',
+    'aws rds describe-db-instances --db-instance-identifier tienda-pedidos --query "DBInstances[].[DBInstanceStatus,AllocatedStorage,MaxAllocatedStorage]" --output text',
+    'aws rds describe-events --source-identifier tienda-pedidos --source-type db-instance --duration 120 --query "Events[].[Date,Message]" --output text',
+    'aws rds create-db-snapshot --db-instance-identifier tienda-pedidos --db-snapshot-identifier tienda-pedidos-inc-7150',
+    'aws rds modify-db-instance --db-instance-identifier tienda-pedidos --allocated-storage 150 --max-allocated-storage 500 --apply-immediately',
+    'sleep 240', 'aws rds describe-db-instances --db-instance-identifier tienda-pedidos --query "DBInstances[].[DBInstanceStatus,AllocatedStorage,MaxAllocatedStorage]" --output text',
+    'aws cloudwatch describe-alarms --state-value ALARM'],
+  trampas: [
+    { cmds: ['aws rds modify-db-instance --db-instance-identifier tienda-pedidos --allocated-storage 150', 'sleep 240'], porque: T('sin --apply-immediately el cambio espera a la ventana de mantenimiento del domingo', 'without --apply-immediately the change waits for Sunday\'s maintenance window') },
+    { cmds: ['aws rds modify-db-instance --db-instance-identifier tienda-pedidos --allocated-storage 105 --apply-immediately', 'sleep 240'], porque: T('RDS rechaza crecer menos de un 10 %', 'RDS refuses to grow by less than 10%') },
+  ],
+},
+// ============================================================================ 12
+{
+  id: 'REQ-7154', clave: 'pitr', tipo: 'peticion', nivel: 3, area: 'RDS', funciones: ['datos'],
+  impacto: 'medio', urgencia: 'alta', de: T('Atención al cliente (Raquel Soto)', 'Customer support (Raquel Soto)'),
+  asunto: T('Recuperar el pedido P-2026-48213, borrado por error a las 08:41', 'Recover order P-2026-48213, deleted by mistake at 08:41'),
+  cuerpo: [T('A las 08:41 un comercial borró por error el pedido P-2026-48213 (842,10 €) desde el backoffice. Necesitamos sus datos para volver a darlo de alta: el cliente ya ha pagado.', 'At 08:41 a sales rep deleted order P-2026-48213 (€842.10) by mistake from the back office. We need its data to recreate it: the customer has already paid.'),
+    T('Importante: la base de producción no se puede parar ni restaurar encima, que está vendiendo. Dejadnos una copia de la que podamos leer el pedido desde la API.', 'Important: the production database cannot be stopped or restored over, it is selling. Leave us a copy we can read the order from, from the API.')],
+  inicio: -31, abierto: -14,
+  aplicar(st) { st.aws.rds.borradoMin = -31; N.rds(st, 'tienda-pedidos').pedidos -= 1; },
+  objetivo(st) {
+    const copias = st.aws.rds.instancias.filter(x => x.origen && x.origen.fuente === 'tienda-pedidos' && x.estado !== 'deleted' && x.estado !== 'deleting');
+    if (!copias.length) return [T('No hay ninguna copia restaurada de tienda-pedidos', 'There is no restored copy of tienda-pedidos')];
+    const buenas = copias.filter(x => N.rdsTienePedido(st, x));
+    if (!buenas.length) return [T('La copia es de después del borrado: el pedido ya no está en ella', 'The copy is from after the deletion: the order is not in it')];
+    const x = buenas[0];
+    if (x.estado === 'creating') return [T('La copia ' + x.id + ' todavía se está creando', 'The copy ' + x.id + ' is still being created')];
+    if (x.sgs.indexOf(ID.sg.rds) < 0) return [T('La API no puede leer la copia ' + x.id + ': no tiene el security group tienda-rds', 'The API cannot read the copy ' + x.id + ': it does not have the tienda-rds security group')];
+    return [];
+  },
+  practicas: [
+    { t: T('Comprobaste en producción que el pedido ya no está', 'You checked in production that the order is gone'), ok: st => antes(st, /psql .*tienda-pedidos\..*P-2026-48213/, /restore-db-instance/) },
+    { t: T('Restauraste a justo antes del borrado, no al último momento disponible', 'You restored to just before the deletion, not to the latest available moment'), ok: st => st.aws.rds.instancias.some(x => x.origen && x.origen.min < st.aws.rds.borradoMin && x.origen.min >= st.aws.rds.borradoMin - 30) },
+    { t: T('Esperaste a que la copia estuviera disponible', 'You waited for the copy to be available'), ok: st => usado(st, /wait db-instance-available/) },
+    { t: T('Comprobaste en la copia, desde la API, que el pedido está', 'You checked in the copy, from the API, that the order is there'), ok: st => despues(st, /psql .*P-2026-48213/, /restore-db-instance/) },
+  ],
+  pistas: [
+    T('RDS guarda copias continuas: con aws rds describe-db-instances --db-instance-identifier tienda-pedidos ves hasta cuándo puedes volver atrás (LatestRestorableTime) y cuántos días (BackupRetentionPeriod).', 'RDS keeps continuous backups: aws rds describe-db-instances --db-instance-identifier tienda-pedidos shows how far back you can go (LatestRestorableTime) and how many days (BackupRetentionPeriod).'),
+    T('La restauración «a un momento» crea una base NUEVA a partir de la de producción: aws rds restore-db-instance-to-point-in-time --source-db-instance-identifier tienda-pedidos --target-db-instance-identifier NUEVA --restore-time 2026-09-23T08:40:00Z. Ojo: las horas van en UTC, y el borrado fue a las 08:41.', 'The "point in time" restore creates a NEW database from the production one: aws rds restore-db-instance-to-point-in-time --source-db-instance-identifier tienda-pedidos --target-db-instance-identifier NEW --restore-time 2026-09-23T08:40:00Z. Careful: times are in UTC, and the deletion was at 08:41.'),
+    T('Sin --vpc-security-group-ids la copia nace con el security group default y la API no llega. Pásale el de la base (el de tienda-pedidos). Después: aws rds wait db-instance-available y, desde app-01, psql -h ENDPOINT -U tienda pedidos -c "SELECT * FROM pedidos WHERE id = \'P-2026-48213\'".', 'Without --vpc-security-group-ids the copy is born with the default security group and the API cannot reach it. Pass it the database one (tienda-pedidos\'s). Then: aws rds wait db-instance-available and, from app-01, psql -h ENDPOINT -U tienda pedidos -c "SELECT * FROM pedidos WHERE id = \'P-2026-48213\'".'),
+  ],
+  causa: T('Borrado humano desde el backoffice: el pedido desapareció de la base de producción a las 08:41.', 'Human deletion from the back office: the order disappeared from the production database at 08:41.'),
+  solucion: T('Restauración a un momento (08:40 UTC) en una instancia nueva, tienda-pedidos-rec-48213, con el security group de la base; el pedido se lee desde app-01.', 'Point-in-time restore (08:40 UTC) to a new instance, tienda-pedidos-rec-48213, with the database security group; the order is read from app-01.'),
+  leccion: T('Las copias automáticas de RDS permiten volver a cualquier minuto de los últimos días, pero siempre en una base nueva: producción no se toca. Restaurar «al último momento» no sirve si el error ya está dentro. Y la copia cuesta lo mismo que la base: cuando se haya recuperado el pedido, se borra.', 'RDS automated backups let you go back to any minute in the last few days, but always into a new database: production is not touched. Restoring "to the latest moment" is useless if the mistake is already in there. And the copy costs as much as the database: once the order is recovered, delete it.'),
+  guion: ['ssh app-01', 'psql -h ' + N.endpointRds('tienda-pedidos') + ' -U tienda pedidos -c "SELECT * FROM pedidos WHERE id = \'P-2026-48213\'"', 'exit',
+    'aws rds describe-db-instances --db-instance-identifier tienda-pedidos --query "DBInstances[].[LatestRestorableTime,BackupRetentionPeriod,VpcSecurityGroups[0].VpcSecurityGroupId]" --output text',
+    'aws rds restore-db-instance-to-point-in-time --source-db-instance-identifier tienda-pedidos --target-db-instance-identifier tienda-pedidos-rec-48213 --restore-time 2026-09-23T08:40:00Z --vpc-security-group-ids ' + ID.sg.rds + ' --db-subnet-group-name tienda-privadas --no-multi-az',
+    'aws rds wait db-instance-available --db-instance-identifier tienda-pedidos-rec-48213',
+    'ssh app-01', 'psql -h ' + N.endpointRds('tienda-pedidos-rec-48213') + ' -U tienda pedidos -c "SELECT * FROM pedidos WHERE id = \'P-2026-48213\'"', 'exit'],
+  trampas: [
+    { cmds: ['aws rds restore-db-instance-to-point-in-time --source-db-instance-identifier tienda-pedidos --target-db-instance-identifier copia --use-latest-restorable-time --vpc-security-group-ids ' + ID.sg.rds, 'aws rds wait db-instance-available --db-instance-identifier copia'], porque: T('restaurar al último momento disponible trae la base de después del borrado', 'restoring to the latest available moment brings back the database from after the deletion') },
+    { cmds: ['aws rds restore-db-instance-to-point-in-time --source-db-instance-identifier tienda-pedidos --target-db-instance-identifier copia --restore-time 2026-09-23T08:40:00Z', 'aws rds wait db-instance-available --db-instance-identifier copia'], porque: T('sin security group, la copia nace con el default y la API no llega a ella', 'without a security group, the copy gets the default one and the API cannot reach it') },
+  ],
+},
+// ============================================================================ 13
+{
+  id: 'INC-7158', clave: 'asg-ami', tipo: 'incidente', nivel: 3, area: 'EC2 · Auto Scaling', funciones: ['ec2', 'incid'],
+  impacto: 'alto', urgencia: 'media', de: T('Logística (envíos)', 'Logistics (shipping)'),
+  asunto: T('Los envíos no salen: tienda-workers sin instancias', 'Shipments are not going out: tienda-workers has no instances'),
+  cuerpo: [T('Desde hace casi una hora no se procesa ni una etiqueta de envío y la cola no para de crecer. La alarma tienda-workers-inservice está en ALARM: el grupo de Auto Scaling tiene 0 workers.', 'For almost an hour not a single shipping label has been processed and the queue keeps growing. The tienda-workers-inservice alarm is in ALARM: the Auto Scaling group has 0 workers.'),
+    T('Anoche AWS retiró las dos instancias por mantenimiento del hardware. Se supone que el grupo las repone solo…', 'Last night AWS retired both instances for hardware maintenance. The group is supposed to replace them by itself…')],
+  inicio: -55, abierto: -20,
+  aplicar(st) {
+    st.aws.amis = st.aws.amis.filter(a => a.id !== ID.ami.worker1);
+    st.aws.instancias.filter(i => i.asg).forEach(i => { i.estado = 'terminated'; i.fin = -55; i.motivo = 'Service initiated (2026-09-23 08:17:00 GMT)'; });
+    const causa = 'At 2026-09-23T08:17:00Z an instance was taken out of service in response to an EC2 scheduled retirement event.';
+    st.aws.instancias.filter(i => i.asg).forEach(i => { st.aws.asg.actN++; st.aws.asg.actividades.unshift({ id: U.uuid('ret' + i.id), desc: 'Terminating EC2 instance: ' + i.id, causa, ok: true, min: -55 }); });
+    for (let m = -54; m < 0; m += 8) { st.aws.asg.actN++; st.aws.asg.actividades.unshift({ id: U.uuid('fallo' + m), desc: 'Launching a new EC2 instance.  Status Reason: The image id \'[' + ID.ami.worker1 + ']\' does not exist. Launching EC2 instance failed.', causa: 'At ' + U.iso(m) + 'Z an instance was started in response to a difference between desired and actual capacity, increasing the capacity from 0 to 2.', ok: false, msg: 'The image id \'[' + ID.ami.worker1 + ']\' does not exist. Launching EC2 instance failed.', min: m }); }
+    N.asg(st).reintento = 2;
+  },
+  objetivo(st) {
+    const out = [], n = st.aws.instancias.filter(i => i.asg && i.estado === 'running').length;
+    const d = N.datosLtAsg(st, N.asg(st));
+    if (!d || !N.ami(st, d.ImageId)) out.push(T('La plantilla que usa el grupo sigue apuntando a una AMI que no existe', 'The template the group uses still points at an AMI that does not exist'));
+    if (n < 2) out.push(T('tienda-workers tiene ' + n + ' workers en servicio y hacen falta 2', 'tienda-workers has ' + n + ' workers in service and 2 are needed'));
+    return out;
+  },
+  practicas: [
+    { t: T('Leíste el historial de actividad del grupo antes de tocar', 'You read the group\'s activity history before touching anything'), ok: st => antes(st, /describe-scaling-activities/, /create-launch-template-version|modify-launch-template|update-auto-scaling-group|set-desired-capacity/) },
+    { t: T('Comprobaste que la AMI nueva existe antes de usarla', 'You checked that the new AMI exists before using it'), ok: st => antes(st, /describe-images/, /create-launch-template-version/) },
+    { t: T('Creaste una versión nueva de la plantilla en vez de cambiar a ciegas el grupo', 'You created a new template version instead of blindly changing the group'), ok: st => usado(st, /create-launch-template-version/) },
+    { t: T('Comprobaste que los workers volvieron a estar InService', 'You checked that the workers were InService again'), ok: st => despues(st, /describe-auto-scaling-groups/, /modify-launch-template|update-auto-scaling-group/) },
+  ],
+  pistas: [
+    T('Un grupo de Auto Scaling que no repone instancias casi siempre lo dice en su historial: aws autoscaling describe-scaling-activities --auto-scaling-group-name tienda-workers.', 'An Auto Scaling group that does not replace instances almost always says why in its history: aws autoscaling describe-scaling-activities --auto-scaling-group-name tienda-workers.'),
+    T('«The image id does not exist»: alguien borró la AMI que usa la plantilla. aws ec2 describe-launch-template-versions --launch-template-name tienda-worker y aws ec2 describe-images --owners self para ver cuál hay.', '"The image id does not exist": someone deleted the AMI the template uses. aws ec2 describe-launch-template-versions --launch-template-name tienda-worker and aws ec2 describe-images --owners self to see which one there is.'),
+    T('aws ec2 create-launch-template-version --launch-template-name tienda-worker --source-version 1 --launch-template-data \'{"ImageId":"AMI"}\' y aws ec2 modify-launch-template --launch-template-name tienda-worker --default-version 2. El grupo lo reintentará solo en un par de minutos.', 'aws ec2 create-launch-template-version --launch-template-name tienda-worker --source-version 1 --launch-template-data \'{"ImageId":"AMI"}\' and aws ec2 modify-launch-template --launch-template-name tienda-worker --default-version 2. The group will retry by itself within a couple of minutes.'),
+  ],
+  causa: T('Ayer, en una «limpieza de AMIs viejas», alguien borró tienda-worker-2026-06-01, la que usaba la plantilla del grupo. No pasó nada hasta que AWS retiró las dos instancias esta noche: desde entonces el grupo intenta reponerlas cada pocos minutos y falla siempre.', 'Yesterday, in an "old AMI cleanup", someone deleted tienda-worker-2026-06-01, the one the group\'s template used. Nothing happened until AWS retired both instances last night: since then the group tries to replace them every few minutes and always fails.'),
+  solucion: T('Versión 2 de la plantilla tienda-worker con la AMI de septiembre, marcada por defecto; el grupo lanza los dos workers.', 'Version 2 of the tienda-worker template with the September AMI, set as default; the group launches both workers.'),
+  leccion: T('Auto Scaling no avisa cuando no puede lanzar: lo apunta en su historial de actividad y lo reintenta. Por eso describe-scaling-activities es lo primero que se mira. Y una avería así puede dormir semanas: borrar una AMI en uso no rompe nada hasta el día que hace falta lanzar. Antes de borrar una AMI, comprueba que ninguna plantilla la use.', 'Auto Scaling does not shout when it cannot launch: it writes it in its activity history and retries. That is why describe-scaling-activities is the first thing you look at. And a fault like this can sleep for weeks: deleting an AMI in use breaks nothing until the day something needs launching. Before deleting an AMI, check that no template uses it.'),
+  guion: ['aws cloudwatch describe-alarms --state-value ALARM',
+    'aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names tienda-workers --query "AutoScalingGroups[].[MinSize,DesiredCapacity,length(Instances)]" --output text',
+    'aws autoscaling describe-scaling-activities --auto-scaling-group-name tienda-workers --max-items 3 --query "Activities[].[StatusCode,Description]" --output text',
+    'aws ec2 describe-launch-template-versions --launch-template-name tienda-worker --query "LaunchTemplateVersions[].[VersionNumber,DefaultVersion,LaunchTemplateData.ImageId]" --output text',
+    'aws ec2 describe-images --owners self --query "Images[].[ImageId,Name]" --output table',
+    'aws ec2 create-launch-template-version --launch-template-name tienda-worker --source-version 1 --version-description "' + T('AMI de septiembre', 'September AMI') + '" --launch-template-data \'{"ImageId":"' + ID.ami.worker2 + '"}\'',
+    'aws ec2 modify-launch-template --launch-template-name tienda-worker --default-version 2', 'sleep 120',
+    'aws autoscaling describe-auto-scaling-groups --auto-scaling-group-names tienda-workers --query "AutoScalingGroups[].Instances[].[InstanceId,LifecycleState]" --output text'],
+  trampas: [
+    { cmds: ['aws autoscaling set-desired-capacity --auto-scaling-group-name tienda-workers --desired-capacity 4', 'sleep 300'], porque: T('pedir más instancias no arregla que no se puedan lanzar', 'asking for more instances does not fix the fact that they cannot be launched') },
+    { cmds: ['aws autoscaling update-auto-scaling-group --auto-scaling-group-name tienda-workers --min-size 0 --desired-capacity 0'], porque: T('bajar el mínimo a 0 apaga la alarma, pero los envíos siguen sin procesarse', 'lowering the minimum to 0 silences the alarm, but shipments are still not processed') },
+  ],
+},
+// ============================================================================ 14
+{
+  id: 'INC-7162', clave: 'factura', tipo: 'incidente', nivel: 2, area: T('Coste', 'Cost'), funciones: ['coste'],
+  impacto: 'medio', urgencia: 'media', de: T('Finanzas (Óscar Vidal)', 'Finance (Óscar Vidal)'),
+  asunto: T('La factura de AWS de septiembre va a doblar el presupuesto', 'The September AWS bill is going to double the budget'),
+  cuerpo: [T('Cost Anomaly Detection avisa de un gasto diario muy por encima de lo normal desde hace tres semanas, y la previsión del mes casi dobla el presupuesto de 900 $.', 'Cost Anomaly Detection reports daily spending well above normal for the last three weeks, and the month\'s forecast almost doubles the $900 budget.'),
+    T('QA nos dice que las pruebas de carga de principios de mes terminaron hace dos semanas y que ya no necesitan nada de aquello. Lo que esté gastado, gastado está: que no siga.', 'QA tells us the load tests from early in the month finished two weeks ago and they no longer need any of it. What has been spent is spent: just make it stop.')],
+  inicio: -30300, abierto: -60,
+  aplicar(st) {
+    const a = st.aws, tg = [{ Key: 'Entorno', Value: 'pruebas' }, { Key: 'Propietario', Value: 'qa' }];
+    a.instancias.push({ id: CARGA.inst, nombre: 'carga-01', tipo: 'm6i.4xlarge', subred: ID.subred['public-b'], sgs: [ID.sg.web], ipPriv: '10.0.2.88', ipPub: '34.247.18.120', ami: ID.ami.base,
+      clave: N.CLAVE, estado: 'running', lanzada: -30300, iniciada: -30300, motivo: '', host: null, listoEn: null, perfil: null, tags: tg });
+    a.volumenes.push({ id: CARGA.vol, inst: null, tam: 1000, visible: 1000, tipo: 'io2', iops: 10000, raiz: false, device: null, nvme: null, montaje: null, creado: -30300, mods: [], tags: [{ Key: 'Name', Value: 'carga-datos' }].concat(tg) });
+    a.eips.push({ id: CARGA.eip, ip: '52.48.210.17', inst: null, creado: -30300, tags: [{ Key: 'Name', Value: 'carga-eip' }].concat(tg) });
+  },
+  objetivo(st) {
+    const out = [], i = st.aws.instancias.find(x => x.id === CARGA.inst);
+    if (i && i.estado !== 'terminated' && i.estado !== 'shutting-down') out.push(T('carga-01 (m6i.4xlarge) sigue existiendo: ' + i.estado, 'carga-01 (m6i.4xlarge) still exists: ' + i.estado));
+    if (N.vol(st, CARGA.vol)) out.push(T('El volumen io2 de 1000 GiB carga-datos sigue existiendo', 'The 1000 GiB io2 volume carga-datos still exists'));
+    if (st.aws.eips.some(e => e.id === CARGA.eip && e.liberada == null)) out.push(T('La IP elástica de las pruebas sigue reservada', 'The tests\' Elastic IP is still allocated'));
+    return out;
+  },
+  practicas: [
+    { t: T('Buscaste dónde está el gasto con Cost Explorer antes de borrar nada', 'You found where the spending is with Cost Explorer before deleting anything'), ok: st => antes(st, /ce get-cost-and-usage/, /terminate-instances|delete-volume|release-address/) },
+    { t: T('Agrupaste el gasto por etiqueta para separar pruebas de producción', 'You grouped spending by tag to separate tests from production'), ok: st => usado(st, /group-by Type=TAG/) },
+    { t: T('Comprobaste las etiquetas (Entorno, Propietario) antes de borrar', 'You checked the tags (Entorno, Propietario) before deleting'), ok: st => antes(st, /describe-instances|describe-volumes/, /terminate-instances|delete-volume/) },
+    { t: T('Hiciste un snapshot del volumen antes de borrarlo', 'You took a snapshot of the volume before deleting it'), ok: st => antes(st, /create-snapshot/, /delete-volume/) },
+  ],
+  pistas: [
+    T('Cost Explorer te dice dónde va el dinero: aws ce get-cost-and-usage --time-period Start=2026-09-01,End=2026-09-24 --granularity MONTHLY --metrics UnblendedCost --group-by Type=DIMENSION,Key=SERVICE. Prueba también con --group-by Type=TAG,Key=Entorno.', 'Cost Explorer tells you where the money goes: aws ce get-cost-and-usage --time-period Start=2026-09-01,End=2026-09-24 --granularity MONTHLY --metrics UnblendedCost --group-by Type=DIMENSION,Key=SERVICE. Try --group-by Type=TAG,Key=Entorno too.'),
+    T('Lo de pruebas: aws ec2 describe-instances --filters "Name=tag:Entorno,Values=pruebas", aws ec2 describe-volumes --filters Name=status,Values=available (discos sin usar) y aws ec2 describe-addresses (IPs elásticas sin asociar, que también cobran).', 'The test resources: aws ec2 describe-instances --filters "Name=tag:Entorno,Values=pruebas", aws ec2 describe-volumes --filters Name=status,Values=available (unused disks) and aws ec2 describe-addresses (unassociated Elastic IPs, which are also charged).'),
+    T('terminate-instances para carga-01, create-snapshot y luego delete-volume para carga-datos (por si acaso), y release-address para la IP.', 'terminate-instances for carga-01, create-snapshot and then delete-volume for carga-datos (just in case), and release-address for the IP.'),
+  ],
+  causa: T('Lo que quedó de las pruebas de carga de hace tres semanas: una m6i.4xlarge encendida, un volumen io2 de 1000 GiB con 10 000 IOPS provisionados (lo más caro: se pagan los IOPS aunque nadie los use) y una IP elástica sin asociar.', 'What was left from the load tests three weeks ago: a running m6i.4xlarge, a 1000 GiB io2 volume with 10,000 provisioned IOPS (the most expensive bit: you pay for IOPS even if nobody uses them) and an unassociated Elastic IP.'),
+  solucion: T('carga-01 terminada, snapshot y borrado del volumen io2, IP elástica liberada. El gasto diario vuelve a lo normal.', 'carga-01 terminated, the io2 volume snapshotted and deleted, Elastic IP released. Daily spending is back to normal.'),
+  leccion: T('En la nube se paga lo que existe, no lo que se usa: una máquina parada sigue pagando su disco, un io2 cobra sus IOPS sin tocarlo y una IP elástica suelta también cuesta. Las etiquetas (Entorno, Propietario) son las que permiten preguntar «¿de quién es esto?» y borrar con tranquilidad. Y lo gastado no vuelve: por eso hay que mirar la factura cada semana, no a fin de mes.', 'In the cloud you pay for what exists, not for what is used: a stopped machine still pays for its disk, an io2 charges for its IOPS untouched and a loose Elastic IP costs too. Tags (Entorno, Propietario) are what let you ask "whose is this?" and delete with confidence. And what is spent does not come back: that is why you check the bill every week, not at month end.'),
+  guion: ['aws cloudwatch describe-alarms --state-value ALARM',
+    'aws ce get-cost-and-usage --time-period Start=2026-09-01,End=2026-09-24 --granularity MONTHLY --metrics UnblendedCost --group-by Type=TAG,Key=Entorno --query "ResultsByTime[].Groups[].[Keys[0],Metrics.UnblendedCost.Amount]" --output table',
+    'aws ec2 describe-instances --filters "Name=tag:Entorno,Values=pruebas" --query "Reservations[].Instances[].[InstanceId,InstanceType,State.Name,LaunchTime]" --output table',
+    'aws ec2 describe-volumes --filters Name=status,Values=available --query "Volumes[].[VolumeId,Size,VolumeType,Iops]" --output table',
+    'aws ec2 describe-addresses --query "Addresses[].[AllocationId,PublicIp,InstanceId]" --output text',
+    'aws ec2 terminate-instances --instance-ids ' + CARGA.inst,
+    'aws ec2 create-snapshot --volume-id ' + CARGA.vol + ' --description "' + T('carga-datos antes de borrar', 'carga-datos before deletion') + '"',
+    'aws ec2 delete-volume --volume-id ' + CARGA.vol, 'aws ec2 release-address --allocation-id ' + CARGA.eip,
+    'aws cloudwatch describe-alarms --state-value ALARM'],
+  trampas: [
+    { cmds: ['aws ec2 stop-instances --instance-ids ' + CARGA.inst], porque: T('parar la máquina deja el volumen io2 y la IP elástica cobrando', 'stopping the machine leaves the io2 volume and the Elastic IP charging') },
+    { cmds: ['aws ec2 terminate-instances --instance-ids ' + CARGA.inst], porque: T('el volumen io2 no estaba conectado a la máquina: sigue ahí, y es lo más caro', 'the io2 volume was not attached to the machine: it is still there, and it is the most expensive part') },
+  ],
+},
+// ============================================================================ 15
+{
+  id: 'INC-7166', clave: 'deriva-tf', tipo: 'incidente', nivel: 2, area: 'Terraform · VPC', funciones: ['iac', 'red'],
+  impacto: 'medio', urgencia: 'alta', de: T('Seguridad (revisión de cumplimiento)', 'Security (compliance review)'),
+  asunto: T('tienda-web tiene reglas que no están en Terraform', 'tienda-web has rules that are not in Terraform'),
+  cuerpo: [T('La revisión diaria de cumplimiento marca deriva en el security group tienda-web: tiene reglas que no están en el código de ~/infra. Además, la alarma sg-ssh-open-to-world está en ALARM.', 'The daily compliance review flags drift on the tienda-web security group: it has rules that are not in the ~/infra code. And the sg-ssh-open-to-world alarm is in ALARM.'),
+    T('Ese security group lo gestiona Terraform. Dejadlo como dice el código.', 'That security group is managed by Terraform. Make it match the code.')],
+  inicio: -200, abierto: -15,
+  aplicar(st) {
+    const g = N.sg(st, ID.sg.web);
+    g.reglas.push({ proto: 'tcp', desde: 22, hasta: 22, cidr: '0.0.0.0/0', desc: T('depuracion desde casa (temporal)', 'debugging from home (temporary)'), id: 'sgr-0' + U.hex('deriva22', 16) },
+      { proto: 'tcp', desde: 8080, hasta: 8080, cidr: '0.0.0.0/0', desc: T('API directa (pruebas)', 'direct API (tests)'), id: 'sgr-0' + U.hex('deriva8080', 16) });
+  },
+  objetivo(st) { const d = N.derivaTf(st); return d.sobran.length || d.faltan.length ? [T('tienda-web no coincide con el código: ' + d.sobran.map(r => r.desde + '/' + (r.cidr || r.sg)).join(', ') + ' de más' + (d.faltan.length ? ', ' + d.faltan.length + ' de menos' : ''), 'tienda-web does not match the code: ' + d.sobran.map(r => r.desde + '/' + (r.cidr || r.sg)).join(', ') + ' extra' + (d.faltan.length ? ', ' + d.faltan.length + ' missing' : ''))] : []; },
+  practicas: [
+    { t: T('Leíste las reglas y su descripción antes de tocar', 'You read the rules and their descriptions before touching anything'), ok: st => antes(st, /describe-security-groups/, /terraform apply|revoke-security-group-ingress/) },
+    { t: T('Revisaste el plan antes de aplicarlo', 'You reviewed the plan before applying it'), ok: st => antes(st, /terraform plan/, /terraform apply/) },
+    { t: T('Lo arreglaste con Terraform, no a mano', 'You fixed it with Terraform, not by hand'), ok: st => usado(st, /terraform apply/) && !usado(st, /revoke-security-group-ingress/) },
+    { t: T('Comprobaste que ya no hay deriva (un plan sin cambios)', 'You checked there is no drift left (a plan with no changes)'), ok: st => despues(st, /terraform plan/, /terraform apply/) },
+  ],
+  pistas: [
+    T('Mira qué hay ahora y quién lo puso: aws ec2 describe-security-groups --group-ids ' + ID.sg.web + '. Las descripciones de las reglas suelen contar la historia.', 'Look at what is there now and who put it there: aws ec2 describe-security-groups --group-ids ' + ID.sg.web + '. Rule descriptions usually tell the story.'),
+    T('El código está en ~/infra (cat ~/infra/README.md). Desde allí, terraform plan te enseña qué no coincide con el código.', 'The code is in ~/infra (cat ~/infra/README.md). From there, terraform plan shows you what does not match the code.'),
+    T('terraform apply, revisa el plan y contesta yes. Después, otro terraform plan tiene que decir «No changes».', 'terraform apply, review the plan and answer yes. Afterwards, another terraform plan must say "No changes".'),
+  ],
+  causa: T('Alguien abrió a mano en tienda-web el 22 a todo internet («depuración desde casa») y el 8080 («API directa, pruebas»), saltándose el código de Terraform. Nadie las quitó al acabar.', 'Someone opened port 22 to the whole internet ("debugging from home") and 8080 ("direct API, tests") on tienda-web by hand, bypassing the Terraform code. Nobody removed them afterwards.'),
+  solucion: T('terraform apply desde ~/infra: el security group vuelve a tener sólo lo declarado; un segundo plan confirma que no queda deriva.', 'terraform apply from ~/infra: the security group goes back to only what is declared; a second plan confirms there is no drift left.'),
+  leccion: T('Si un recurso lo gestiona Terraform, el código es la verdad: un cambio a mano es deriva, y el siguiente apply lo deshará (o lo dejará ahí escondido si nadie lo mira). Arreglarlo también a mano repite el error; aplicar el código lo corrige y deja constancia. Y terraform plan antes de cada apply, siempre: es lo que te enseña qué vas a romper.', 'If Terraform manages a resource, the code is the truth: a manual change is drift, and the next apply will undo it (or leave it hidden if nobody looks). Fixing it by hand too repeats the mistake; applying the code corrects it and leaves a record. And terraform plan before every apply, always: it is what shows you what you are about to break.'),
+  guion: ['aws cloudwatch describe-alarms --state-value ALARM',
+    'aws ec2 describe-security-groups --group-ids ' + ID.sg.web + ' --query "SecurityGroups[].IpPermissions[].[FromPort,IpRanges[0].CidrIp,IpRanges[0].Description]" --output text',
+    'cat ~/infra/README.md', 'cd ~/infra', 'terraform plan', 'terraform apply', 'yes', 'terraform plan', 'cd'],
+  trampas: [
+    { cmds: ['aws ec2 revoke-security-group-ingress --group-id ' + ID.sg.web + ' --protocol tcp --port 22 --cidr 0.0.0.0/0'], porque: T('quitar a mano la del 22 deja la del 8080, que tampoco está en el código', 'removing the port 22 rule by hand leaves the 8080 one, which is not in the code either') },
   ],
 },
 ];

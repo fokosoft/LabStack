@@ -10,7 +10,7 @@ const fs = require('fs'), path = require('path');
 const D = __dirname, LINUX = path.join(D, '..', 'puesto-linux');
 function cargar(idioma) {
   const win = { PUESTO: { idioma } };
-  [path.join(D, 'topologia.js'), path.join(LINUX, 'motor.js'), path.join(D, 'nube.js'), path.join(D, 'aws.js'), path.join(D, 'servicios.js'), path.join(D, 'escenarios.js'), path.join(D, 'soluciones.js')]
+  [path.join(D, 'topologia.js'), path.join(LINUX, 'motor.js'), path.join(D, 'nube.js'), path.join(D, 'aws.js'), path.join(D, 'servicios.js'), path.join(D, 'rds.js'), path.join(D, 'asg.js'), path.join(D, 'coste.js'), path.join(D, 'terraform.js'), path.join(D, 'escenarios.js'), path.join(D, 'guardia.js'), path.join(D, 'soluciones.js')]
     .forEach(f => new Function('window', fs.readFileSync(f, 'utf8'))(win));
   return win.PUESTO;
 }
@@ -38,12 +38,12 @@ console.log('  plataforma de partida:');
   const ins = st.aws.instancias.filter(i => i.estado !== 'running');
   if (ins.length) mal('instancias que no están running al empezar: ' + ins.map(i => i.nombre).join(', '));
   // por el ~/.ssh/config, se entra en todas
-  const fallanSsh = st.aws.instancias.map(i => i.nombre).filter(n => { const r = correr(P, st, ['ssh ' + n]); const ok = r.ses.host === n; correr(P, st, ['exit'], r.ses); return !ok; });
+  const fallanSsh = st.aws.instancias.filter(i => i.host).map(i => i.nombre).filter(n => { const r = correr(P, st, ['ssh ' + n]); const ok = r.ses.host === n; correr(P, st, ['exit'], r.ses); return !ok; });
   if (fallanSsh.length) mal('ssh por el ~/.ssh/config no entra en: ' + fallanSsh.join(', '));
   const web = correr(P, st, ['curl -I http://52.18.140.66']);
   if (!/200 OK/.test(lineas(web, 0))) mal('la web no contesta desde fuera: ' + lineas(web, 0));
   const json = correr(P, st, ['aws ec2 describe-instances']);
-  try { const d = JSON.parse(lineas(json, 0)); if (d.Reservations.length !== 5) mal('describe-instances no devuelve las 5 instancias'); } catch (e) { mal('describe-instances no da JSON válido: ' + e.message); }
+  try { const d = JSON.parse(lineas(json, 0)); if (d.Reservations.length !== st.aws.instancias.length) mal('describe-instances no devuelve todas las instancias'); } catch (e) { mal('describe-instances no da JSON válido: ' + e.message); }
   if (!fallos) bien('sana: cero alarmas, 5 instancias running, ssh entra en todas por el bastión, la web contesta y la CLI da JSON válido');
 }
 
@@ -145,21 +145,44 @@ console.log('\n  mecánica de la nube:');
   if (!malos) bien('IAM (rol frente a usuario, denegación implícita, dos claves como mucho), S3 (público, URL firmada que caduca, versionado), balanceador (fail-open, motivo del health check, 503) y regiones');
 }
 
+// ------------------------------------------------------------ RDS, Auto Scaling, coste y Terraform
+{
+  let malos = 0;
+  const chk = (cond, m) => { if (!cond) { mal(m); malos++; } };
+  let st = P.crear();
+  chk(!P.nube.derivaTf(st).cambios, 'la cuenta sana no debería tener deriva respecto a Terraform');
+  chk(P.nube.prevision(st) < P.nube.PRESUPUESTO && !P.alertasActivas(st).length, 'la cuenta sana cabe en su presupuesto y no tiene gasto anómalo');
+  // Auto Scaling repone lo que muere.
+  const w = st.aws.instancias.find(i => i.asg && i.estado === 'running');
+  correr(P, st, ['aws ec2 terminate-instances --instance-ids ' + w.id, 'sleep 180']);
+  chk(st.aws.instancias.filter(i => i.asg && i.estado === 'running').length === 2, 'el grupo de Auto Scaling debería reponer una instancia terminada');
+  // Lo terminado deja de costar.
+  st = P.preparar(P.escenario('INC-7162'));
+  const r0 = P.nube.ritmo(st);
+  correr(P, st, ['aws ec2 terminate-instances --instance-ids ' + st.aws.instancias.find(i => i.nombre === 'carga-01').id, 'sleep 60']);
+  chk(P.nube.ritmo(st) < r0 - 0.8, 'terminar la m6i.4xlarge debería bajar el gasto por hora');
+  // RDS: un cambio sin --apply-immediately queda pendiente.
+  st = P.crear();
+  correr(P, st, ['aws rds modify-db-instance --db-instance-identifier tienda-pedidos --allocated-storage 200', 'sleep 600']);
+  chk(P.nube.rds(st, 'tienda-pedidos').almacen === 100 && P.nube.rds(st, 'tienda-pedidos').pendientes.almacen === 200, 'sin --apply-immediately, el almacenamiento debería quedar pendiente');
+  if (!malos) bien('RDS (cambios pendientes sin --apply-immediately), Auto Scaling (se repone solo), coste (lo terminado deja de cobrar; la cuenta sana cabe en el presupuesto) y Terraform (sin deriva de partida)');
+}
+
 // ------------------------------------------------------------ --query y formatos
 {
   let malos = 0;
   const q = (expr, esperado) => { const st = P.crear(); const r = correr(P, st, ['aws ec2 describe-instances --query "' + expr + '" --output json']); let v; try { v = JSON.parse(lineas(r, 0)); } catch (e) { v = lineas(r, 0); } if (JSON.stringify(v) !== JSON.stringify(esperado)) { mal('--query ' + expr + ' → ' + JSON.stringify(v).slice(0, 160) + ' (esperaba ' + JSON.stringify(esperado).slice(0, 120) + ')'); malos++; } };
   q('Reservations[].Instances[].Tags[?Key==`Name`]|[0].Value', null);   // el | corta la proyección: [0] es una lista y .Value de una lista es null
   q('Reservations[].Instances[].Tags[?Key==`Name`][]|[0].Value', 'bastion');
-  q('Reservations[].Instances[].Tags[?Key==`Name`].Value[]', ['bastion', 'web-01', 'web-02', 'app-01', 'db-01']);
-  q("Reservations[].Instances[?Placement.AvailabilityZone=='eu-west-1b'].InstanceId[]", [ID.inst['web-02'], ID.inst['db-01']]);
-  q('length(Reservations[])', 5);
+  q('Reservations[].Instances[].Tags[?Key==`Name`].Value[]', ['bastion', 'web-01', 'web-02', 'app-01', 'db-01', 'tienda-worker', 'tienda-worker']);
+  q("Reservations[].Instances[?Placement.AvailabilityZone=='eu-west-1b'].InstanceId[]", P.crear().aws.instancias.filter(i => P.nube.subred(P.crear(), i.subred).az === 'eu-west-1b').map(i => i.id));
+  q('length(Reservations[])', P.crear().aws.instancias.length);
   q("Reservations[].Instances[].{N:Tags[?Key=='Name']|[0].Value,T:InstanceType}[?T=='t3.small'].N", []);   // el filtro se aplica a cada elemento proyectado
   q("Reservations[].Instances[].{N:Tags[?Key=='Name']|[0].Value,T:InstanceType} | [?T=='t3.small'].N", ['web-01', 'web-02']);
   q('Reservations[0].Instances[0].[InstanceId,State.Name]', [ID.inst.bastion, 'running']);
   const st = P.crear();
   const t = correr(P, st, ['aws ec2 describe-instances --query "Reservations[].Instances[].[InstanceId,InstanceType]" --output text', 'aws ec2 describe-instances --query "Reservations[].Instances[].[InstanceId,InstanceType]" --output table']);
-  if (lineas(t, 0).split('\n').length !== 5 || !/\t/.test(lineas(t, 0))) { mal('--output text debería dar una línea por instancia separada por tabuladores'); malos++; }
+  if (lineas(t, 0).split('\n').length !== st.aws.instancias.length ||!/\t/.test(lineas(t, 0))) { mal('--output text debería dar una línea por instancia separada por tabuladores'); malos++; }
   if (!/DescribeInstances/.test(lineas(t, 1)) || !/^\+[-+]+\+$/m.test(lineas(t, 1))) { mal('--output table debería pintar una tabla con el nombre de la operación'); malos++; }
   if (!malos) bien('--query: proyecciones, filtros, índices, |, multiselect, length(); --output text y table');
 }
@@ -195,7 +218,7 @@ console.log('\n  en inglés:');
   const E = cargar('en');
   let malos = probarTickets(E, '[en] ');
   const ES = /[áéíóúñ¿¡«»]|(^|[^a-zA-Z\-_./])(el|los|las|que|para|con|sin|una|del|está|hay|pero|sigue|todavía|antes|después|nada|cada|desde|tiene)(?=$|[^a-zA-Z\-_./])/i;
-  const NOMBRES = /Lucía/g;
+  const NOMBRES = /Lucía|Óscar/g;
   const raros = [];
   const mira = (donde, s) => { if (typeof s === 'string' && ES.test(s.replace(NOMBRES, ''))) raros.push(donde + ': ' + s.slice(0, 120)); };
   E.escenarios.forEach(e => {
@@ -216,6 +239,41 @@ console.log('\n  en inglés:');
   raros.slice(0, 20).forEach(x => mal('[en] parece español: ' + x));
   malos += raros.length;
   if (!malos) bien('los ' + E.escenarios.length + ' tickets se resuelven igual en inglés y nada de lo que se ve está en español');
+}
+
+// ------------------------------------------------------------ guardias y caos
+console.log('\n  guardias y caos:');
+{
+  let malos = 0;
+  const SEMILLAS = 30;
+  [1, 2, 3].forEach(nivel => {
+    let fallan = 0; const combos = new Set();
+    for (let s = 1; s <= SEMILLAS; s++) {
+      const g = P.generarGuardia(nivel, s * 7919);
+      if (!g.ok) { mal('nivel ' + nivel + ', semilla ' + s * 7919 + ': no sale una guardia jugable'); fallan++; continue; }
+      const e = g.escenario, st = P.preparar(e);
+      if (!P.alertasActivas(st).length) { mal(e.id + ': nace sin ninguna alarma: en guardia nadie la vería'); fallan++; }
+      if (e.guardia.familias.length !== nivel) { mal(e.id + ': nivel ' + nivel + ' con ' + e.guardia.familias.length + ' averías'); fallan++; }
+      const r = correr(P, st, P.guionDe(e, st)), ev = P.evaluar(st, e);
+      if (ev.pendientes.length || ev.practicas.some(x => !x.ok)) { mal(e.id + ': su arreglo no la cierra: ' + ev.pendientes.concat(ev.practicas.filter(x => !x.ok).map(x => x.t)).join(' · ')); fallan++; }
+      const g2 = P.generarGuardia(nivel, s * 7919);
+      if (JSON.stringify(g2.escenario.guardia) !== JSON.stringify(e.guardia)) { mal(e.id + ': la misma semilla no da la misma guardia'); fallan++; }
+      combos.add(e.guardia.familias.slice().sort().join('+'));
+    }
+    malos += fallan;
+    if (!fallan) bien('nivel ' + nivel + ' (' + P.nivelesGuardia[nivel].toLowerCase() + '): ' + SEMILLAS + ' semillas, todas con alarmas y cerradas por su arreglo; ' + combos.size + ' combinaciones distintas');
+  });
+  // Caos: nada antes de su minuto, alarma después, y se arregla.
+  const st = P.crear(), provocadas = [];
+  for (let k = 0; k < 3; k++) { const c = P.provocarCaos(st, 4242 + k, provocadas.map(x => x.averias[0])); if (c) provocadas.push(c); }
+  if (provocadas.length < 3) { mal('el caos no consigue programar tres averías distintas'); malos++; }
+  if (P.alertasActivas(st).length) { mal('el caos rompe algo antes de su minuto'); malos++; }
+  correr(P, st, ['sleep ' + 60 * 8]);
+  if (!P.pendientesCaos(st, provocadas).length || !P.alertasActivas(st).length) { mal('después de su minuto, el caos debería haber roto algo visible'); malos++; }
+  provocadas.forEach(c => correr(P, st, c.familia.arreglo(st, c.params)));
+  correr(P, st, ['sleep 120']);
+  if (P.pendientesCaos(st, provocadas).length || P.alertasActivas(st).length) { mal('el arreglo de lo provocado por el caos no deja la cuenta sana: ' + P.pendientesCaos(st, provocadas).concat(P.alertasActivas(st).map(a => a.nombre)).join(' · ')); malos++; }
+  if (!malos) bien('el caos programa ' + provocadas.length + ' averías (' + provocadas.map(c => c.familia.id).join(', ') + '): nada antes de su minuto, alarmas después, y sus arreglos dejan la cuenta sana');
 }
 
 // ------------------------------------------------------------ solucionario
