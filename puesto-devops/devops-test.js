@@ -11,7 +11,7 @@ const fs = require('fs'), path = require('path');
 const D = __dirname, LINUX = path.join(D, '..', 'puesto-linux');
 function cargar(idioma) {
   const win = { PUESTO: { idioma } };
-  [path.join(D, 'topologia.js'), path.join(LINUX, 'motor.js'), path.join(D, 'cluster.js'), path.join(D, 'kubectl.js'), path.join(D, 'escenarios.js'), path.join(D, 'soluciones.js'), path.join(D, 'ui.js')]
+  [path.join(D, 'topologia.js'), path.join(LINUX, 'motor.js'), path.join(D, 'cluster.js'), path.join(D, 'kubectl.js'), path.join(D, 'recursos.js'), path.join(D, 'helm.js'), path.join(D, 'nodos.js'), path.join(D, 'gitops.js'), path.join(D, 'averias.js'), path.join(D, 'escenarios.js'), path.join(LINUX, 'incidencias.js'), path.join(D, 'guardia.js'), path.join(D, 'soluciones.js'), path.join(D, 'ui.js')]
     .forEach(f => new Function('window', fs.readFileSync(f, 'utf8'))(win));
   return win.PUESTO;
 }
@@ -150,10 +150,155 @@ console.log('\n  Kubernetes se comporta como Kubernetes:');
   if (!malos) bien('rolling update que protege, ConfigMap leído al arrancar, OOMKilled, cordon y el scheduler, selector sin endpoints, readiness, reinicio de un nodo y los errores de kubectl');
 }
 
+// ------------------------------------------------------------ fase 2: almacenamiento, entrada, escalado, RBAC, red y Helm
+console.log('\n  fase 2 (PVC, certificados, HPA, RBAC, NetworkPolicies, Helm):');
+{
+  let malos = 0;
+  const ko = m => { mal(m); malos++; };
+  // Un PVC se amplía en caliente si la StorageClass lo permite, y nunca encoge.
+  {
+    const st = P.crear(), m = K.copia(st.k8s.repo['monitoring/prometheus-pvc.yaml']);
+    m.tam = 40; if (!/can not be less than previous value/.test(K.aplicar(st, m, 0))) ko('encoger un PVC debería rechazarse');
+    m.tam = 80; K.aplicar(st, m, 0); P.avanzar(st, 3);
+    if (st.k8s.pvcs['monitoring/prometheus-data'].tam !== 80) ko('ampliar un PVC en una StorageClass expandible debería hacerse en caliente');
+    st.k8s.pvcs['monitoring/prometheus-data'].sc = 'longhorn-static'; m.tam = 90; m.sc = 'longhorn-static';
+    if (!/only dynamically provisioned pvc can be resized/.test(K.aplicar(st, m, 0))) ko('ampliar en una StorageClass sin expansión debería rechazarse');
+  }
+  // cert-manager vuelve a emitir si se borra el Secret y el emisor existe; curl -k se salta la verificación.
+  {
+    const st = P.crear(), r = correr(P, st, ['kubectl delete secret checkout-tls -n pagos', 'kubectl get certificate -n pagos', 'curl -s ' + K.URL_PAGO]);
+    if (!/checkout-tls\s+True/.test(texto(r, 1)) || !/"estado":"ok"/.test(texto(r, 2))) ko('con el emisor sano, cert-manager debería volver a emitir el certificado borrado');
+    const s = st.k8s.secrets['pagos/checkout-tls']; s.hasta = st.reloj - 5; s.desde = s.hasta - 129600; st.k8s.issuers = {};
+    const r2 = correr(P, st, ['curl -s ' + K.URL_PAGO, 'curl -sk ' + K.URL_PAGO]);
+    if (!/certificate has expired/.test(texto(r2, 0)) || !/"estado":"ok"/.test(texto(r2, 1))) ko('un certificado caducado: curl falla, curl -k pasa');
+  }
+  // La HPA sube enseguida, baja tras 5 minutos de calma, y deshace un kubectl scale.
+  {
+    const st = P.crear(); st.k8s.carga['api-pagos'] = 650; P.avanzar(st, 3);
+    if (dep(st, 'api-pagos').replicas !== 6) ko('con 650 req/s la HPA debería subir api-pagos a 6 (está en ' + dep(st, 'api-pagos').replicas + ')');
+    st.k8s.carga['api-pagos'] = 180; P.avanzar(st, 3);
+    if (dep(st, 'api-pagos').replicas !== 6) ko('la HPA no debería bajar antes de 5 minutos de calma');
+    P.avanzar(st, 4);
+    if (dep(st, 'api-pagos').replicas !== 3) ko('pasados 5 minutos de calma la HPA debería volver al mínimo (está en ' + dep(st, 'api-pagos').replicas + ')');
+    correr(P, st, ['kubectl scale deployment/api-pagos -n pagos --replicas=9', 'sleep 60']);
+    if (dep(st, 'api-pagos').replicas === 9) ko('con HPA, kubectl scale debería durar sólo hasta la siguiente vuelta de la HPA');
+    const sinReq = P.crear();
+    correr(P, sinReq, ['kubectl set resources deployment/api-pagos -n pagos --requests=cpu=0', 'sleep 120']);
+    delete dep(sinReq, 'api-pagos').tpl.req.cpu;
+    P.avanzar(sinReq, 3);
+    const r = correr(P, sinReq, ['kubectl get hpa -n pagos']);
+    if (!/<unknown>\/70%/.test(texto(r, 0))) ko('sin request de CPU la HPA debería enseñar <unknown>: ' + texto(r, 0));
+  }
+  // RBAC: sólo suma; un binding lo concede y quitarlo lo retira.
+  {
+    const st = P.crear(), as = ' --as=system:serviceaccount:ci:deployer';
+    const r = correr(P, st, ['kubectl auth can-i get secrets -n pagos' + as, 'kubectl create rolebinding prueba --clusterrole=edit --serviceaccount=ci:deployer -n pagos', 'kubectl auth can-i get secrets -n pagos' + as, 'kubectl delete rolebinding prueba -n pagos', 'kubectl auth can-i get secrets -n pagos' + as, 'kubectl auth can-i delete nodes', 'kubectl auth can-i delete deployments -n monitoring' + as]);
+    if (texto(r, 0) !== 'no' || texto(r, 2) !== 'yes' || texto(r, 4) !== 'no') ko('RBAC: get secrets debería ser no, yes con edit, y no al quitarlo');
+    if (texto(r, 5) !== 'yes' || texto(r, 6) !== 'no') ko('RBAC: sre-admin es cluster-admin; el deployer no puede nada fuera de pagos');
+  }
+  // NetworkPolicies: descartan (timeout); sin endpoints, refused. Borrar default-deny no abre lo que otra política selecciona.
+  {
+    const st = P.crear(), api = K.podsDe(st, dep(st, 'api-pagos'))[0], web = K.podsDe(st, dep(st, 'web-checkout'))[0];
+    const r = correr(P, st, ['kubectl exec ' + web.nombre + ' -n pagos -- wget -qO- antifraude:8080/actuator/health', 'kubectl exec ' + api.nombre + ' -n pagos -- curl -s antifraude:8080/actuator/health', 'kubectl exec ' + api.nombre + ' -n pagos -- curl -s antifraude.pagos.svc.cluster.local:8080/actuator/health', 'kubectl exec ' + api.nombre + ' -n pagos -- curl -s noexiste:8080/']);
+    if (!/timed out/.test(texto(r, 0))) ko('web-checkout no debería llegar a antifraude (ninguna política lo permite): timeout');
+    if (texto(r, 1) !== '{"status":"UP"}' || texto(r, 2) !== '{"status":"UP"}') ko('api-pagos sí debería llegar a antifraude, por nombre corto y por FQDN');
+    if (!/Could not resolve host/.test(texto(r, 3))) ko('un Service que no existe no resuelve');
+    correr(P, st, ['kubectl scale deployment/antifraude -n pagos --replicas=0', 'sleep 60']);
+    const r2 = correr(P, st, ['kubectl exec ' + api.nombre + ' -n pagos -- curl -s antifraude:8080/actuator/health']);
+    if (!/Couldn't connect to server/.test(texto(r2, 0))) ko('un Service sin endpoints da connection refused, no timeout: ' + texto(r2, 0));
+    const st2 = P.crear(), w2 = K.podsDe(st2, dep(st2, 'web-checkout'))[0];
+    const r3 = correr(P, st2, ['kubectl delete netpol default-deny-ingress -n pagos', 'kubectl exec ' + w2.nombre + ' -n pagos -- wget -qO- antifraude:8080/actuator/health']);
+    if (!/timed out/.test(texto(r3, 1))) ko('borrar default-deny no debería abrir antifraude: otras políticas lo siguen seleccionando');
+  }
+  // Helm: pending-upgrade bloquea, list lo esconde, rollback lo cierra, y un upgrade sin values vuelve a los del chart.
+  {
+    const st = P.crear(), rel = K.helm.release(st, 'ingress-nginx', 'ingress-nginx');
+    rel.historia.push({ rev: 7, chartV: '4.11.5', app: '1.11.5', estado: 'pending-upgrade', min: -5, desc: 'Preparing upgrade', values: {} });
+    const r = correr(P, st, ['helm list -n ingress-nginx', 'helm upgrade ingress-nginx ingress-nginx/ingress-nginx --version 4.11.5 -n ingress-nginx', 'kubectl get secrets -n ingress-nginx', 'helm rollback ingress-nginx 6 -n ingress-nginx', 'helm upgrade ingress-nginx ingress-nginx/ingress-nginx --version 4.11.5 -n ingress-nginx', 'kubectl rollout status deployment/ingress-nginx-controller -n ingress-nginx', 'helm upgrade ingress-nginx ingress-nginx/ingress-nginx --version 9.9.9 -n ingress-nginx']);
+    if (/ingress-nginx\s+ingress-nginx/.test(texto(r, 0))) ko('helm list sin -a no debería enseñar un release en pending-upgrade');
+    if (!/another operation \(install\/upgrade\/rollback\) is in progress/.test(texto(r, 1))) ko('un upgrade con una revisión pending-upgrade debería fallar');
+    if (!/sh\.helm\.release\.v1\.ingress-nginx\.v7/.test(texto(r, 2))) ko('cada revisión de Helm debería verse como un Secret');
+    if (!/Rollback was a success/.test(texto(r, 3)) || !/has been upgraded/.test(texto(r, 4))) ko('rollback y después upgrade deberían funcionar');
+    if (st.k8s.deps['ingress-nginx/ingress-nginx-controller'].replicas !== 1) ko('un upgrade sin -f ni --reuse-values debería volver a 1 réplica (los valores del chart)');
+    if (!/matching 9\.9\.9 not found/.test(texto(r, 6))) ko('una versión de chart que no existe debería decirlo');
+  }
+  if (!malos) bien('PVC que crece en caliente y no encoge, cert-manager que renueva, HPA que sube, se estabiliza y gana a kubectl scale, RBAC que sólo suma, NetworkPolicies que descartan (timeout frente a refused) y Helm con pending-upgrade, rollback y values');
+}
+
+// ------------------------------------------------------------ fase 3: GitOps, CI, nodos
+console.log('\n  fase 3 (git, Argo CD, CI, nodos que caen):');
+{
+  let malos = 0;
+  const ko = m => { mal(m); malos++; };
+  // Argo lee lo empujado: un commit local no cambia nada hasta el push. Con self-heal, un cambio a mano dura un minuto.
+  {
+    const st = P.crear(), app = K.argoApp(st, 'web-checkout'), nuevo = K.copia(st.k8s.repo['web-checkout/deployment.yaml']);
+    nuevo.tpl.imagen = K.REGISTRO + '/web-checkout:1.8.2';
+    K.commit(st, { min: 0, autor: 'test', msg: 'prueba', cambios: [{ ruta: 'web-checkout/deployment.yaml', despues: nuevo }], empujado: false });
+    if (K.argoEstado(st, app).sync !== 'Synced') ko('un commit sin empujar no debería poner la aplicación OutOfSync');
+    Object.assign(app, { auto: true, selfHeal: true });
+    const r = correr(P, st, ['cd ~/k8s', 'git status', 'git push', 'cd', 'sleep 60']);
+    if (!/ahead of 'origin\/main' by 1 commit/.test(texto(r, 1))) ko('git status debería decir que hay un commit sin empujar');
+    if (!/1\.8\.2$/.test(dep(st, 'web-checkout').tpl.imagen)) ko('con auto-sync, Argo debería aplicar lo empujado');
+    correr(P, st, ['kubectl rollout undo deployment/web-checkout -n pagos', 'sleep 60']);
+    if (!/1\.8\.2$/.test(dep(st, 'web-checkout').tpl.imagen)) ko('con self-heal, Argo debería deshacer el rollout undo hecho a mano');
+    const r2 = correr(P, st, ['argocd app rollback web-checkout 0']);
+    if (!/rollback cannot be initiated when auto-sync is enabled/.test(texto(r2, 0))) ko('argocd app rollback con auto-sync debería negarse');
+    const r3 = correr(P, st, ['cd ~/k8s', 'git revert HEAD --no-edit', 'git push', 'cd', 'kubectl rollout status deployment/web-checkout -n pagos']);
+    if (!/1\.8\.3$/.test(dep(st, 'web-checkout').tpl.imagen) || !/successfully rolled out/.test(texto(r3, 4))) ko('git revert + push debería volver a la 1.8.3');
+  }
+  // Un nodo NotReady pierde sus pods a los 5 minutos; con swap y fstab, el kubelet vuelve a caer al reiniciar.
+  {
+    const st = P.crear(), en2 = () => st.k8s.pods.filter(p => p.nodo === 'worker-02' && p.rs).length;
+    const antes = en2();
+    correr(P, st, ['ssh worker-02', 'sudo systemctl stop kubelet', 'exit', 'sleep 180']);
+    if (en2() !== antes) ko('antes de 5 minutos NotReady no se desaloja nada');
+    correr(P, st, ['sleep 240']);
+    if (en2() !== 0) ko('a los 5 minutos NotReady los pods del nodo deberían desalojarse');
+    if (Object.values(st.k8s.deps).some(d => !K.completo(st, d))) ko('los pods desalojados deberían volver a estar listos en otros nodos');
+    const h = st.hosts['worker-03']; Object.assign(h.extra, { swap: false, fstabSwap: true });
+    correr(P, st, ['ssh worker-02', 'sudo systemctl start kubelet', 'exit', 'ssh worker-03', 'sudo reboot', 'sleep 300']);
+    if (K.nodoListo(st, st.k8s.nodos['worker-03']) || h.svcs.kubelet.estado !== 'failed') ko('con el swap en /etc/fstab, el kubelet debería volver a fallar tras reiniciar');
+    const r = correr(P, st, ['ssh worker-03', 'free -h', 'sudo swapoff -a', "sudo sed -i '/swap/ s/^/#/' /etc/fstab", 'cat /etc/fstab', 'sudo systemctl restart kubelet', 'exit']);
+    if (!/Swap:\s+8\.0Gi/.test(texto(r, 1)) || !/^#\/swapfile/m.test(texto(r, 4)) || !K.nodoListo(st, st.k8s.nodos['worker-03'])) ko('free enseña el swap, sed lo comenta en fstab y el kubelet vuelve');
+  }
+  if (!malos) bien('Argo CD lee lo empujado, self-heal deshace lo hecho a mano, rollback se niega con auto-sync y git revert + push vuelve atrás; un nodo NotReady pierde sus pods a los 5 minutos; swap y fstab tumban el kubelet al reiniciar');
+}
+
+// ------------------------------------------------------------ guardias y caos
+console.log('\n  guardias y caos:');
+{
+  let malos = 0;
+  for (const n of [1, 2, 3]) for (let s = 1; s <= 30; s++) {
+    const g = P.generarGuardia(n, s);
+    if (!g.ok) { mal('guardia ' + n + '/' + s + ': no sale jugable'); malos++; continue; }
+    const e = g.escenario, st = P.preparar(e);
+    if (!P.alertasActivas(st).length) { mal('guardia ' + n + '/' + s + ': sin alertas'); malos++; }
+    if (P.familias.find(f => f.id === e.guardia.familias[0] || e.guardia.familias.indexOf(f.id) >= 0 && f.nivel === n) === undefined) { mal('guardia ' + n + '/' + s + ': ninguna familia de su nivel'); malos++; }
+    // El determinismo se comprueba en una de cada cinco semillas: generar es lo caro.
+    const g2 = s % 5 ? g : P.generarGuardia(n, s);
+    if (JSON.stringify(g2.escenario.guardia) !== JSON.stringify(e.guardia) || g2.escenario.inicio !== e.inicio) { mal('guardia ' + n + '/' + s + ': la misma semilla no da la misma noche'); malos++; }
+    correr(P, st, P.guionDe(e, st));
+    if (e.resuelto(st, P).length || e.practicas.some(p => !p.ok(st))) { mal('guardia ' + n + '/' + s + ': su guion no la cierra con sus prácticas'); malos++; }
+  }
+  // Caos: rompe algo unos minutos después, y su arreglo lo deja como estaba.
+  let caos = 0;
+  for (let s = 1; s <= 12; s++) {
+    const st = P.crear(), c = P.provocarCaos(st, s, []);
+    if (!c) { mal('caos ' + s + ': no programa nada'); malos++; continue; }
+    P.avanzar(st, 10);
+    if (!P.pendientesCaos(st, [c]).length) { mal('caos ' + s + ' (' + c.familia.id + '): no rompe nada'); malos++; continue; }
+    correr(P, st, c.familia.arreglo(st, c.params));
+    if (P.pendientesCaos(st, [c]).length) { mal('caos ' + s + ' (' + c.familia.id + '): su arreglo no lo arregla'); malos++; continue; }
+    caos++;
+  }
+  if (!malos) bien('90 guardias (30 semillas × 3 niveles) jugables, con alertas, deterministas y cerradas por su guion con sus prácticas; ' + caos + ' caos que rompen y se arreglan');
+}
+
 // ------------------------------------------------------------ tickets
 function probarTickets(P, etiqueta) {
   let malos = 0;
-  if (P.escenarios.length !== 6) { mal(etiqueta + 'se esperaban 6 tickets y hay ' + P.escenarios.length); malos++; }
+  if (P.escenarios.length !== 15) { mal(etiqueta + 'se esperaban 15 tickets y hay ' + P.escenarios.length); malos++; }
   P.escenarios.forEach(e => {
     const st = P.preparar(e), antes = e.resuelto(st, P), al = P.alertasActivas(st);
     if (!antes.length) { mal(etiqueta + e.id + ': nace resuelto'); malos++; return; }
@@ -204,11 +349,13 @@ console.log('\n  en inglés:');
     r.salida.forEach(x => x.lineas.forEach(l => mira(e.id + ' $ ' + x.cmd, l.t)));
   });
   E.funciones.forEach(f => mira('función ' + f.id, f.titulo));
+  E.familias.forEach(f => { mira('familia ' + f.id, f.titulo); mira('familia ' + f.id, f.leccion); });
+  [1, 2, 3].forEach(n => { const g = E.generarGuardia(n, 11); g.escenario.pistas.concat(g.escenario.causa, g.escenario.practicas.map(p => p.t)).forEach(x => mira('guardia ' + n, x)); });
   const st = E.crear(), r = correr(E, st, ['cat ~/LEEME.md', 'cat ~/k8s/README.md', 'help', 'kubectl edit x']);
   r.salida.forEach(x => x.lineas.forEach(l => mira('$ ' + x.cmd, l.t)));
   [E.ui.oferta.titulo, E.ui.oferta.sub, E.ui.oferta.txt, E.ui.sesionNueva, E.ui.alertas].concat(E.ui.como, E.ui.bienvenida('libre'), E.ui.bienvenida('ticket'), E.ui.experimentos.map(x => x[1])).forEach((x, i) => mira('ui ' + i, x));
   raros.forEach(x => mal('[en] parece español: ' + x));
-  if (!raros.length) bien('en inglés no queda nada en español: tickets, pistas, prácticas, alertas, ficheros, interfaz y la salida de los 6 guiones');
+  if (!raros.length) bien('en inglés no queda nada en español: tickets, pistas, prácticas, alertas, ficheros, interfaz y la salida de los ' + E.escenarios.length + ' guiones');
 }
 
 // ------------------------------------------------------------ solucionario
@@ -234,6 +381,139 @@ function probarSolucionario(P, etiqueta) {
 {
   const E = cargar('en');
   if (!(probarSolucionario(P, '') + probarSolucionario(E, '[en] '))) bien(P.escenarios.length + ' tickets con sus pasos alineados con el guion, en los dos idiomas; ' + P.glosario.length + ' términos de glosario');
+}
+
+// ------------------------------------------------------------ catálogo de averías (fase 4)
+// Las tres promesas de los otros catálogos: cada avería, sola, rompe algo y su
+// arreglo deja el clúster sano; los tickets hechos sólo de averías se cierran
+// encadenando sus arreglos; y una combinación inventada también.
+console.log('\n  catálogo de averías:');
+const ALERTAS = 'amtool alert';
+for (const [Q, et] of [[P, ''], [cargar('en'), '[en] ']]) {
+  const tipos = Object.keys(Q.averias), rompen = tipos.filter(t => !Q.averias[t].condicion);
+  let malos = 0;
+  const ES_TXT = /[áéíóúñ¿¡«»]|(^|[^a-zA-Z\-_./])(el|los|las|que|para|con|sin|una|del|está|hay|pero|sigue|antes|después|nada|cada|desde|tiene)(?=$|[^a-zA-Z\-_./])/i;
+  tipos.forEach(t => {
+    const a = Object.assign({ tipo: t }, Q.averias[t].ejemplo), v = Q.validarAverias([a]);
+    if (v.length) { mal(et + t + ': su ejemplo no valida: ' + v.join(' | ')); malos++; return; }
+    if (et && [Q.averias[t].titulo, Q.averias[t].descripcion].some(x => ES_TXT.test(x))) { mal(et + t + ': el título o la descripción parecen español'); malos++; }
+    const st = Q.crear(); Q.aplicarAverias(st, [a]); Q.refrescarAlertas(st);
+    if (Q.averias[t].condicion) { if (Q.alertasActivas(st).length) { mal(et + t + ': una condición sola no debería disparar alertas'); malos++; } return; }
+    const antes = Q.pendientesAverias(st, [a]);
+    if (!antes.length) { mal(et + t + ': aplicada sola no rompe nada'); malos++; return; }
+    if (et && antes.some(x => ES_TXT.test(x))) { mal(et + t + ': lo pendiente parece español: ' + antes.join(' | ')); malos++; }
+    const r = correr(Q, st, [ALERTAS].concat(Q.arregloAverias(st, [a])));
+    const raros = r.salida.filter(x => x.lineas.some(l => /: command not found|unknown command/.test(l.t)));
+    if (raros.length) { mal(et + t + ': su arreglo usa comandos que no existen: ' + raros.map(x => x.cmd).join(', ')); malos++; }
+    const quedan = Q.pendientesAverias(st, [a]).concat(Q.alertasActivas(st).map(x => x.nombre));
+    if (quedan.length) { mal(et + t + ': su arreglo no la arregla: ' + quedan.join(' | ')); malos++; }
+  });
+  if (!malos) bien(et + tipos.length + ' tipos de avería (' + rompen.length + ' que rompen, ' + (tipos.length - rompen.length) + ' condiciones): cada una, sola, rompe algo y su arreglo deja el clúster sano y sin alertas');
+}
+{
+  const sinCampo = [];
+  Object.keys(P.averias).forEach(t => {
+    const c = P.camposAveria[t], ks = (c || []).map(x => x.k), ps = Object.keys(P.averias[t].params);
+    if (!c) { sinCampo.push(t + ' (sin campos)'); return; }
+    ps.filter(k => ks.indexOf(k) < 0).forEach(k => sinCampo.push(t + '.' + k));
+    ks.filter(k => ps.indexOf(k) < 0).forEach(k => sinCampo.push(t + '.' + k + ' (campo sin parámetro)'));
+  });
+  if (sinCampo.length) mal('parámetros que el compositor no puede editar: ' + sinCampo.join(', '));
+  else bien('el compositor tiene un campo para cada parámetro de los ' + Object.keys(P.averias).length + ' tipos');
+
+  let malos = 0;
+  const compuestos = P.escenarios.filter(e => !e.objetivo && e.averias.some(a => !P.averias[a.tipo].condicion));
+  compuestos.forEach(e => {
+    const st = P.preparar(e);
+    correr(P, st, [ALERTAS].concat(P.arregloAverias(st, e.averias), [ALERTAS]));
+    const q = e.resuelto(st, P);
+    if (q.length) { mal(e.id + ': encadenar los arreglos de sus averías no lo cierra: ' + q.join(' | ')); malos++; }
+  });
+  if (!malos) bien(compuestos.length + ' tickets hechos sólo de averías se cierran encadenando los arreglos del catálogo, sin su guion');
+
+  const inventada = [{ tipo: 'selector-roto', svc: 'web-checkout', etiqueta: 'version=v2', hace: 20 }, { tipo: 'limite-memoria', app: 'antifraude', limite: 400, hace: 60 }, { tipo: 'kubelet-parado', nodo: 'worker-01', hace: 30 },
+    { tipo: 'netpol-puerto', pol: 'permitir-ingress-a-api', puerto: 9090, hace: 15 }, { tipo: 'helm-pendiente', version: '4.11.2', hace: 50 }, { tipo: 'reinicio-nodo', nodo: 'worker-02', hace: 70 }];
+  const v = P.validarAverias(inventada);
+  if (v.length) mal('la combinación inventada no valida: ' + v.join(' | '));
+  else {
+    const st = P.crear(); P.aplicarAverias(st, inventada); P.refrescarAlertas(st);
+    const al = P.alertasActivas(st).length, antes = P.pendientesAverias(st, inventada).length;
+    correr(P, st, P.arregloAverias(st, inventada)); P.refrescarAlertas(st);
+    const q = P.pendientesAverias(st, inventada).concat(P.alertasActivas(st).map(x => x.nombre));
+    if (!al || !antes || q.length) mal('la combinación inventada: ' + al + ' alertas, ' + antes + ' pendientes, y tras arreglar quedan: ' + q.join(' | '));
+    else bien('una combinación inventada de 5 averías y una condición valida, dispara ' + al + ' alertas y se cierra encadenando sus arreglos');
+  }
+  const rechazos = [
+    [[{ tipo: 'kaboom' }], /desconocido/], [[{ tipo: 'selector-roto' }], /falta svc/], [[{ tipo: 'kubelet-parado', nodo: 'worker-09' }], /nodo/],
+    [[{ tipo: 'imagen-inexistente', app: 'web-checkout', tag: '1.8.2' }], /no rompería/], [[{ tipo: 'kubelet-parado', nodo: 'worker-01' }, { tipo: 'swap-kubelet', nodo: 'worker-02' }], /un nodo/],
+    [[{ tipo: 'netpol-puerto', pol: 'permitir-api-a-antifraude', puerto: 8080 }], /no rompería/], [[{ tipo: 'limite-memoria', app: 'antifraude', limite: 2048 }], /no rompería/],
+  ].filter(([l, re]) => !P.validarAverias(l).some(x => re.test(x)));
+  if (rechazos.length) rechazos.forEach(([l]) => mal('el validador acepta ' + JSON.stringify(l)));
+  else bien('el validador rechaza tipos inventados, parámetros que faltan, recursos que no existen, dos nodos fuera a la vez y averías que no romperían nada');
+}
+
+// ------------------------------------------------------------ incidencias en fichero
+console.log('\n  incidencias en fichero:');
+for (const [Q, et] of [[P, ''], [cargar('en'), '[en] ']]) {
+  let malos = 0;
+  const ex = Q.exportables();
+  ex.forEach(e => {
+    const d = Q.exportarIncidencia(e), r = Q.cargarIncidencia(JSON.stringify(d));
+    if (!r.ok) { mal(et + e.id + ' exportado no se acepta al reimportarlo: ' + r.errores.join(' | ')); malos++; return; }
+    const st = Q.preparar(r.escenario);
+    correr(Q, st, Q.guionDe(r.escenario, st));
+    const q = r.escenario.resuelto(st, Q);
+    if (q.length) { mal(et + d.id + ': su solución generada no lo cierra: ' + q.join(' | ')); malos++; }
+  });
+  if (!malos) bien(et + ex.length + ' tickets exportados como plantilla se reimportan y su solución generada los cierra');
+}
+{
+  const base = { formato: 'puesto-incidencia/1', asunto: 'x', cuerpo: ['y'], impacto: 'medio', urgencia: 'media', averias: [{ tipo: 'selector-roto', svc: 'antifraude', etiqueta: 'a=b' }] };
+  const casos = [
+    ['{ esto no es json', /JSON/], [Object.assign({}, base, { formato: 'otro/1' }), /formato/], [Object.assign({}, base, { id: 'INC-8101' }), /ya es un ticket/],
+    [Object.assign({}, base, { averias: [{ tipo: 'reinicio-nodo', nodo: 'worker-01', hace: 10 }] }), /No rompe nada/], [Object.assign({}, base, { hace: 5000 }), /2000/],
+  ].filter(([d, re]) => { const r = P.cargarIncidencia(typeof d === 'string' ? d : JSON.stringify(d)); return r.ok || !r.errores.some(x => re.test(x)); });
+  if (casos.length) casos.forEach(([d]) => mal('el cargador acepta o no explica: ' + (typeof d === 'string' ? d : JSON.stringify(d))));
+  else bien('rechaza JSON roto, otro formato, el id de un ticket, lo que no rompe nada y lo que pasó hace demasiado');
+  let malos = 0;
+  P.familias.forEach(f => { for (let s = 1; s <= 5; s++) { const v = P.validarAverias(f.crear(P.azar(s))); if (v.length) { mal('la familia ' + f.id + ' no se dice con el catálogo: ' + v.join(' | ')); malos++; break; } } });
+  [1, 2, 3].forEach(n => [7, 1234].forEach(s => {
+    const g = P.generarGuardia(n, s), r = g.ok && P.cargarIncidencia(Object.assign({}, g.def));
+    if (!r || !r.ok) { mal('la guardia ' + n + '/' + s + ' como fichero no se acepta: ' + (r ? r.errores.join(' | ') : 'no se genera')); malos++; }
+  }));
+  if (!malos) bien(P.familias.length + ' familias se dicen con el catálogo, y 6 guardias generadas se aceptan como fichero');
+}
+
+// ------------------------------------------------------------ compositor
+console.log('\n  compositor:');
+{
+  const win = { PUESTO: { idioma: 'es' } };
+  [path.join(D, 'topologia.js'), path.join(LINUX, 'motor.js'), path.join(D, 'cluster.js'), path.join(D, 'kubectl.js'), path.join(D, 'recursos.js'), path.join(D, 'helm.js'), path.join(D, 'nodos.js'), path.join(D, 'gitops.js'), path.join(D, 'averias.js'), path.join(D, 'escenarios.js'), path.join(LINUX, 'incidencias.js'), path.join(D, 'guardia.js')]
+    .forEach(f => new Function('window', fs.readFileSync(f, 'utf8'))(win));
+  const Q = win.PUESTO, els = {}, almacen = {};
+  const el = () => ({ innerHTML: '', textContent: '', classList: { add() {}, toggle() {} }, querySelector: () => null });
+  const documento = { querySelector: s => els[s] || (els[s] = el()), querySelectorAll: () => [], addEventListener() {}, body: el() };
+  const ls = { getItem: k => (k in almacen ? almacen[k] : null), setItem: (k, v) => { almacen[k] = String(v); }, removeItem: k => { delete almacen[k]; } };
+  new Function('window', 'document', 'localStorage', 'location', fs.readFileSync(path.join(LINUX, 'compositor.js'), 'utf8'))(win, documento, ls, {});
+  const C = Q.compositor, html = () => els['#vista'].innerHTML;
+  let malos = 0;
+  Object.keys(Q.averias).forEach(t => {
+    C.cargar({ asunto: 'x', cuerpo: ['y'], averias: [Object.assign({ tipo: t }, JSON.parse(JSON.stringify(Q.averias[t].ejemplo)))] }, t);
+    const falta = (Q.camposAveria[t] || []).filter(c => html().indexOf('data-k="' + c.k + '"') < 0).map(c => c.k);
+    if (falta.length) { mal('el compositor no pinta ' + t + '.' + falta.join(', ')); malos++; }
+    if (!Q.averias[t].condicion && !C.est.res.ok) { mal('el ejemplo de ' + t + ' no sale jugable en el compositor: ' + C.est.res.errores.join(' | ')); malos++; }
+  });
+  Q.exportables().forEach(e => {
+    C.cargar(Q.exportarIncidencia(e), e.id);
+    const id = C.guardarEnCola(), g = JSON.parse(almacen['puesto-devops-importadas'] || '[]').find(x => x.id === id);
+    if (!C.est.res.ok || !C.est.vista || !g || !Q.cargarIncidencia(g).ok) { mal('partir de ' + e.id + ' y guardarlo no da una incidencia jugable: ' + (C.est.res.errores || []).join(' | ')); malos++; }
+  });
+  if (Object.keys(almacen).some(k => /puesto-(linux|cloud)/.test(k))) { mal('el compositor de DevOps escribe en la cola de otro puesto'); malos++; }
+  C.cargar(JSON.parse(JSON.stringify(Q.generarGuardia(3, 4242).def)), 'guardia');
+  if (!C.est.res.ok) { mal('una guardia de nivel 3 no sale jugable en el compositor: ' + C.est.res.errores.join(' | ')); malos++; }
+  C.cargar({ asunto: 'x', cuerpo: [''], averias: [{ tipo: 'selector-roto' }] }, 'a medias');
+  if (!C.est.res.errores.some(x => /falta svc/.test(x))) { mal('con el ticket a medias, el ensayo no avisa del Service sin elegir'); malos++; }
+  if (!malos) bien('pinta los ' + Object.keys(Q.averias).length + ' tipos con un control por campo; ' + Q.exportables().length + ' tickets y una guardia de nivel 3 cargan, se guardan en su propia cola y siguen siendo jugables');
 }
 
 console.log('\n' + (fallos ? fallos + ' fallo' + (fallos === 1 ? '' : 's') : 'Todo en orden'));

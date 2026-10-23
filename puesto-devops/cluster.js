@@ -51,8 +51,8 @@ K.tabla = (cab, filas) => {
 // ------------------------------------------------------------------ registro de imágenes y aplicaciones
 K.REGISTRO = 'registry.pagos.internal';
 K.ETIQUETAS = {
-  'api-pagos': ['2.13.2', '2.14.0', '2.14.1', 'v2.15.0'],
-  'web-checkout': ['1.8.2', '1.8.3', '1.9.0'],
+  'api-pagos': ['2.13.2', '2.14.0', '2.14.1', 'v2.15.0', '2.16.0'],
+  'web-checkout': ['1.8.2', '1.8.3', '1.9.0', '1.9.1'],
   antifraude: ['3.2.0', '3.3.1'],
   liquidaciones: ['1.4.0', '1.4.1'],
 };
@@ -64,7 +64,7 @@ const vmayor = (a, b) => { const x = String(a).replace(/^v/, '').split('.').map(
 // configuración exige y qué escribe en su log. De aquí salen los fallos: nada
 // de «este pod falla porque lo dice el ticket».
 const APPS = {
-  'api-pagos': { mem: 310, cpu: 140, rutas: () => ['/healthz', '/api/v1/pagos'], requiere: ['DB_HOST', 'PASARELA_URL'] },
+  'api-pagos': { mem: 310, cpu: 140, rutas: () => ['/healthz', '/api/v1/pagos'], requiere: tag => ['DB_HOST', 'PASARELA_URL'].concat(vmayor(tag, '2.16.0') ? ['PASARELA_TIMEOUT_MS'] : []) },
   'web-checkout': { mem: 38, cpu: 22, rutas: tag => vmayor(tag, '1.9.0') ? ['/', '/ready', '/checkout'] : ['/', '/health', '/checkout'] },
   antifraude: { mem: 300, memCaliente: 720, caliente: 3, cpu: 380, rutas: () => ['/actuator/health', '/score'] },
   liquidaciones: { mem: 610, cpu: 1210, rutas: () => ['/health'] },
@@ -73,16 +73,22 @@ const APPS = {
   alertmanager: { mem: 42, cpu: 4, rutas: () => ['/-/ready'] },
   grafana: { mem: 118, cpu: 12, rutas: () => ['/api/health'] },
   'blackbox-exporter': { mem: 18, cpu: 3, rutas: () => ['/-/healthy'] },
+  controller: { mem: 140, cpu: 35, rutas: () => ['/healthz'] },
+  'cert-manager-controller': { mem: 46, cpu: 4, rutas: () => ['/livez'] },
 };
 K.APPS = APPS;
 K.appDe = pod => { const p = K.partesImagen(pod.tpl.imagen), nombre = p.repo.split('/').pop(); return { nombre, tag: p.tag, def: APPS[nombre] || { mem: 32, cpu: 5, rutas: () => ['/'] } }; };
 K.sirve = (pod, ruta) => { const a = K.appDe(pod); return a.def.rutas(a.tag).indexOf(ruta) >= 0; };
 // Memoria que usaría el proceso ahora (sin contar el límite).
+// La CPU puede depender de la carga (fase 2: la HPA de api-pagos).
+K.cpuApp = (st, pod) => { const c = K.appDe(pod).def.cpu; return typeof c === 'function' ? c(st, pod) : c; };
 K.memApp = (pod, t) => { const a = K.appDe(pod).def, c = pod.c; return a.memCaliente && c.arranque != null && t - c.arranque >= a.caliente ? a.memCaliente : a.mem; };
 
 // ------------------------------------------------------------------ la plataforma de partida
 const ALLOC = { worker: { cpu: 3900, mem: 15400 }, cp: { cpu: 1900, mem: 7400 } };
-const CREADO = -11520;   // el clúster tiene 8 días
+const CREADO = -11520;    // el último despliegue (los pods y sus ReplicaSets): hace 8 días
+const ANTIGUO = -172800;  // el clúster y sus objetos de larga vida: hace 120 días
+K.ANTIGUO = ANTIGUO;
 // Un Deployment: imagen, réplicas, requests y límites, sonda y ConfigMap.
 const dep = (ns, nombre, replicas, imagen, o) => ({
   ns, nombre, replicas, labels: { app: nombre },
@@ -90,7 +96,9 @@ const dep = (ns, nombre, replicas, imagen, o) => ({
 });
 const BASE_DEPS = [
   dep('kube-system', 'coredns', 2, 'registry.k8s.io/coredns/coredns:v1.11.1', { puerto: 53, req: { cpu: 100, mem: 70 }, lim: { mem: 170 }, ready: { path: '/ready', port: 8181 }, labels: { 'k8s-app': 'kube-dns' } }),
-  dep('monitoring', 'prometheus', 1, 'quay.io/prometheus/prometheus:v2.53.0', { puerto: 9090, req: { cpu: 500, mem: 2048 }, lim: { mem: 4096 }, ready: { path: '/-/ready', port: 9090 } }),
+  dep('monitoring', 'prometheus', 1, 'quay.io/prometheus/prometheus:v2.53.0', { puerto: 9090, req: { cpu: 500, mem: 2048 }, lim: { mem: 4096 }, ready: { path: '/-/ready', port: 9090 }, pvc: { nombre: 'prometheus-data', ruta: '/prometheus' } }),
+  dep('ingress-nginx', 'ingress-nginx-controller', 2, 'registry.k8s.io/ingress-nginx/controller:v1.10.1', { contenedor: 'controller', puerto: 443, req: { cpu: 100, mem: 90 }, lim: { mem: 512 }, ready: { path: '/healthz', port: 10254 } }),
+  dep('cert-manager', 'cert-manager', 1, 'quay.io/jetstack/cert-manager-controller:v1.15.1', { contenedor: 'cert-manager-controller', puerto: 9402, req: { cpu: 50, mem: 64 }, lim: { mem: 256 } }),
   dep('monitoring', 'alertmanager', 1, 'quay.io/prometheus/alertmanager:v0.27.0', { puerto: 9093, req: { cpu: 100, mem: 128 }, lim: { mem: 256 }, ready: { path: '/-/ready', port: 9093 } }),
   dep('monitoring', 'grafana', 1, 'docker.io/grafana/grafana:11.1.0', { puerto: 3000, req: { cpu: 100, mem: 256 }, lim: { mem: 512 }, ready: { path: '/api/health', port: 3000 } }),
   dep('monitoring', 'blackbox-exporter', 1, 'quay.io/prometheus/blackbox-exporter:v0.25.0', { puerto: 9115, req: { cpu: 50, mem: 64 }, lim: { mem: 128 } }),
@@ -113,8 +121,10 @@ const BASE_SVCS = [
   { ns: 'pagos', nombre: 'api-pagos', selector: { app: 'api-pagos' }, puerto: 8080, targetPort: 8080, ip: '10.96.120.14' },
   { ns: 'pagos', nombre: 'web-checkout', selector: { app: 'web-checkout' }, puerto: 80, targetPort: 80, ip: '10.96.120.40' },
   { ns: 'pagos', nombre: 'antifraude', selector: { app: 'antifraude' }, puerto: 8080, targetPort: 8080, ip: '10.96.120.77' },
+  { ns: 'ingress-nginx', nombre: 'ingress-nginx-controller', selector: { app: 'ingress-nginx-controller' }, puerto: 443, targetPort: 443, ip: '10.96.8.15' },
+  { ns: 'cert-manager', nombre: 'cert-manager', selector: { app: 'cert-manager' }, puerto: 9402, targetPort: 9402, ip: '10.96.9.40' },
 ];
-K.NAMESPACES = ['default', 'kube-system', 'kube-public', 'kube-node-lease', 'monitoring', 'pagos'];
+K.NAMESPACES = ['cert-manager', 'ci', 'default', 'ingress-nginx', 'kube-node-lease', 'kube-public', 'kube-system', 'monitoring', 'pagos'];
 // El repositorio de manifiestos (~/k8s): lo que DEBERÍA haber en el clúster.
 const RUTAS_REPO = { 'pagos/api-pagos': 'api-pagos/deployment.yaml', 'pagos/web-checkout': 'web-checkout/deployment.yaml', 'pagos/antifraude': 'antifraude/deployment.yaml', 'pagos/liquidaciones': 'liquidaciones/deployment.yaml' };
 const RUTAS_CM = { 'pagos/api-pagos-config': 'api-pagos/configmap.yaml', 'pagos/antifraude-config': 'antifraude/configmap.yaml' };
@@ -124,11 +134,11 @@ K.REPO = HOME + '/k8s';
 P.alCrear.push(st => {
   const k = st.k8s = { nodos: {}, deps: {}, rss: [], pods: [], svcs: {}, cms: {}, eventos: [], repo: {}, podN: 0, ipN: {} };
   P.topologia.filter(d => d.rol === 'cp' || d.rol === 'worker').forEach((d, i) => {
-    k.nodos[d.n] = { nombre: d.n, rol: d.rol, ip: d.ip, idx: i, cpu: ALLOC[d.rol].cpu, mem: ALLOC[d.rol].mem, cordon: false, creado: CREADO, caidoHasta: null };
+    k.nodos[d.n] = { nombre: d.n, rol: d.rol, ip: d.ip, idx: i, cpu: ALLOC[d.rol].cpu, mem: ALLOC[d.rol].mem, cordon: false, creado: ANTIGUO, caidoHasta: null };
     k.ipN[d.n] = 10;
   });
-  BASE_CMS.forEach(c => { k.cms[c.ns + '/' + c.nombre] = Object.assign(copia(c), { creado: CREADO, rv: 1 }); });
-  BASE_SVCS.forEach(s => { k.svcs[s.ns + '/' + s.nombre] = Object.assign(copia(s), { creado: CREADO }); });
+  BASE_CMS.forEach(c => { k.cms[c.ns + '/' + c.nombre] = Object.assign(copia(c), { creado: ANTIGUO, rv: 1 }); });
+  BASE_SVCS.forEach(s => { k.svcs[s.ns + '/' + s.nombre] = Object.assign(copia(s), { creado: ANTIGUO }); });
   // Los pods de sistema: DaemonSets en cada nodo y los estáticos del control plane.
   Object.values(k.nodos).forEach(n => {
     const dsPod = (nombre, img, cpu, mem) => fijo(k, 'kube-system', nombre + '-' + K.id(nombre + n.nombre, 5), img, n.nombre, cpu, mem, 'DaemonSet/' + nombre);
@@ -137,7 +147,7 @@ P.alCrear.push(st => {
     if (n.rol === 'cp') ['etcd', 'kube-apiserver', 'kube-controller-manager', 'kube-scheduler'].forEach((c, i) => fijo(k, 'kube-system', c + '-' + n.nombre, 'registry.k8s.io/' + (c === 'etcd' ? 'etcd:3.5.15-0' : c + ':v1.29.8'), n.nombre, [100, 250, 200, 100][i], [100, 0, 0, 0][i], 'Node/' + n.nombre));
   });
   BASE_DEPS.forEach(d => {
-    const x = k.deps[d.ns + '/' + d.nombre] = Object.assign(copia(d), { creado: CREADO, rev: 1, causa: '<none>', progreso: CREADO, atascado: false, faltaDesde: null, historia: [] });
+    const x = k.deps[d.ns + '/' + d.nombre] = Object.assign(copia(d), { creado: ANTIGUO, rev: 1, causa: '<none>', progreso: CREADO, atascado: false, faltaDesde: null, historia: [] });
     nuevaRs(st, x, CREADO, true);
   });
   // Colocación inicial: los pods llevan días corriendo.
@@ -162,7 +172,14 @@ K.podsDeRs = (st, r) => st.k8s.pods.filter(p => p.rs === r.nombre && p.ns === r.
 K.podsDe = (st, d) => st.k8s.pods.filter(p => p.dep === d.ns + '/' + d.nombre);
 K.nodoListo = (st, n, t) => { const h = st.hosts[n.nombre]; return !!(h && h.up && h.svcs.kubelet.estado === 'active' && h.svcs.containerd.estado === 'active' && !(n.caidoHasta != null && (t == null ? st.reloj : t) < n.caidoHasta)); };
 K.listo = (st, p) => !!(p.nodo && p.c.listoDesde != null && K.nodoListo(st, st.k8s.nodos[p.nodo]));
-const hashTpl = (d, tpl) => K.id(d.ns + d.nombre + JSON.stringify(tpl), 10).replace(/^(.{9}).*/, '$1') + K.id('x' + JSON.stringify(tpl), 1);
+// La misma plantilla da siempre el mismo hash: se calcula una vez (es lo más caro del bucle).
+const HASHES = new Map();
+const hashTpl = (d, tpl) => {
+  const j = JSON.stringify(tpl), k = d.ns + d.nombre + j;
+  let h = HASHES.get(k);
+  if (!h) { h = K.id(k, 10).replace(/^(.{9}).*/, '$1') + K.id('x' + j, 1); HASHES.set(k, h); }
+  return h;
+};
 function nuevaRs(st, d, t, inicial) {
   const k = st.k8s, h = hashTpl(d, d.tpl);
   let r = k.rss.find(x => x.dep === d.ns + '/' + d.nombre && x.hash === h);
@@ -209,7 +226,7 @@ K.cambiarPlantilla = (st, d, tpl, causa, t) => {
   K.evento(st, t, d.ns, 'Normal', 'ScalingReplicaSet', 'deployment/' + d.nombre, 'Scaled up replica set ' + r.nombre + ' to ' + Math.max(1, r.deseado), 'deployment-controller');
   return true;
 };
-K.rsActual = (st, d) => K.rssDe(st, d).find(r => r.hash === hashTpl(d, d.tpl));
+K.rsActual = (st, d) => { const h = hashTpl(d, d.tpl); return K.rssDe(st, d).find(r => r.hash === h); };
 
 // ------------------------------------------------------------------ reconciliación
 function controladorDeployments(st, t) {
@@ -301,9 +318,11 @@ function envDe(st, p) {
 }
 K.envDe = envDe;
 // Por qué se muere un contenedor que ha arrancado: configuración que falta o memoria.
+K.fallosExtra = [];   // (st, pod) -> fallo | null: lo que añaden otros ficheros (un volumen lleno)
 K.fallo = (st, p) => {
+  for (const g of K.fallosExtra) { const r = g(st, p); if (r) return r; }
   const a = K.appDe(p), c = p.c;
-  if (a.def.requiere) { const falta = a.def.requiere.filter(x => !(c.env || {})[x]); if (falta.length) return { tras: 0, razon: 'Error', codigo: 1, falta }; }
+  if (a.def.requiere) { const falta = (typeof a.def.requiere === 'function' ? a.def.requiere(a.tag) : a.def.requiere).filter(x => !(c.env || {})[x]); if (falta.length) return { tras: 0, razon: 'Error', codigo: 1, falta }; }
   const lim = p.tpl.lim.mem;
   if (lim) {
     if (a.def.mem > lim) return { tras: 0, razon: 'OOMKilled', codigo: 137 };
@@ -346,7 +365,7 @@ function kubelet(st, t) {
     const f = K.fallo(st, p);
     if (f && t >= c.arranque + f.tras) {
       c.reinicios++;
-      c.ultimo = { razon: f.razon, codigo: f.codigo, inicio: c.arranque, fin: t, falta: f.falta, env: c.env };
+      c.ultimo = Object.assign({}, f, { inicio: c.arranque, fin: t, env: c.env });
       c.estado = 'espera'; c.razon = 'CrashLoopBackOff'; c.proximo = t + BACKOFF[Math.min(c.reinicios, BACKOFF.length) - 1]; c.listoDesde = null;
       K.evento(st, t, p.ns, 'Warning', 'BackOff', obj, 'Back-off restarting failed container ' + p.tpl.contenedor + ' in pod ' + p.nombre + '_' + p.ns + '(' + U.uuid(p.nombre).slice(0, 36) + ')');
       return;
@@ -359,7 +378,24 @@ function kubelet(st, t) {
 // Dos vueltas por minuto: crear un pod, programarlo y arrancarlo lleva segundos
 // en un clúster de verdad, así que el que crea la segunda pasada del controlador
 // también arranca en este minuto.
+K.controladoresExtra = [];   // (st, t): cert-manager, la HPA... (fase 2)
+// El ciclo de vida de los nodos: un nodo NotReady durante 5 minutos pierde sus
+// pods (los desaloja el taint node.kubernetes.io/unreachable, tolerationSeconds
+// 300) y sus ReplicaSets los recrean en otro sitio. Los de sistema se quedan.
+function cicloNodos(st, t) {
+  Object.values(st.k8s.nodos).forEach(n => {
+    if (K.nodoListo(st, n, t)) { n.noListoDesde = null; return; }
+    if (n.noListoDesde == null) { n.noListoDesde = t; K.evento(st, t, '', 'Normal', 'NodeNotReady', 'node/' + n.nombre, 'Node ' + n.nombre + ' status is now: NodeNotReady', 'node-controller'); }
+    if (t - n.noListoDesde < 5) return;
+    st.k8s.pods.filter(p => p.nodo === n.nombre && p.rs).forEach(p => {
+      K.evento(st, t, p.ns, 'Normal', 'TaintManagerEviction', 'pod/' + p.nombre, 'Marking for deletion Pod ' + p.ns + '/' + p.nombre, 'taint-eviction-controller');
+      borrarPod(st, p, t);
+    });
+  });
+}
 K.reconciliar = (st, t) => {
+  cicloNodos(st, t);
+  K.controladoresExtra.forEach(f => f(st, t));
   for (let v = 0; v < 2; v++) {
     controladorDeployments(st, t);
     controladorReplicaSets(st, t);
@@ -370,7 +406,8 @@ K.reconciliar = (st, t) => {
   controladorReplicaSets(st, t);
 };
 // Corre el bucle desde un minuto del pasado hasta ahora (escenarios).
-K.simular = (st, desde, hasta) => { for (let t = desde; t <= (hasta == null ? 0 : hasta); t++) K.reconciliar(st, t); };
+// Lo programado para un minuto del pasado (un rollout undo a mitad de la historia) corre en su minuto.
+K.simular = (st, desde, hasta) => { for (let t = desde; t <= (hasta == null ? 0 : hasta); t++) { K.reconciliar(st, t); (st.programados || []).forEach(e => { if (e.min === t) e.fn(st, P); }); } };
 P.ticks.push(st => { if (st.k8s) K.reconciliar(st, st.reloj); });
 // Un nodo que se reinicia: sus contenedores mueren y vuelven a arrancar.
 K.reinicioNodo = (st, nombre, t, dur) => {
@@ -394,6 +431,9 @@ K.estadoPod = (st, p) => {
   return 'Running';
 };
 K.endpoints = (st, svc) => st.k8s.pods.filter(p => p.ns === svc.ns && Object.keys(svc.selector).every(k => p.labels[k] === svc.selector[k]) && K.listo(st, p));
+// ¿Deja pasar la red un paquete de un pod a otro? Sin NetworkPolicies, sí (fase 2 la sustituye).
+K.permiteRed = () => true;
+K.alcanza = (st, origen, svcKey) => { const s = st.k8s.svcs[svcKey]; return !!s && K.endpoints(st, s).some(d => K.permiteRed(st, origen, d, s.targetPort)); };
 K.resumenDep = (st, d) => {
   const ps = K.podsDe(st, d), n = K.rsActual(st, d);
   return { listos: ps.filter(p => K.listo(st, p)).length, total: ps.length, actualizados: n ? K.podsDeRs(st, n).length : 0, completo: K.completo(st, d) };
@@ -403,7 +443,10 @@ K.resumenDep = (st, d) => {
 // El mismo objeto sirve para ~/k8s/*.yaml, para kubectl get -o yaml y para
 // kubectl apply/diff: si el YAML del repositorio y el del clúster coinciden,
 // no hay deriva.
+// Otros ficheros registran sus kinds aquí: { prefijo, grupo, manifiesto(st, key), yaml(m), aplicar(st, m, t, vivo) }.
+K.kinds = {};
 K.manifiesto = (st, kind, key) => {
+  if (K.kinds[kind]) return K.kinds[kind].manifiesto(st, key);
   const k = st.k8s;
   if (kind === 'Deployment') { const d = k.deps[key]; return d && { kind, ns: d.ns, nombre: d.nombre, replicas: d.replicas, labels: copia(d.labels), tpl: copia(d.tpl) }; }
   if (kind === 'ConfigMap') { const c = k.cms[key]; return c && { kind, ns: c.ns, nombre: c.nombre, data: copia(c.data) }; }
@@ -441,14 +484,16 @@ K.contenedor = tpl => {
   if (tpl.lim.cpu) lim.cpu = K.cpu(tpl.lim.cpu); if (tpl.lim.mem) lim.memory = K.mem(tpl.lim.mem);
   c.resources = {}; if (Object.keys(req).length) c.resources.requests = req; if (Object.keys(lim).length) c.resources.limits = lim;
   if (tpl.ready) c.readinessProbe = { httpGet: { path: tpl.ready.path, port: tpl.ready.port }, initialDelaySeconds: 5, periodSeconds: 10 };
+  if (tpl.pvc) c.volumeMounts = [{ name: 'datos', mountPath: tpl.pvc.ruta }];
   return c;
 };
 K.yamlDe = m => {
+  if (K.kinds[m.kind]) return K.kinds[m.kind].yaml(m);
   if (m.kind === 'Deployment') {
     const anot = Object.keys(m.tpl.anot || {}).length ? { annotations: copia(m.tpl.anot) } : {};
     return K.yaml({ apiVersion: 'apps/v1', kind: 'Deployment', metadata: { name: m.nombre, namespace: m.ns, labels: m.labels },
       spec: { replicas: m.replicas, selector: { matchLabels: { app: m.labels.app } }, strategy: { type: 'RollingUpdate', rollingUpdate: { maxSurge: '25%', maxUnavailable: '25%' } },
-        template: { metadata: Object.assign({ labels: m.tpl.labels }, anot), spec: { containers: [K.contenedor(m.tpl)] } } } });
+        template: { metadata: Object.assign({ labels: m.tpl.labels }, anot), spec: Object.assign({ containers: [K.contenedor(m.tpl)] }, m.tpl.pvc ? { volumes: [{ name: 'datos', persistentVolumeClaim: { claimName: m.tpl.pvc.nombre } }] } : {}) } } });
   }
   if (m.kind === 'ConfigMap') return K.yaml({ apiVersion: 'v1', kind: 'ConfigMap', metadata: { name: m.nombre, namespace: m.ns }, data: m.data });
   if (m.kind === 'Service') return K.yaml({ apiVersion: 'v1', kind: 'Service', metadata: { name: m.nombre, namespace: m.ns }, spec: { type: 'ClusterIP', selector: m.selector, ports: [Object.assign({ port: m.puerto, targetPort: m.targetPort }, m.proto ? { protocol: m.proto } : {})] } });
@@ -462,9 +507,10 @@ K.desdeRepo = (st, ruta) => {
 K.rutasRepo = st => Object.keys(st.k8s.repo).map(r => K.REPO + '/' + r);
 // apply: deja el objeto como dice el manifiesto.
 K.aplicar = (st, m, t) => {
-  const k = st.k8s, key = m.ns + '/' + m.nombre, tipo = { Deployment: 'deployment.apps', ConfigMap: 'configmap', Service: 'service' }[m.kind];
+  const k = st.k8s, key = (m.ns ? m.ns + '/' : '') + m.nombre, tipo = K.kinds[m.kind] ? K.kinds[m.kind].prefijo : { Deployment: 'deployment.apps', ConfigMap: 'configmap', Service: 'service' }[m.kind];
   const vivo = K.manifiesto(st, m.kind, key);
   if (vivo && JSON.stringify(vivo) === JSON.stringify(m)) return tipo + '/' + m.nombre + ' unchanged';
+  if (K.kinds[m.kind]) { const e = K.kinds[m.kind].aplicar(st, copia(m), t, vivo); if (e) return e; return tipo + '/' + m.nombre + (vivo ? ' configured' : ' created'); }
   if (m.kind === 'ConfigMap') { if (vivo) { k.cms[key].data = copia(m.data); k.cms[key].rv++; } else k.cms[key] = { ns: m.ns, nombre: m.nombre, data: copia(m.data), creado: t, rv: 1 }; }
   if (m.kind === 'Service') { const s = k.svcs[key]; s.selector = copia(m.selector); s.puerto = m.puerto; s.targetPort = m.targetPort; }
   if (m.kind === 'Deployment') { const d = k.deps[key]; d.replicas = m.replicas; d.labels = copia(m.labels); K.cambiarPlantilla(st, d, m.tpl, '<none>', t); }
@@ -493,10 +539,14 @@ P.detectores.push((st, add) => {
   if (!sonda.ok) add('BlackboxProbeFailed', 'critical', null, T('La sonda de ' + K.URL_PAGO + ' falla: ' + sonda.porque, 'Probe ' + K.URL_PAGO + ' is failing: ' + sonda.porque), 'BlackboxProbeFailed');
 });
 K.URL_PAGO = 'https://checkout.pagos.example/api/v1/salud';
-K.sonda = st => {
-  const w = K.endpoints(st, st.k8s.svcs['pagos/web-checkout']), a = K.endpoints(st, st.k8s.svcs['pagos/api-pagos']);
-  if (!w.length) return { ok: false, codigo: 503, porque: T('web-checkout no tiene endpoints', 'web-checkout has no endpoints') };
-  if (!a.length) return { ok: false, codigo: 502, porque: T('api-pagos no tiene endpoints', 'api-pagos has no endpoints') };
+// El camino del pago de prueba, paso a paso: cada uno devuelve null si pasa o
+// { codigo, porque } si se corta ahí. Otros ficheros añaden los suyos (TLS, ingress).
+K.pasosSonda = [
+  st => K.endpoints(st, st.k8s.svcs['pagos/web-checkout']).length ? null : { codigo: 503, porque: T('web-checkout no tiene endpoints', 'web-checkout has no endpoints') },
+  st => K.endpoints(st, st.k8s.svcs['pagos/api-pagos']).length ? null : { codigo: 502, porque: T('api-pagos no tiene endpoints', 'api-pagos has no endpoints') },
+];
+K.sonda = (st, o) => {
+  for (const f of K.pasosSonda) { const r = f(st, o || {}); if (r) return Object.assign({ ok: false }, r); }
   return { ok: true, codigo: 200 };
 };
 
@@ -577,9 +627,13 @@ U.cmd('curl', { ayuda: T('peticiones HTTP: curl -s ' + K.URL_PAGO + ', curl -s h
     return [L(JSON.stringify({ name: t[1], tags: K.ETIQUETAS[t[1]] }))];
   }
   if (host === 'checkout.pagos.example') {
-    const s = K.sonda(st), h = s.ok ? ['HTTP/2 200', 'content-type: application/json'] : ['HTTP/2 ' + s.codigo, 'content-type: text/html'];
-    if (cab) return h.map(x => L(x));
-    return [L(s.ok ? '{"estado":"ok","version":"' + K.partesImagen(st.k8s.deps['pagos/api-pagos'].tpl.imagen).tag + '"}' : '<html><body><h1>' + s.codigo + ' ' + (s.codigo === 503 ? 'Service Temporarily Unavailable' : 'Bad Gateway') + '</h1></body></html>')];
+    const inseguro = a.some(x => x === '-k' || x === '--insecure' || /^-[a-z]*k[a-z]*$/.test(x)), v = a.some(x => x === '-v' || x === '--verbose' || /^-[a-z]*v[a-z]*$/.test(x));
+    const s = K.sonda(st, { sinTls: inseguro }), pre = v && K.curlVerbose ? K.curlVerbose(st) : [];
+    if (s.tls) return { lineas: pre.concat(s.tls.map(x => L(x, 'err'))), fallo: true };
+    if (s.codigo === 0) return { lineas: pre.concat([L(s.curl || 'curl: (7) Failed to connect to checkout.pagos.example port 443 after 4 ms: Couldn\'t connect to server', 'err')]), fallo: true };
+    const h = s.ok ? ['HTTP/2 200', 'content-type: application/json'] : ['HTTP/2 ' + s.codigo, 'content-type: text/html'];
+    if (cab) return pre.map(x => x).concat(h.map(x => L(x)));
+    return pre.concat([L(s.ok ? '{"estado":"ok","version":"' + K.partesImagen(st.k8s.deps['pagos/api-pagos'].tpl.imagen).tag + '"}' : '<html><body><h1>' + s.codigo + ' ' + ({ 503: 'Service Temporarily Unavailable', 504: 'Gateway Time-out', 404: 'Not Found' }[s.codigo] || 'Bad Gateway') + '</h1></body></html>')]);
   }
   return { lineas: [L('curl: (6) Could not resolve host: ' + host, 'err')], minutos: 1 };
 } });

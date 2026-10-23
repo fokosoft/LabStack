@@ -22,6 +22,11 @@ const TIPOS = {
   namespace: 'namespaces', namespaces: 'namespaces', ns: 'namespaces',
   all: 'all',
 };
+// Recursos que añaden otros ficheros (fase 2): K.recursos[tipo] = { alias, singular, nf, global,
+// listar(st, ns), tabla(st, xs, o, conNs) -> [cabecera, filas], yaml(st, x), describe(st, x), borrar(st, x, t) }.
+K.recursos = K.recursos || {};
+K.verbos = K.verbos || {};   // verbos de kubectl que añaden otros ficheros: auth, create
+const tipoDe = x => TIPOS[x] || Object.keys(K.recursos).find(t => t === x || K.recursos[t].alias.indexOf(x) >= 0) || x;
 const SINGULAR = { pods: 'pod', deployments: 'deployment.apps', replicasets: 'replicaset.apps', services: 'service', endpoints: 'endpoints', nodes: 'node', configmaps: 'configmap', namespaces: 'namespace', events: 'event' };
 // Separa flags y posicionales. Los flags con valor admiten «-n x», «-n=x», «--namespace=x».
 function leer(args, conValor) {
@@ -49,8 +54,8 @@ const nf = (tipo, nombre) => err('Error from server (NotFound): ' + tipo + ' "' 
 // «deployment/api-pagos» o «deployment api-pagos».
 function objetivo(pos) {
   if (!pos.length) return null;
-  if (pos[0].indexOf('/') > 0) { const [t, n] = pos[0].split('/'); return { tipo: TIPOS[t] || t, nombre: n, resto: pos.slice(1), crudo: t }; }
-  return { tipo: TIPOS[pos[0]] || pos[0], nombre: pos[1], resto: pos.slice(2), crudo: pos[0] };
+  if (pos[0].indexOf('/') > 0) { const [t, n] = pos[0].split('/'); return { tipo: tipoDe(t), nombre: n, resto: pos.slice(1), crudo: t }; }
+  return { tipo: tipoDe(pos[0]), nombre: pos[1], resto: pos.slice(2), crudo: pos[0] };
 }
 const edad = (st, m) => K.edad(st.reloj - m);
 const reinicios = (st, p) => p.c.reinicios ? p.c.reinicios + (p.c.ultimo ? ' (' + K.edad(st.reloj - p.c.ultimo.fin) + ' ago)' : '') : '0';
@@ -61,9 +66,9 @@ function listar(st, tipo, ns, s) {
   if (tipo === 'pods') return k.pods.filter(p => en(p) && casa(Object.assign({}, p.labels, p.tpl.labels), s)).sort((a, b) => (a.ns + a.nombre < b.ns + b.nombre ? -1 : 1));
   if (tipo === 'deployments') return Object.values(k.deps).filter(d => en(d) && casa(d.labels, s));
   if (tipo === 'replicasets') return k.rss.filter(r => en(r) && casa(r.tpl.labels, s));
-  if (tipo === 'services') return Object.values(k.svcs).filter(en).concat(ns == null || ns === 'default' ? [{ ns: 'default', nombre: 'kubernetes', selector: {}, puerto: 443, ip: '10.96.0.1', creado: -11520, api: true }] : []);
+  if (tipo === 'services') return Object.values(k.svcs).filter(en).concat(ns == null || ns === 'default' ? [{ ns: 'default', nombre: 'kubernetes', selector: {}, puerto: 443, ip: '10.96.0.1', creado: K.ANTIGUO, api: true }] : []);
   if (tipo === 'endpoints') return listar(st, 'services', ns, null);
-  if (tipo === 'configmaps') return Object.values(k.cms).filter(en).concat((ns == null ? K.NAMESPACES : [ns]).filter(n => K.NAMESPACES.indexOf(n) >= 0).map(n => ({ ns: n, nombre: 'kube-root-ca.crt', data: { 'ca.crt': '-----BEGIN CERTIFICATE-----' }, creado: -11520 })));
+  if (tipo === 'configmaps') return Object.values(k.cms).filter(en).concat((ns == null ? K.NAMESPACES : [ns]).filter(n => K.NAMESPACES.indexOf(n) >= 0).map(n => ({ ns: n, nombre: 'kube-root-ca.crt', data: { 'ca.crt': '-----BEGIN CERTIFICATE-----' }, creado: K.ANTIGUO })));
   if (tipo === 'events') return k.eventos.filter(e => ns == null || (e.ns || 'default') === ns).slice().sort((a, b) => a.min - b.min);
   return [];
 }
@@ -103,7 +108,17 @@ function get(ctx) {
   if (!ob) return { lineas: [L('You must specify the type of resource to get. Use "kubectl api-resources" for a complete list of supported resources.', 'err'), L(''), L('error: Required resource not specified.', 'err')], fallo: true };
   // Varios tipos a la vez: kubectl get deploy,pods
   if (!ob.nombre && ob.crudo.indexOf(',') > 0) return { lineas: [].concat(...ob.crudo.split(',').map((t, i) => (i ? [L('')] : []).concat(get(Object.assign({}, ctx, { args: [t].concat(ctx.args.slice(1)) })).lineas))) };
-  const tipo = ob.tipo;
+  const tipo = ob.tipo, R = K.recursos[tipo];
+  if (R) {
+    const ns = R.global || todos(o) ? null : nsDe(st, o);
+    let xs = R.listar(st, ns);
+    if (ob.nombre) { xs = xs.filter(x => x.nombre === ob.nombre); if (!xs.length) return nf(R.nf || tipo, ob.nombre); }
+    if (!xs.length) return { lineas: [L(ns == null ? 'No resources found' : 'No resources found in ' + ns + ' namespace.')] };
+    if (out === 'name') return { lineas: xs.map(x => L(R.singular + '/' + x.nombre)) };
+    if (out === 'yaml') { const ys = xs.map(x => R.yaml(st, x)); return { lineas: (xs.length > 1 ? ['apiVersion: v1', 'items:'].concat(...ys.map(y => y.map((l, i) => (i ? '  ' : '- ') + l)), ['kind: List']) : ys[0]).map(l => L(l)) }; }
+    const [cab, filas] = R.tabla(st, xs, o, !R.global && ns == null);
+    return { lineas: K.tabla(cab, filas) };
+  }
   if (['pods', 'deployments', 'replicasets', 'services', 'endpoints', 'nodes', 'events', 'configmaps', 'namespaces', 'all'].indexOf(tipo) < 0) return err('error: the server doesn\'t have a resource type "' + ob.crudo + '"');
   if (tipo === 'nodes') {
     let ns = Object.values(st.k8s.nodos);
@@ -112,7 +127,7 @@ function get(ctx) {
     return { lineas: K.tabla(['NAME', 'STATUS', 'ROLES', 'AGE', 'VERSION'].concat(wide ? ['INTERNAL-IP', 'EXTERNAL-IP', 'OS-IMAGE', 'KERNEL-VERSION', 'CONTAINER-RUNTIME'] : []),
       ns.map(n => [n.nombre, (K.nodoListo(st, n) ? 'Ready' : 'NotReady') + (n.cordon ? ',SchedulingDisabled' : ''), n.rol === 'cp' ? 'control-plane' : '<none>', edad(st, n.creado), 'v1.29.8'].concat(wide ? [n.ip, '<none>', 'Ubuntu 24.04.1 LTS', st.hosts[n.nombre].kernel, 'containerd://1.7.12'] : []))) };
   }
-  if (tipo === 'namespaces') return { lineas: K.tabla(['NAME', 'STATUS', 'AGE'], K.NAMESPACES.map(n => [n, 'Active', edad(st, -11520)])) };
+  if (tipo === 'namespaces') return { lineas: K.tabla(['NAME', 'STATUS', 'AGE'], K.NAMESPACES.map(n => [n, 'Active', edad(st, K.ANTIGUO)])) };
   const ns = todos(o) ? null : nsDe(st, o);
   if (tipo === 'all') {
     const out2 = [];
@@ -244,7 +259,12 @@ function describeNode(st, n) {
 function describe(ctx) {
   const st = ctx.st, o = leer(ctx.args, VALOR), ob = objetivo(o.pos), ns = nsDe(st, o);
   if (!ob) return err('error: You must specify the type of resource to describe. Use "kubectl api-resources" for a complete list of supported resources.');
-  const k = st.k8s;
+  const k = st.k8s, R = K.recursos[ob.tipo];
+  if (R && R.describe) {
+    const xs = R.listar(st, R.global ? null : ns).filter(x => !ob.nombre || x.nombre === ob.nombre);
+    if (!xs.length) return ob.nombre ? nf(R.nf || ob.tipo, ob.nombre) : { lineas: [L('No resources found in ' + ns + ' namespace.')] };
+    return { lineas: [].concat(...xs.map((x, i) => (i ? [L(''), L('')] : []).concat(R.describe(st, x)))) };
+  }
   if (ob.tipo === 'nodes') { const xs = ob.nombre ? [k.nodos[ob.nombre]].filter(Boolean) : Object.values(k.nodos); if (!xs.length) return nf('nodes', ob.nombre); return { lineas: [].concat(...xs.map((n, i) => (i ? [L(''), L('')] : []).concat(describeNode(st, n)))) }; }
   if (ob.tipo === 'pods') {
     const xs = k.pods.filter(p => p.ns === ns && (ob.nombre ? p.nombre === ob.nombre : casa(Object.assign({}, p.labels, p.tpl.labels), selDe(o))));
@@ -290,7 +310,10 @@ function lineasApp(st, p, inst) {
     out.push(lf(ini, 2, 'info', '"database pool ready" host=' + env.DB_HOST + ' db=' + env.DB_NAME + ' max_conns=20'));
     out.push(lf(ini, 2, 'info', '"payment gateway configured" url=' + env.PASARELA_URL));
     out.push(lf(ini, 2, 'info', '"http server listening" addr=":8080"'));
-    reqs(ini + 1, m => [lf(m, 7, 'info', '"request" method=GET path=/healthz status=200 duration_ms=1'), lf(m, 31, 'info', '"request" method=POST path=/api/v1/pagos status=201 duration_ms=' + (30 + m % 17))]);
+    // La latencia sale de la carga (HPA) y la llamada a antifraude, de la red (NetworkPolicy).
+    const af = st.k8s.svcs['pagos/antifraude'], afOk = !af || K.alcanza(st, p, 'pagos/antifraude'), afErr = af && !K.endpoints(st, af).length ? 'dial tcp ' + af.ip + ':8080: connect: connection refused' : 'dial tcp ' + (af ? af.ip : '') + ':8080: i/o timeout';
+    const dur = m => (K.latenciaApi ? K.latenciaApi(st) : 30) + m % 17;
+    reqs(ini + 1, m => [lf(m, 7, 'info', '"request" method=GET path=/healthz status=200 duration_ms=1'), lf(m, 31, 'info', '"request" method=POST path=/api/v1/pagos status=201 duration_ms=' + dur(m))].concat(afOk ? [] : [lf(m, 31, 'warn', '"antifraude unavailable, payment sent to manual review" error="' + afErr + '" pago=P-2026-' + (48000 + m % 900))]));
   } else if (a.nombre === 'antifraude') {
     const sp = (m, s, lvl, cls, msg) => ts(m, s) + '  ' + lvl + ' 1 --- [antifraude] [' + (cls[0] === 'h' ? 'nio-8080-exec-' + (1 + s % 9) : 'main') + '] ' + cls.slice(1).padEnd(42) + ' : ' + msg;
     out.push(sp(ini, 2, 'INFO', 'me.p.antifraude.AntifraudeApplication', 'Starting AntifraudeApplication v' + a.tag + ' using Java 21.0.4 with PID 1'));
@@ -305,6 +328,13 @@ function lineasApp(st, p, inst) {
     out.push('/docker-entrypoint.sh: Configuration complete; ready for start up');
     const sonda = p.tpl.ready ? p.tpl.ready.path : '/', cod = K.sirve(p, sonda) ? 200 : 404, nodo = p.nodo ? '10.244.' + (st.k8s.nodos[p.nodo].idx + 1) + '.1' : '10.244.0.1';
     reqs(ini, m => [ng(m, 3, nodo, 'GET ' + sonda, cod, 'kube-probe/1.29'), ng(m, 13, nodo, 'GET ' + sonda, cod, 'kube-probe/1.29')].concat(cod === 200 ? [ng(m, 22, '10.244.3.9', 'GET /checkout', 200, 'Mozilla/5.0')] : []));
+  } else if (a.nombre === 'prometheus') {
+    const pm = (m, s, lvl, msg) => 'ts=' + U.iso(m, s) + '.' + String(100 + s * 7).slice(0, 3) + 'Z caller=main.go level=' + lvl + ' msg=' + msg;
+    out.push(pm(ini, 1, 'info', '"Starting Prometheus Server" mode=server version="(version=' + a.tag.replace(/^v/, '') + ', branch=HEAD)"'));
+    out.push(pm(ini, 2, 'info', '"Starting TSDB ..."'));
+    if (inst.disco) { out.push(pm(ini, 3, 'error', '"Opening storage failed" err="open /prometheus/wal/00004213: no space left on device"')); out.push(pm(ini, 3, 'info', '"See you next time!"')); return out; }
+    out.push(pm(ini, 9, 'info', '"TSDB started"'), pm(ini, 9, 'info', '"Server is ready to receive web requests."'));
+    reqs(ini + 1, m => m % 5 ? [] : [pm(m, 4, 'info', '"Completed loading of configuration file" filename=/etc/prometheus/prometheus.yml')]);
   } else if (a.nombre === 'liquidaciones') {
     out.push(ts(ini, 1) + ' INFO  liquidaciones ' + a.tag + ' arrancando (lotes de cierre de mes)');
     reqs(ini + 1, m => [ts(m, 5) + ' INFO  lote ' + (4100 + m % 400) + ': ' + (800 + m % 300) + ' liquidaciones procesadas']);
@@ -347,8 +377,8 @@ function logs(ctx) {
 
 // ------------------------------------------------------------------ top
 function top(ctx) {
-  const st = ctx.st, o = leer(ctx.args, VALOR), t = TIPOS[o.pos[0]] || o.pos[0];
-  const usoPod = p => { if (p.c.estado !== 'corriendo' || !p.nodo) return null; const a = K.appDe(p).def; return { cpu: p.sistema ? 8 : a.cpu, mem: p.sistema ? 40 : Math.min(K.memApp(p, st.reloj), p.tpl.lim.mem || 1e9) }; };
+  const st = ctx.st, o = leer(ctx.args, VALOR), t = tipoDe(o.pos[0]);
+  const usoPod = p => { if (p.c.estado !== 'corriendo' || !p.nodo) return null; const a = K.appDe(p).def; return { cpu: p.sistema ? 8 : K.cpuApp(st, p), mem: p.sistema ? 40 : Math.min(K.memApp(p, st.reloj), p.tpl.lim.mem || 1e9) }; };
   if (t === 'nodes') return { lineas: K.tabla(['NAME', 'CPU(cores)', 'CPU%', 'MEMORY(bytes)', 'MEMORY%'], Object.values(st.k8s.nodos).map(n => {
     if (!K.nodoListo(st, n)) return [n.nombre, '<unknown>', '<unknown>', '<unknown>', '<unknown>'];
     const us = st.k8s.pods.filter(p => p.nodo === n.nombre).map(usoPod).filter(Boolean), cpu = 90 + us.reduce((s, u) => s + u.cpu, 0), mem = 620 + us.reduce((s, u) => s + u.mem, 0);
@@ -462,6 +492,11 @@ function nodoCmd(ctx) {
 function borrar(ctx) {
   const st = ctx.st, o = leer(ctx.args, VALOR), ob = objetivo(o.pos), ns = nsDe(st, o);
   if (!ob) return err('error: You must provide one or more resources by argument or filename.');
+  const R = K.recursos[ob.tipo];
+  if (R && R.borrar) {
+    const xs = R.listar(st, R.global ? null : ns);
+    return { lineas: [ob.nombre].concat(ob.resto).filter(Boolean).map(n => { const x = xs.find(y => y.nombre === n); if (!x) return L('Error from server (NotFound): ' + (R.nf || ob.tipo) + ' "' + n + '" not found', 'err'); R.borrar(st, x, st.reloj); return L(R.singular + ' "' + n + '" deleted'); }) };
+  }
   if (ob.tipo !== 'pods') return { lineas: [L(T('(en el simulador sólo se borran pods: lo demás se cambia con apply, set, scale o patch)', '(in the simulator only pods are deleted: everything else is changed with apply, set, scale or patch)'), 'dim')], fallo: true };
   const nombres = [ob.nombre].concat(ob.resto).filter(Boolean), s = selDe(o);
   const ps = nombres.length ? nombres.map(n => st.k8s.pods.find(p => p.ns === ns && p.nombre === n) || n) : st.k8s.pods.filter(p => p.ns === ns && s && casa(Object.assign({}, p.labels, p.tpl.labels), s));
@@ -485,8 +520,9 @@ function ficherosDe(st, ctx, o) {
 function apply(ctx) {
   const st = ctx.st, o = leer(ctx.args, VALOR), r = ficherosDe(st, ctx, o);
   if (r.error) return r.error;
-  if (o.f['--dry-run']) return { lineas: r.ms.map(m => L(({ Deployment: 'deployment.apps', ConfigMap: 'configmap', Service: 'service' })[m.kind] + '/' + m.nombre + ' configured (dry run)')) };
-  return { lineas: r.ms.map(m => L(K.aplicar(st, m, st.reloj))) };
+  if (o.f['--dry-run']) return { lineas: r.ms.map(m => L((K.kinds[m.kind] ? K.kinds[m.kind].prefijo : ({ Deployment: 'deployment.apps', ConfigMap: 'configmap', Service: 'service' })[m.kind]) + '/' + m.nombre + ' configured (dry run)')) };
+  const ls = r.ms.map(m => K.aplicar(st, m, st.reloj)), malo = x => /^(Error|The )/.test(x);
+  return { lineas: ls.map(x => L(x, malo(x) ? 'err' : 'out')), fallo: ls.some(malo) };
 }
 // Diferencia de líneas (LCS): basta para manifiestos de unas decenas de líneas.
 K.diff = (a, b) => {
@@ -505,9 +541,9 @@ function diff(ctx) {
   if (r.error) return r.error;
   const out = [];
   r.ms.forEach(m => {
-    const vivo = K.manifiesto(st, m.kind, m.ns + '/' + m.nombre), a = vivo ? K.yamlDe(vivo) : [], b = K.yamlDe(m);
+    const vivo = K.manifiesto(st, m.kind, (m.ns ? m.ns + '/' : '') + m.nombre), a = vivo ? K.yamlDe(vivo) : [], b = K.yamlDe(m);
     if (JSON.stringify(a) === JSON.stringify(b)) return;
-    const g = ({ Deployment: 'apps.v1.Deployment', ConfigMap: 'v1.ConfigMap', Service: 'v1.Service' })[m.kind] + '.' + m.ns + '.' + m.nombre, tmp = U.hex('diff' + st.reloj, 9);
+    const g = (K.kinds[m.kind] ? K.kinds[m.kind].grupo : ({ Deployment: 'apps.v1.Deployment', ConfigMap: 'v1.ConfigMap', Service: 'v1.Service' })[m.kind]) + '.' + (m.ns ? m.ns + '.' : '') + m.nombre, tmp = U.hex('diff' + st.reloj, 9);
     out.push(L('diff -u -N /tmp/LIVE-' + tmp + '/' + g + ' /tmp/MERGED-' + tmp + '/' + g), L('--- /tmp/LIVE-' + tmp + '/' + g + '\t' + U.iso(st.reloj).replace('T', ' ') + '.000000000 +0000'), L('+++ /tmp/MERGED-' + tmp + '/' + g + '\t' + U.iso(st.reloj).replace('T', ' ') + '.000000000 +0000'));
     const d = K.diff(a, b), cambios = d.map((x, i) => x[0] !== ' ' ? i : -1).filter(i => i >= 0);
     // Un único hunk con tres líneas de contexto a cada lado.
@@ -597,6 +633,7 @@ function exec(ctx) {
   if (c === 'curl' || c === 'wget') {
     const url = cmd.slice(1).filter(x => !/^-/.test(x)).pop() || '';
     const m = /^(?:https?:\/\/)?(localhost|127\.0\.0\.1)(?::(\d+))?(\/.*)?$/.exec(url);
+    if (!m && /^(?:https?:\/\/)?[a-z0-9.-]+(?::\d+)?(\/.*)?$/.test(url)) return haciaServicio(st, p, url, c, cmd);
     if (!m) return { lineas: [L(c === 'curl' ? 'curl: (6) Could not resolve host: ' + url.replace(/^https?:\/\//, '').split('/')[0] : 'wget: bad address \'' + url + '\'', 'err'), L('command terminated with exit code ' + (c === 'curl' ? 6 : 1), 'err')], fallo: true };
     const puerto = m[2] ? +m[2] : 80, ruta = m[3] || '/';
     if (puerto !== (p.tpl.puerto || 80)) return { lineas: [L(c === 'curl' ? 'curl: (7) Failed to connect to localhost port ' + puerto + ' after 0 ms: Couldn\'t connect to server' : 'wget: can\'t connect to remote host (127.0.0.1): Connection refused', 'err'), L('command terminated with exit code ' + (c === 'curl' ? 7 : 1), 'err')], fallo: true };
@@ -608,11 +645,30 @@ function exec(ctx) {
   return { lineas: [L('error: Internal error occurred: error executing command in container: failed to exec in container: failed to start exec "' + U.hex(p.nombre + c, 64) + '": OCI runtime exec failed: exec failed: unable to start container process: exec: "' + c + '": executable file not found in $PATH: unknown', 'err')], fallo: true };
 }
 
+// Desde dentro de un pod hacia un Service por su nombre: DNS del clúster, el
+// puerto del Service, sus endpoints y lo que deje pasar la red (NetworkPolicy).
+// Sin endpoints, kube-proxy rechaza (Connection refused); si una política
+// descarta el paquete, se queda esperando hasta el timeout, como en la vida real.
+function haciaServicio(st, p, url, c, cmd) {
+  const m = /^(?:https?:\/\/)?([a-z0-9.-]+)(?::(\d+))?(\/.*)?$/.exec(url), host = m[1], ruta = m[3] || '/';
+  const partes = host.split('.'), resto = partes.slice(2).join('.');
+  const s = (partes.length <= 2 || /^svc(\.cluster\.local)?$/.test(resto)) && st.k8s.svcs[(partes[1] || p.ns) + '/' + partes[0]];
+  const puerto = m[2] ? +m[2] : 80, fin = (msg, cod) => ({ lineas: [L(msg, 'err'), L('command terminated with exit code ' + cod, 'err')], fallo: true });
+  if (!s) return c === 'curl' ? fin('curl: (6) Could not resolve host: ' + host, 6) : fin("wget: bad address '" + host + "'", 1);
+  if (puerto !== s.puerto) return { lineas: c === 'curl' ? [L('curl: (28) Connection timed out after 5002 milliseconds', 'err'), L('command terminated with exit code 28', 'err')] : [L('wget: download timed out', 'err'), L('command terminated with exit code 1', 'err')], fallo: true, minutos: 1 };
+  const eps = K.endpoints(st, s);
+  if (!eps.length) return c === 'curl' ? fin('curl: (7) Failed to connect to ' + host + ' port ' + puerto + ' after 3 ms: Couldn\'t connect to server', 7) : fin('wget: can\'t connect to remote host (' + s.ip + '): Connection refused', 1);
+  const d = eps.find(x => K.permiteRed(st, p, x, s.targetPort));
+  if (!d) return { lineas: c === 'curl' ? [L('curl: (28) Connection timed out after 5001 milliseconds', 'err'), L('command terminated with exit code 28', 'err')] : [L('wget: download timed out', 'err'), L('command terminated with exit code 1', 'err')], fallo: true, minutos: 1 };
+  if (!K.sirve(d, ruta)) return c === 'curl' ? (cmd.some(x => /^-[a-z]*f/.test(x)) ? fin('curl: (22) The requested URL returned error: 404', 22) : [L('404 page not found')]) : fin('wget: server returned error: HTTP/1.1 404 Not Found', 1);
+  return [L(/health|ready|healthz/.test(ruta) ? (K.appDe(d).nombre === 'antifraude' ? '{"status":"UP"}' : 'ok') : '{"ok":true}')];
+}
+
 // ------------------------------------------------------------------ el comando
 const AYUDA_SUB = ['get', 'describe', 'logs', 'top', 'rollout', 'set', 'scale', 'cordon', 'uncordon', 'drain', 'delete', 'apply', 'diff', 'patch', 'exec', 'edit', 'config', 'cluster-info', 'version', 'api-resources'];
 U.cmd('kubectl', { ayuda: T('el clúster: get, describe, logs, rollout, set, scale, apply, diff, exec...', 'the cluster: get, describe, logs, rollout, set, scale, apply, diff, exec...'), grupo: 'Kubernetes', donde: ['ops'], fn: ctx => {
   const st = ctx.st, sub = ctx.args[0], resto = ctx.args.slice(1), c2 = Object.assign({}, ctx, { args: resto, nombreSub: sub });
-  if (!sub || sub === 'help' || sub === '--help' || sub === '-h') return [L('kubectl controls the Kubernetes cluster manager.'), L(''), L(' Find more information at: https://kubernetes.io/docs/reference/kubectl/'), L('')].concat(AYUDA_SUB.map(x => L('  ' + x)));
+  if (!sub || sub === 'help' || sub === '--help' || sub === '-h') return [L('kubectl controls the Kubernetes cluster manager.'), L(''), L(' Find more information at: https://kubernetes.io/docs/reference/kubectl/'), L('')].concat(AYUDA_SUB.concat(Object.keys(K.verbos)).map(x => L('  ' + x)));
   // Lo que puede ir antes del verbo: kubectl -n pagos get pods
   if (/^-/.test(sub)) { const o = leer(ctx.args, VALOR); const i = ctx.args.findIndex((x, j) => x === o.pos[0] && (j === 0 || VALOR.indexOf(ctx.args[j - 1]) < 0)); if (i > 0) return P.comandos.kubectl.fn(Object.assign({}, ctx, { args: [ctx.args[i]].concat(ctx.args.slice(0, i), ctx.args.slice(i + 1)) })); }
   if (resto.indexOf('-w') >= 0 || resto.indexOf('--watch') >= 0) return { lineas: [L(T('(en el simulador -w no se queda mirando: repite el comando, o usa kubectl rollout status)', '(in the simulator -w does not keep watching: run the command again, or use kubectl rollout status)'), 'dim')] };
@@ -642,10 +698,11 @@ U.cmd('kubectl', { ayuda: T('el clúster: get, describe, logs, rollout, set, sca
     case 'cluster-info': return [L('Kubernetes control plane is running at https://10.30.0.10:6443', 'verde'), L('CoreDNS is running at https://10.30.0.10:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy', 'verde'), L(''), L("To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.")];
     case 'version': return [L('Client Version: v1.29.8'), L('Kustomize Version: v5.0.4-0.20230601165947-6ce0bf390ce3'), L('Server Version: v1.29.8')];
     case 'api-resources': return K.tabla(['NAME', 'SHORTNAMES', 'APIVERSION', 'NAMESPACED', 'KIND'], [['configmaps', 'cm', 'v1', 'true', 'ConfigMap'], ['endpoints', 'ep', 'v1', 'true', 'Endpoints'], ['events', 'ev', 'v1', 'true', 'Event'], ['namespaces', 'ns', 'v1', 'false', 'Namespace'], ['nodes', 'no', 'v1', 'false', 'Node'], ['pods', 'po', 'v1', 'true', 'Pod'], ['services', 'svc', 'v1', 'true', 'Service'], ['deployments', 'deploy', 'apps/v1', 'true', 'Deployment'], ['replicasets', 'rs', 'apps/v1', 'true', 'ReplicaSet']]);
-    default: return { lineas: [L('error: unknown command "' + sub + '" for "kubectl"', 'err'), L(''), L('Did you mean this?', 'err')].concat(AYUDA_SUB.filter(x => x[0] === sub[0]).slice(0, 2).map(x => L('\t' + x, 'err'))), fallo: true };
+    default: if (K.verbos[sub]) return K.verbos[sub](c2);
+      return { lineas: [L('error: unknown command "' + sub + '" for "kubectl"', 'err'), L(''), L('Did you mean this?', 'err')].concat(AYUDA_SUB.filter(x => x[0] === sub[0]).slice(0, 2).map(x => L('\t' + x, 'err'))), fallo: true };
   }
 }, completar: (st, ses, pal, ult, rutas) => {
-  if (!pal.length) return AYUDA_SUB;
+  if (!pal.length) return AYUDA_SUB.concat(Object.keys(K.verbos));
   const ant = pal[pal.length - 1], verbo = pal[0];
   if (ant === '-n' || ant === '--namespace') return K.NAMESPACES;
   if (ant === '-f' || ant === '--filename') return rutas();
@@ -654,7 +711,7 @@ U.cmd('kubectl', { ayuda: T('el clúster: get, describe, logs, rollout, set, sca
   if (['cordon', 'uncordon', 'drain'].indexOf(verbo) >= 0) return Object.keys(st.k8s.nodos);
   const ns = (() => { const i = pal.indexOf('-n'); return i >= 0 ? pal[i + 1] : st.k8s.nsDefecto || 'default'; })();
   if (['logs', 'exec'].indexOf(verbo) >= 0) return st.k8s.pods.filter(p => p.ns === ns).map(p => p.nombre).concat(['-n', '--previous', '--tail']);
-  if (['get', 'describe', 'delete'].indexOf(verbo) >= 0 && pal.length === 1) return ['pods', 'deployments', 'replicasets', 'services', 'endpoints', 'nodes', 'events', 'configmaps', 'namespaces', 'all'];
+  if (['get', 'describe', 'delete'].indexOf(verbo) >= 0 && pal.length === 1) return ['pods', 'deployments', 'replicasets', 'services', 'endpoints', 'nodes', 'events', 'configmaps', 'namespaces', 'all'].concat(Object.keys(K.recursos));
   const t = TIPOS[pal[1]];
   if (t === 'pods') return st.k8s.pods.filter(p => p.ns === ns).map(p => p.nombre).concat(['-n', '-o', '-A']);
   if (t === 'deployments' || ['rollout', 'set', 'scale'].indexOf(verbo) >= 0) return Object.values(st.k8s.deps).filter(d => d.ns === ns).map(d => (pal.length > 1 && t ? '' : 'deployment/') + d.nombre).concat(['-n']);

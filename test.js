@@ -16,7 +16,7 @@ const SUITES = [
   ['events-test.js', 'consola de eventos: correlación, triaje y puente al ticket'],
   ['puesto-linux/puesto-test.js', 'Puesto Linux: 20 tickets resueltos con comandos, trampas y solucionario'],
   ['puesto-cloud/nube-test.js', 'Puesto Cloud: la cuenta, 15 tickets, 90 guardias, el catálogo de averías, ficheros y compositor, en dos idiomas'],
-  ['puesto-devops/devops-test.js', 'Puesto DevOps: el clúster, la mecánica de Kubernetes y 6 tickets con kubectl, en dos idiomas'],
+  ['puesto-devops/devops-test.js', 'Puesto DevOps: el clúster, Helm, GitOps, 15 tickets, 90 guardias, el catálogo, ficheros y compositor, en dos idiomas'],
   ['puesto-linux/ingles-test.js', 'Puesto Linux en inglés: nada en español y los 20 tickets se resuelven igual'],
 ];
 
