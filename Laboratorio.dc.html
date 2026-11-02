@@ -23,6 +23,7 @@
 <script src="./contenido/tickets.js"></script>
 <script src="./contenido/eventos.js"></script>
 <script src="./contenido/comandos.js"></script>
+<script src="./sala.js"></script>
 <!-- React desde vendor/: la app arranca sin conexión. Quita este bloque y
      volverá a tirar del CDN de unpkg. -->
 <script>
@@ -56,6 +57,88 @@
     --header-solid:#0f172a;
     --warm:#2a1c10; --warm-border:rgba(249,115,22,0.35);
   }
+  /* ---- la sala isométrica (sala.js) ---- */
+  :root{
+    --iso-suelo-t:#e6ebf2; --iso-suelo-f:#cfd7e2; --iso-suelo-r:#bcc6d4; --iso-rejilla:rgba(15,23,42,0.07);
+    --iso-rack-t:#3b4658; --iso-rack-f:#1f2937; --iso-rack-r:#151c28; --iso-hueco:#0b1019;
+    --iso-mesa-t:#f8fafc; --iso-mesa-f:#dbe2ec; --iso-mesa-r:#c7d0dc;
+    --iso-bandeja:#94a3b8; --iso-placa-op:0.13; --iso-sombra:rgba(15,23,42,0.18);
+  }
+  .theme-dark{
+    --iso-suelo-t:#18233a; --iso-suelo-f:#111a2c; --iso-suelo-r:#0c1322; --iso-rejilla:rgba(255,255,255,0.05);
+    --iso-rack-t:#3a4a66; --iso-rack-f:#243149; --iso-rack-r:#1a2438; --iso-hueco:#0a0f1a;
+    --iso-mesa-t:#2a3854; --iso-mesa-f:#1d2940; --iso-mesa-r:#162034;
+    --iso-bandeja:#475569; --iso-placa-op:0.2; --iso-sombra:rgba(0,0,0,0.4);
+  }
+  .sala{ width:100%; height:100%; display:block; font-family:'Inter',sans-serif; }
+  .sala text{ pointer-events:none; }
+  .iso-suelo-t{ fill:var(--iso-suelo-t); } .iso-suelo-f{ fill:var(--iso-suelo-f); } .iso-suelo-r{ fill:var(--iso-suelo-r); }
+  .iso-rejilla{ fill:none; stroke:var(--iso-rejilla); stroke-width:1; }
+  .iso-rack-t{ fill:var(--iso-rack-t); } .iso-rack-f{ fill:var(--iso-rack-f); } .iso-rack-r{ fill:var(--iso-rack-r); }
+  .iso-rack-t,.iso-rack-f,.iso-rack-r{ stroke:rgba(0,0,0,0.35); stroke-width:0.6; stroke-linejoin:round; }
+  .iso-hueco{ fill:var(--iso-hueco); }
+  .iso-franja{ opacity:0.9; }
+  .iso-equipo{ fill-opacity:0.42; stroke:rgba(255,255,255,0.22); stroke-width:0.6; }
+  .iso-equipo-luz{ fill:rgba(255,255,255,0.05); stroke:none; }
+  .iso-puerto{ fill:#0b1220; stroke:rgba(255,255,255,0.25); stroke-width:0.35; }
+  .iso-bahia{ fill:rgba(15,23,42,0.75); stroke:rgba(255,255,255,0.28); stroke-width:0.35; }
+  .iso-rejilla-eq{ stroke:rgba(255,255,255,0.22); stroke-width:0.7; }
+  .iso-ventana{ fill:#0b1220; stroke:rgba(255,255,255,0.3); stroke-width:0.5; }
+  .iso-cinta{ stroke:#f59e0b; stroke-width:1.6; opacity:0.85; }
+  .iso-led{ filter:drop-shadow(0 0 2px currentColor); }
+  .iso-cod{ font-family:'JetBrains Mono',monospace; font-size:7px; font-weight:700; fill:rgba(255,255,255,0.88); letter-spacing:0.03em; }
+  .iso-cod-cubo{ font-size:8px; fill:#fff; }
+  .iso-cod-mesa{ font-size:8px; }
+  .iso-pieza{ cursor:pointer; transition:opacity .3s ease; }
+  .iso-pieza:hover{ filter:brightness(1.25); }
+  .iso-pieza.is-sel{ filter:drop-shadow(0 0 4px var(--accent)) brightness(1.2); }
+  .iso-rotulo{ paint-order:stroke; stroke:var(--iso-suelo-t); stroke-width:3px; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; letter-spacing:0.08em; }
+  .iso-rotulo-ops{ fill:#c026d3; }
+  .iso-fantasma{ fill:none; stroke:var(--text-faint); stroke-width:1.2; stroke-dasharray:4 4; }
+  .iso-fantasma-txt{ font-size:10px; fill:var(--text-faint); }
+  .iso-bandeja-t,.iso-bandeja-f,.iso-bandeja-r{ fill:var(--iso-bandeja); fill-opacity:0.35; stroke:var(--iso-bandeja); stroke-width:0.6; }
+  .iso-cable{ fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
+  .iso-cable-red{ stroke:#3b82f6; }
+  .iso-cable-alm{ stroke:#06b6d4; stroke-dasharray:7 3; }
+  .iso-cable-ext{ stroke:var(--accent); stroke-width:2.4; }
+  .iso-cable-nube{ stroke:#38bdf8; stroke-dasharray:9 5; stroke-width:2.2; }
+  .iso-cable-ops{ stroke:#c026d3; stroke-dasharray:2 5; stroke-width:1.8; }
+  .iso-globo{ fill:var(--panel); stroke:var(--accent); stroke-width:2; }
+  .iso-meridiano{ fill:none; stroke:var(--accent); stroke-width:1.2; opacity:0.6; }
+  .iso-etq{ font-size:12px; font-weight:700; fill:var(--text-muted); }
+  .iso-nube{ fill:var(--panel); stroke-width:2; filter:drop-shadow(0 6px 10px var(--iso-sombra)); }
+  .iso-chip{ fill:var(--panel-2); stroke-width:1.2; }
+  .iso-chip-txt{ font-family:'JetBrains Mono',monospace; font-size:9px; font-weight:700; fill:var(--text); }
+  .iso-pilar{ fill:none; stroke:var(--text-faint); stroke-width:1.2; stroke-dasharray:3 4; }
+  .iso-placa-t{ fill:var(--c); fill-opacity:var(--iso-placa-op); stroke:var(--c); stroke-width:1.2; stroke-linejoin:round; }
+  .iso-placa-f,.iso-placa-r{ fill:var(--c); fill-opacity:0.55; stroke:var(--c); stroke-width:0.8; }
+  .iso-etq-placa{ font-size:12px; font-weight:700; }
+  .iso-cubo-t{ fill:var(--c); fill-opacity:0.55; stroke:var(--c); stroke-width:0.8; }
+  .iso-cubo-f{ fill:var(--c); stroke:rgba(0,0,0,0.2); stroke-width:0.6; }
+  .iso-cubo-r{ fill:var(--c); fill-opacity:0.75; stroke:rgba(0,0,0,0.25); stroke-width:0.6; }
+  .iso-cubo-r{ filter:brightness(0.7); }
+  .iso-cil{ fill:var(--c); fill-opacity:0.8; stroke:var(--c); stroke-width:1; }
+  .iso-cil-tapa{ fill:var(--c); fill-opacity:0.45; stroke:var(--c); stroke-width:1; }
+  .iso-cil-aro{ fill:none; stroke:rgba(255,255,255,0.45); stroke-width:1; }
+  .iso-mesa-t{ fill:var(--iso-mesa-t); } .iso-mesa-f{ fill:var(--iso-mesa-f); } .iso-mesa-r{ fill:var(--iso-mesa-r); }
+  .iso-mesa-t,.iso-mesa-f,.iso-mesa-r{ stroke:var(--border-strong); stroke-width:0.8; stroke-linejoin:round; }
+  .iso-monitor-t,.iso-monitor-f,.iso-monitor-r{ fill:#1f2937; stroke:#0b1220; stroke-width:0.6; }
+  .iso-pantalla{ fill:#0b1220; }
+  .iso-grafica{ fill:none; stroke-width:1.4; stroke-linejoin:round; }
+  /* recorrido */
+  .iso-tramo{ fill:none; stroke:var(--accent); stroke-width:3.2; stroke-linecap:round; stroke-linejoin:round; opacity:0; transition:stroke-dashoffset .8s cubic-bezier(.45,0,.3,1), opacity .2s; }
+  .iso-tramo.is-on{ stroke-dashoffset:0 !important; opacity:0.9; }
+  .iso-paquete{ opacity:0; transition:opacity .25s; pointer-events:none; }
+  .iso-paquete-halo{ fill:var(--accent); opacity:0.25; }
+  .iso-paquete-cuerpo{ fill:var(--accent); stroke:#fff; stroke-width:1.4; }
+  .iso-paquete-txt{ font-family:'JetBrains Mono',monospace; font-size:9px; font-weight:700; fill:#fff; }
+  .sala.flujo .iso-grupo{ opacity:0.42; transition:opacity .4s ease; }
+  .sala.flujo .iso-grupo.is-visto{ opacity:0.85; }
+  .sala.flujo .iso-grupo.is-on{ opacity:1; filter:drop-shadow(0 0 8px var(--accent)); }
+  .sala.flujo .iso-internet{ opacity:1; }
+  .sala .iso-cable-red, .sala .iso-cable-ext{ animation:isoFlujo 1.2s linear infinite; stroke-dasharray:10 4; }
+  @keyframes isoFlujo{ to{ stroke-dashoffset:-14; } }
+  @media (prefers-reduced-motion: reduce){ .sala .iso-cable-red, .sala .iso-cable-ext{ animation:none; } .iso-tramo{ transition:none; } }
   /* ---- rejilla de 3 raíles: se adapta al modo (g-lcr / g-lc / g-cr / g-c) ---- */
   .lab-grid{ display:grid; min-height:0; grid-template-columns:minmax(0,1fr); }
   .lab-grid.g-lcr{ grid-template-columns:272px minmax(0,1fr) 360px; }
@@ -896,6 +979,7 @@
       <!-- PHYSICAL MAP -->
       <sc-if value="{{ showMap }}" hint-placeholder-val="{{ false }}">
         <div style="position:absolute; top:56px; right:0; bottom:0; left:0; overflow:hidden;">
+          <sc-if value="{{ map.isPlano }}" hint-placeholder-val="{{ false }}">
           <div onWheel="{{ map.onWheel }}" onMouseDown="{{ map.onDown }}" onMouseMove="{{ map.onMove }}" onMouseUp="{{ map.onUp }}" onMouseLeave="{{ map.onUp }}"
                style="position:absolute; inset:0; overflow:hidden; cursor:{{ map.cursor }}; background:radial-gradient(circle at 50% 38%, rgba(99,102,241,0.05), transparent 62%);">
             <div style="position:absolute; left:0; top:0; transform:{{ map.transform }}; transform-origin:0 0; width:{{ map.world.w }}px; height:{{ map.world.h }}px; transition:{{ map.worldTransition }};">
@@ -950,7 +1034,17 @@
               </sc-if>
             </div>
           </div>
+          </sc-if>
+          <sc-if value="{{ map.isSala }}" hint-placeholder-val="{{ false }}">
+            <div id="sala-iso" onClick="{{ map.salaClick }}" style="position:absolute; top:84px; right:16px; bottom:64px; left:16px;"></div>
+          </sc-if>
           <div style="position:absolute; left:16px; top:14px; display:flex; flex-direction:column; align-items:flex-start; gap:6px; max-width:calc(100% - 360px); pointer-events:none;">
+            <div style="display:flex; align-items:center; gap:4px; padding:3px; border-radius:99px; background:var(--header-bg); border:1px solid var(--border); pointer-events:auto;">
+              <span style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint); padding:0 6px 0 8px;">{{ map.viewLabel }}</span>
+              <sc-for list="{{ map.viewTabs }}" as="vt" hint-placeholder-count="2">
+                <button onClick="{{ vt.onClick }}" style="border:none; border-radius:99px; padding:4px 12px; font-size:12px; font-weight:{{ vt.weight }}; background:{{ vt.bg }}; color:{{ vt.color }}; cursor:pointer;">{{ vt.label }}</button>
+              </sc-for>
+            </div>
             <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-muted); background:var(--header-bg); padding:5px 11px; border-radius:99px; border:1px solid var(--border); max-width:100%;">{{ map.hint }}</span>
             <sc-if value="{{ map.isDemo }}" hint-placeholder-val="{{ false }}">
               <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#f97316; background:var(--warm); padding:5px 11px; border-radius:99px; border:1px solid var(--warm-border); max-width:100%;">{{ t.mapDemo }}</span>
@@ -960,10 +1054,12 @@
             style="position:absolute; right:16px; top:14px; display:flex; align-items:center; gap:8px; border:1px solid {{ map.flowBorder }}; background:{{ map.flowBg }}; color:{{ map.flowColor }}; padding:9px 16px; border-radius:10px; cursor:{{ map.flowCursor }}; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; box-shadow:var(--card-shadow);">
             <span style="width:8px; height:8px; border-radius:50%; background:currentColor; box-shadow:0 0 8px currentColor;"></span>{{ map.flowLabel }}
           </button>
+          <sc-if value="{{ map.isPlano }}" hint-placeholder-val="{{ false }}">
           <button onClick="{{ map.toggleChaos }}"
             style="position:absolute; right:16px; top:62px; display:flex; align-items:center; gap:8px; border:1px solid {{ map.chaosBorder }}; background:{{ map.chaosBg }}; color:{{ map.chaosColor }}; padding:9px 16px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; box-shadow:var(--card-shadow);">
             <span style="font-size:13px; line-height:1;">⚠</span>{{ map.chaosLabel }}
           </button>
+          </sc-if>
           <sc-if value="{{ map.chaosActive }}" hint-placeholder-val="{{ false }}">
             <div style="position:absolute; right:16px; top:110px; display:flex; flex-direction:column; align-items:flex-end; gap:6px; max-width:290px; pointer-events:none;">
               <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:{{ map.resColor }}; background:var(--header-bg); padding:5px 11px; border-radius:99px; border:1px solid var(--border);">{{ map.resLabel }}</span>
@@ -986,6 +1082,7 @@
               </div>
             </div>
           </sc-if>
+          <sc-if value="{{ map.isPlano }}" hint-placeholder-val="{{ false }}">
           <div style="position:absolute; left:16px; bottom:16px; max-width:calc(100% - 230px); display:flex; flex-wrap:wrap; align-items:center; gap:5px 11px; padding:8px 13px; border-radius:10px; background:var(--header-bg); border:1px solid var(--border); pointer-events:none;">
             <span style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint); margin-right:1px;">{{ t.mapLegend }}</span>
             <span style="display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-muted);"><svg width="26" height="9" style="display:block; overflow:visible;"><path d="M1 4.5h17" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" fill="none"></path><path d="M25 4.5 18 1.5 18 7.5Z" fill="var(--accent)"></path></svg>{{ t.legFlow }}</span>
@@ -996,11 +1093,22 @@
               <span style="display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text-muted);"><span style="width:8px; height:8px; border-radius:6px; background:{{ lg.color }}; box-shadow:0 0 6px {{ lg.color }};"></span>{{ lg.name }}</span>
             </sc-for>
           </div>
+          </sc-if>
+          <sc-if value="{{ map.isSala }}" hint-placeholder-val="{{ false }}">
+            <div style="position:absolute; left:16px; bottom:16px; max-width:calc(100% - 32px); display:flex; flex-wrap:wrap; align-items:center; gap:5px 13px; padding:8px 13px; border-radius:10px; background:var(--header-bg); border:1px solid var(--border); pointer-events:none;">
+              <span style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint); margin-right:1px;">{{ t.mapLegend }}</span>
+              <sc-for list="{{ map.salaLegend }}" as="sl" hint-placeholder-count="5">
+                <span style="display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-muted);"><svg viewBox="0 0 26 9" style="display:block; width:26px; height:9px;"><path d="M1 4.5h24" stroke="{{ sl.stroke }}" stroke-width="2" stroke-dasharray="{{ sl.dash }}" stroke-linecap="round"></path></svg>{{ sl.label }}</span>
+              </sc-for>
+            </div>
+          </sc-if>
+          <sc-if value="{{ map.isPlano }}" hint-placeholder-val="{{ false }}">
           <div style="position:absolute; right:16px; bottom:16px; display:flex; flex-direction:column; gap:7px;">
             <button onClick="{{ map.zoomIn }}" style="width:38px; height:38px; border-radius:10px; border:1px solid var(--border-strong); background:var(--panel); color:var(--text); cursor:pointer; font-size:20px; font-weight:600; box-shadow:var(--card-shadow);" style-hover="border-color:var(--accent-b); background:var(--panel-2);">+</button>
             <button onClick="{{ map.zoomOut }}" style="width:38px; height:38px; border-radius:10px; border:1px solid var(--border-strong); background:var(--panel); color:var(--text); cursor:pointer; font-size:20px; font-weight:600; box-shadow:var(--card-shadow);" style-hover="border-color:var(--accent-b); background:var(--panel-2);">−</button>
             <button onClick="{{ map.fit }}" title="Ajustar" style="width:38px; height:38px; border-radius:10px; border:1px solid var(--border-strong); background:var(--panel); color:var(--text); cursor:pointer; font-size:15px; box-shadow:var(--card-shadow);" style-hover="border-color:var(--accent-b); background:var(--panel-2);">⤢</button>
           </div>
+          </sc-if>
         </div>
       </sc-if>
 
@@ -1859,7 +1967,7 @@
 <script type="text/x-dc" data-dc-script>
 class Component extends DCLogic {
   state = { lang: 'es', theme: 'light', mode: 'home', density: 'compact', kids: { part: null, step: 0, phase: 'ask', wrong: null }, desk: { ticket: null, focus: 0, phase: 'work', cause: null, fix: null, wrong: null, solved: {}, terms: null, log: [] },
-  events: { ack: {}, closed: {}, sel: null, filter: 'all' }, placed: {}, selected: null, selectedLayer: null, armed: null, over: null, flowing: false, flowStep: -1, feedback: null, mission: null, missionResult: null, quiz: null, map: { tx: 60, ty: 40, scale: 0.6 }, mapPanning: false, search: '', famFilter: null, collapsed: {}, achievements: {}, showAchievements: false, achConfirm: false, toast: null, quizStats: {}, contentPack: {}, showContent: false, contentDraft: '', contentMsg: null, progress: { missions: {}, lessons: {}, quizAce: false }, showPaths: false, openLesson: null, showGlossary: false, glossarySearch: '', glossaryOpen: null, showCmdRef: false, cmdRefSearch: '', showTools: false, showSims: false, chaos: { active: false }, tour: { active: false, step: 0 }, term: { input: '', history: [], cmdHistory: [], histIdx: -1, cwd: '/home/labuser' }, metrics: { load: 55, cpu: [], ram: [], rps: [], lat: [] }, request: null, reqFail: null, deploy: { strategy: 'rolling', step: 0, playing: false, rolled: false }, incident: null };
+  events: { ack: {}, closed: {}, sel: null, filter: 'all' }, placed: {}, selected: null, selectedLayer: null, armed: null, over: null, flowing: false, flowStep: -1, feedback: null, mission: null, missionResult: null, quiz: null, map: { tx: 60, ty: 40, scale: 0.6 }, mapView: 'sala', mapPanning: false, search: '', famFilter: null, collapsed: {}, achievements: {}, showAchievements: false, achConfirm: false, toast: null, quizStats: {}, contentPack: {}, showContent: false, contentDraft: '', contentMsg: null, progress: { missions: {}, lessons: {}, quizAce: false }, showPaths: false, openLesson: null, showGlossary: false, glossarySearch: '', glossaryOpen: null, showCmdRef: false, cmdRefSearch: '', showTools: false, showSims: false, chaos: { active: false }, tour: { active: false, step: 0 }, term: { input: '', history: [], cmdHistory: [], histIdx: -1, cwd: '/home/labuser' }, metrics: { load: 55, cpu: [], ram: [], rps: [], lat: [] }, request: null, reqFail: null, deploy: { strategy: 'rolling', step: 0, playing: false, rolled: false }, incident: null };
 
   // ---- static data ----
   // El contenido vive en contenido/*.js y se carga con <script src> antes que
@@ -2462,6 +2570,7 @@ class Component extends DCLogic {
     if(snap!==this._lastSnap){ this._lastSnap=snap; this.persist(); }
     this.evalAchievements();
     this.manageDialogFocus();
+    this.salaSync();
   }
   // ---- achievements ----
   achievements(){
@@ -3651,6 +3760,40 @@ class Component extends DCLogic {
     const tick=()=>{ i++; if(i<n){ this.setState({flowStep:i}); this.mapFocusCat(cats[i]); this._flowT=setTimeout(tick,dur); } else { this._flowT=setTimeout(()=>this.setState({flowing:false, flowStep:-1}), 1900); } };
     this._flowT=setTimeout(tick,dur);
   }
+  // ---- la sala (sala.js): el mismo stack visto como un datacenter ----
+  // sala.js dibuja; aquí sólo se le pasan las piezas y el paso del recorrido.
+  // El SVG se inyecta en #sala-iso desde componentDidUpdate y React no lo toca:
+  // el div no tiene hijos en la plantilla, así que nunca los reconcilia.
+  setMapView(v){ if(this._flowT) clearTimeout(this._flowT); this.setState({ mapView:v, flowing:false, flowStep:-1, chaos:{ active:false } }); }
+  salaEscena(){
+    const S=window.LABSTACK_SALA; if(!S) return null;
+    const placed=this.effectivePlaced().placed, key=JSON.stringify(placed)+'|'+this.state.lang;
+    if(this._salaKey===key) return this._sala;
+    const t=this.strings(), piezas=[], cats={};
+    Object.keys(placed).forEach(cat=>(placed[cat]||[]).forEach(id=>{ const b=this.blockById(id); if(b) piezas.push({ id, cat, code:b.code, name:this.loc(b.name) }); }));
+    this.cats().forEach(c=>{ cats[c.id]={ name:this.loc(c.name), color:c.color }; });
+    this._sala=S.escena({ piezas, cats, lang:this.state.lang, textos:{ red:t.salaRed, computo:t.salaComputo, almacenamiento:t.salaAlm, backup:t.salaBackup, internet:t.salaEntrada, operacion:t.salaOps, sinServidores:t.salaSinServ } });
+    this._salaKey=key; return this._sala;
+  }
+  runSalaFlow(){
+    if(this.state.flowing) return;
+    const e=this.salaEscena(); if(!e || e.paradas.length<2) return;
+    this.unlock('flow');
+    const n=e.paradas.length, dur=Math.max(1300, Math.round(8400/n));
+    this.setState({ flowing:true, flowStep:0, selected:null, selectedLayer:null, feedback:null });
+    let i=0;
+    const tick=()=>{ i++; if(i<n){ this.setState({flowStep:i}); this._flowT=setTimeout(tick,dur); } else { this._flowT=setTimeout(()=>this.setState({flowing:false, flowStep:-1}), 2400); } };
+    this._flowT=setTimeout(tick,dur);
+  }
+  onSalaClick(e){
+    const n=e && e.target && e.target.closest ? e.target.closest('[data-pieza]') : null; if(!n) return;
+    this.setState({ selected:n.getAttribute('data-pieza'), selectedLayer:null, armed:null, feedback:null });
+  }
+  salaSync(){
+    if(this.state.mode!=='map' || this.state.mapView==='plano' || !window.LABSTACK_SALA) return;
+    let el=null; try{ el=document.getElementById('sala-iso'); }catch(e){}
+    if(el) window.LABSTACK_SALA.sync(el, this.salaEscena(), { flujo:this.state.flowing, paso:this.state.flowStep, sel:this.state.selected });
+  }
   // ================= MODO KIDS =================
   // Diseñado al revés que el resto de la app: una sola cosa en pantalla, una
   // sola decisión, y nunca un error que castigue.
@@ -4375,6 +4518,23 @@ class Component extends DCLogic {
         chaosMsgShow: chaos.active && !!chaos.msg, chaosMsg: chaos.msg||'',
         chaosMsgIcon: chaos.survived? '✓':'✕', chaosMsgColor: chaos.survived? '#22c55e':'#fb7185',
         chaosMsgBg: chaos.survived? this.hexA('#22c55e',0.10):this.hexA('#fb7185',0.10), chaosMsgBorder: chaos.survived? this.hexA('#22c55e',0.4):this.hexA('#fb7185',0.45) };
+      // Sala: la misma petición, recorriendo racks y placas en vez de tarjetas.
+      const isSala = S.mapView!=='plano' && !!window.LABSTACK_SALA;
+      const vTab=(id,label)=>{ const on=(id==='sala')===isSala; return { label, onClick:()=>this.setMapView(id), bg:on?'var(--accent-tint)':'transparent', color:on?'var(--accent)':'var(--text-muted)', weight:on?700:500 }; };
+      map.isSala=isSala; map.isPlano=!isSala; map.viewLabel=t.mapViewLabel;
+      map.viewTabs=[ vTab('sala',t.mapViewSala), vTab('plano',t.mapViewPlano) ];
+      map.salaLegend=[ { label:t.legSalaRed, stroke:'#3b82f6', dash:'10 4' }, { label:t.legSalaAlm, stroke:'#06b6d4', dash:'7 3' }, { label:t.legSalaNube, stroke:'#38bdf8', dash:'9 5' }, { label:t.legSalaPilar, stroke:'var(--text-faint)', dash:'3 4' }, { label:t.legSalaOps, stroke:'#c026d3', dash:'2 5' } ];
+      if(isSala){
+        const e=this.salaEscena(), par=e?e.paradas:[], st=(S.flowing && S.flowStep>=0) ? par[S.flowStep] : null, sc=st?st.cat:null;
+        const off=S.flowing || par.length<2;
+        Object.assign(map, {
+          hint:t.salaHint+' · '+M.count+' '+t.mapPieces, salaClick:(ev)=>this.onSalaClick(ev), runFlow:()=>this.runSalaFlow(),
+          caption: sc ? (sc==='entrada' ? t.salaEntradaCap : this.loc((meta[sc]||{}).flow||'')) : '', captionShow: !!sc,
+          stepName: sc ? (sc==='entrada' ? t.salaEntrada : this.loc(this.catById(sc).name)) : '', stepLabel: sc ? (S.flowStep+1)+' / '+par.length : '',
+          flowDisabled: off, flowBorder: off?'var(--border-strong)':'rgba(99,102,241,0.5)', flowBg: off?'var(--panel-alt)':'rgba(99,102,241,0.14)',
+          flowColor: off?'var(--text-faint)':'var(--accent)', flowCursor: off?'not-allowed':'pointer',
+          chaosActive:false, chaosMsgShow:false });
+      }
     }
 
     // ---- architecture analysis (linter) ----

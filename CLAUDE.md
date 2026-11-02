@@ -229,6 +229,20 @@ Nodes accumulate state: the active category gets a strong ring, already-visited 
 
 **Gotcha:** `animation:fadeUp` ends on `transform:none`, which silently kills a `transform:translateX(-50%)` used for centring. The flow caption and the chaos message are centred with a flex wrapper instead — don't "simplify" them back to a transform.
 
+### Map room view (`sala.js`) — the default view of `map`
+
+`state.mapView` is `'sala'` (default, not persisted) or `'plano'` (the card diagram above). The chip row «Ver como: Sala · Esquema» switches; `setMapView()` stops any flow and chaos. Chaos, zoom buttons and the card legend exist only in `plano`.
+
+The room is the same stack drawn as an **isometric datacenter**, and the drawing is the lesson:
+
+- **Hardware on the floor, software floating above it.** Network, compute, storage and backup pieces are rack-mounted devices (`EQUIPO` in sala.js maps each piece to a front panel and a height in U). Virtualization, HCI software, OS, containers, messaging and Kubernetes are translucent **plates stacked over the compute racks**, joined to them by dashed «runs on» pillars. Databases are a plate over the storage racks. Do not move a logical layer into a rack.
+- **Cables by kind:** service network (blue, animated) and storage network (cyan) run in an overhead tray; a dashed sky-blue tunnel goes to the cloud; operations (monitoring, CI/CD, IaC, security that is not perimeter, governance) is a **desk in front of the row** with a dotted «operates on» line. Firewall and VPN go in the network rack, not on the desk.
+- Logical layers with **no servers** under them still get a dashed empty rack footprint — the missing hardware is visible.
+
+Split on purpose: `escena(datos)` is **pure** (no DOM, runs in Node) and returns the SVG as a string plus `paradas` (stops, each with a screen box for the camera) and `tramos` (one axis-aligned polyline between each pair of stops). `sync(el, escena, estado)` is the only DOM code: it injects the SVG into `#sala-iso` once per `firma` and afterwards only toggles classes, moves the packet along a `tramo` with `requestAnimationFrame`, and animates the **`viewBox`** to frame the active stop (max ×1.45). React never touches the injected SVG because `#sala-iso` has no children in the template; `componentDidUpdate → salaSync()` keeps it in step. This also keeps all its `d`/`points` out of the template, so it adds none of the console errors described below. It honours `prefers-reduced-motion`.
+
+The component side is thin: `salaEscena()` (memoised on placed + lang), `runSalaFlow()` (reuses `flowing` / `flowStep`; stop 0 is always Internet, then `RECORRIDO` order, captions from `layerMeta[cat].flow`), `onSalaClick()` (event delegation via `data-pieza` → the usual piece sheet). CSS lives in `<helmet>` as `.iso-*` classes with `--iso-*` tokens for both themes. `sala-test.js` checks every placed piece is drawn (every preset and the whole catalogue, both languages), the stop order, a caption per stop, no NaN, determinism and escaping.
+
 ### Contextual rails (which panels a mode gets)
 
 The three-rail grid is **not** fixed — each mode shows only the panels it needs, which is what keeps the app from feeling like a cockpit:
@@ -384,7 +398,7 @@ What Kubernetes must keep doing, because it is the lesson: a rolling update neve
 
 ## Tests
 
-`npm test` (or `node test.js`) runs all nine suites and prints one line each:
+`npm test` (or `node test.js`) runs all ten suites and prints one line each:
 
 | Suite | Covers |
 |---|---|
@@ -393,6 +407,7 @@ What Kubernetes must keep doing, because it is the lesson: a rolling update neve
 | `kids-test.js` | both Kids games end to end |
 | `desk-test.js` | 12 tickets, command hints, wrong-host nudge, coherence after resolving |
 | `events-test.js` | correlation, triage, the event to incident bridge |
+| `sala-test.js` | the isometric room: every placed piece drawn, stops in order with captions, no NaN, determinism, escaping, the view switch |
 | `puesto-cloud/nube-test.js` | IAM (role vs user, implicit deny, two keys per user), S3 (public, presigned URLs that expire, versioning), the load balancer (fail-open, health-check reasons, 503) and regions; the cloud platform healthy at start, security groups that drop (timeout vs refused), user and key, private IPs only through the bastion, new public IP on start, volume vs filesystem and the 6-hour limit, regions, the `default` security group, `--query` semantics and output formats, RDS pending changes, Auto Scaling self-healing, cost and drift of a healthy account, 90 generated guardias (30 seeds × 3 levels) and chaos, the fault catalogue (each type alone breaks something and its fix leaves no alarm, in both languages; every fault-only ticket closed by chaining its faults' fixes; an invented five-fault combination; the validator's rejections), incident files (every exportable ticket round-trips, generated texts with no Spanish in English, loader rejections, guardias as files) and the composer, the 15 tickets solved by their script with all practices, determinism and half-fixes, and the same in English with no Spanish left |
 | `puesto-devops/devops-test.js` | the healthy cluster (no alerts, no drift, replicas spread), the Kubernetes mechanics listed above, the phase-2 mechanics (PVC growth rules, cert-manager re-issuing, HPA up / stabilisation / against kubectl scale / unknown without requests, RBAC, NetworkPolicy timeout vs refused and policies adding up, Helm pending-upgrade / rollback / default values), the phase-3 mechanics (Argo reads what is pushed, self-heal, rollback refused with auto-sync, git revert + push; eviction after 5 minutes NotReady; swap in fstab brings the kubelet down at reboot), 90 generated guardias (30 seeds × 3 levels: playable, alerting, deterministic, closed by their own script with their practices) and chaos, the fault catalogue (each type alone breaks something and its fix leaves no alert, in both languages; every fault-only ticket closed by chaining its faults' fixes; an invented combination; the validator), incident files (every exportable ticket round-trips, loader rejections, guardias as files) and the composer, the 15 tickets solved by their script with all practices and identical output twice, half-fixes that must not close them, both languages, no Spanish left in English (texts, alerts, files, UI, the output of every script) and the answer book aligned with each script |
 | `puesto-linux/ingles-test.js` | the Puesto in English: no Spanish left in anything a player sees, and the 20 tickets resolved the same way |

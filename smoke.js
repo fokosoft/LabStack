@@ -23,6 +23,7 @@ global.navigator = { clipboard:{ writeText(){ return Promise.resolve(); } } };
   const code=fs.readFileSync(require('path').join(__dirname, 'contenido', n+'.js'),'utf8');
   new Function('window', code)(global.window);
 });
+new Function('window', fs.readFileSync(require('path').join(__dirname, 'sala.js'), 'utf8'))(global.window);
 global.React = { createElement:(...a)=>({ a }), Fragment:'F' };
 global.setInterval = ()=>0; global.clearInterval = ()=>{}; global.setTimeout = (f)=>0; global.clearTimeout = ()=>{};
 global.DCLogic = DCLogic; global.StreamableLogic = DCLogic;
