@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Puesto CPD · Sistemas Linux N2/N3</title>
+<meta name="titulo-en" content="Puesto CPD · Linux systems L2/L3">
+<meta name="description" content="Un puesto de técnico/a de sistemas Linux N2/N3 simulado: un CPD de hosting gestionado con siete servidores de cuatro distribuciones y las aplicaciones de tres clientes. Tickets que se resuelven con comandos de verdad. Gratis, en el navegador, en español e inglés.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="LabStack · FOKO SOFT">
+<meta property="og:title" content="Puesto CPD · Sistemas Linux N2/N3">
+<meta property="og:description" content="Un CPD de hosting gestionado simulado: Rocky, Debian, Ubuntu y SUSE, SELinux, firewalld, certificados, Docker, PostgreSQL y Ansible, con tickets que se resuelven con comandos de verdad.">
+<meta property="og:url" content="https://fokosoft.github.io/LabStack/puesto-cpd/">
+<link href="../vendor/fuentes.css" rel="stylesheet">
+<link href="../puesto-linux/estilos.css" rel="stylesheet">
+</head>
+<body>
+<header class="top">
+  <button class="marca" data-act="cola" title="Volver a la cola" data-en-title="Back to the queue"><b>PUESTO CPD</b><span data-en="Linux systems L2/L3">Sistemas Linux N2/N3</span></button>
+  <div class="top-sp"></div>
+  <a href="./soluciones.html" data-en="Answer book">Solucionario</a>
+  <a href="./compositor.html" data-en="Composer">Compositor</a>
+  <a href="../puesto-linux/index.html" data-en="Linux desk">Puesto Linux</a>
+  <a href="../Laboratorio.dc.html">← LabStack</a>
+  <button class="icono" data-act="idioma" data-en="ES" title="Read it in English" data-en-title="Leer en español">EN</button>
+  <button class="icono" data-act="tema" title="Tema claro u oscuro" aria-label="Cambiar tema" data-en-title="Light or dark theme">◐</button>
+</header>
+<div id="vista"></div>
+<p class="aviso-legal" data-en="Independent educational simulator. Rocky Linux, Debian, Ubuntu and SUSE are trademarks of their respective owners; the companies and customers in the tickets are fictional.">Simulador educativo independiente. Rocky Linux, Debian, Ubuntu y SUSE son marcas de sus respectivos propietarios; las empresas y los clientes de los tickets son ficticios.</p>
+
+<script src="./topologia.js"></script>
+<script src="../puesto-linux/motor.js"></script>
+<script src="./sistema.js"></script>
+<script src="./servicios.js"></script>
+<script src="./operacion.js"></script>
+<script src="./averias.js"></script>
+<script src="./escenarios.js"></script>
+<script src="../puesto-linux/incidencias.js"></script>
+<script src="./guardia.js"></script>
+<script src="./sala-cpd.js"></script>
+<script src="./ui.js"></script>
+<script src="../puesto-linux/app.js"></script>
+</body>
+</html>

@@ -159,7 +159,8 @@ P.cargarIncidencia = function (entrada) {
 
 // Un ticket del puesto hecho sólo de averías, como fichero: sirve de plantilla.
 P.exportarIncidencia = e => {
-  const d = { formato: P.FORMATO_INCIDENCIA, id: e.importada ? e.id : 'EXT-' + e.id.split('-')[1], tipo: e.tipo, asunto: e.asunto, de: e.de, cuerpo: e.cuerpo.slice(), impacto: e.impacto, urgencia: e.urgencia, nivel: e.nivel, area: e.area, hace: -e.inicio, abiertoHace: -e.abierto, averias: JSON.parse(JSON.stringify(e.averias)), pistas: e.pistas.slice(), causa: e.causa, solucion: e.solucion, leccion: e.leccion };
+  // INC-7101 → EXT-7101; un id sin guion (INC0041877, el del Puesto CPD) → EXT-41877 (los dígitos del final).
+  const d = { formato: P.FORMATO_INCIDENCIA, id: e.importada ? e.id : 'EXT-' + (e.id.split('-')[1] || e.id.replace(/^[A-Z]+0*/, '').slice(-8)), tipo: e.tipo, asunto: e.asunto, de: e.de, cuerpo: e.cuerpo.slice(), impacto: e.impacto, urgencia: e.urgencia, nivel: e.nivel, area: e.area, hace: -e.inicio, abiertoHace: -e.abierto, averias: JSON.parse(JSON.stringify(e.averias)), pistas: e.pistas.slice(), causa: e.causa, solucion: e.solucion, leccion: e.leccion };
   if (e.autor) d.autor = e.autor;
   return d;
 };

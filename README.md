@@ -92,6 +92,23 @@ Comparte motor e interfaz con los otros dos puestos. Están las cuatro fases: el
 
 > Simulador educativo independiente, sin relación con la Cloud Native Computing Foundation ni con el proyecto Kubernetes. Kubernetes es una marca registrada de The Linux Foundation.
 
+## Puesto CPD: sistemas Linux N2/N3
+
+Una quinta app, en **`puesto-cpd/index.html`** (en español y en inglés): el puesto de *Técnico/a de Sistemas Linux N2/N3* en el CPD de un proveedor de hosting gestionado. Es el día a día clásico de sistemas: muchas máquinas de varias familias y las aplicaciones de los clientes corriendo encima.
+
+- **Un CPD con siete servidores y cuatro distribuciones**: Rocky 9, Debian 12, Ubuntu 22.04 y SLES 15. Cada una con lo suyo: `dnf`, `apt` o `zypper` (y `command not found` si te equivocas de familia), `sshd` o `ssh`, `chronyd` o `chrony`, SELinux y firewalld en la familia Red Hat, y `useradd`, que no se comporta igual en Debian que en Rocky.
+- **Las aplicaciones de tres clientes**: la tienda de ACME (nginx → Tomcat), su facturación en Docker y su base de pedidos (PostgreSQL), el portal con HTTPS de Cliente B, la intranet de Cliente C con SELinux y las copias de MariaDB. Una sola petición simulada (equipo encendido, cortafuegos, servicio escuchando, SELinux, certificado) alimenta `curl`, las sondas de Prometheus, las alertas y el panel de clientes, así que arreglar algo lo arregla en todas partes.
+- **Comandos de verdad**: `getsebool`, `setsebool -P`, `ausearch`, `semanage fcontext`, `restorecon`, `firewall-cmd` (runtime y permanente), `openssl s_client / x509 / rsa -modulus`, `nginx -t`, `docker ps / logs / inspect / compose up -d`, `psql`, `lsof +L1`, `visudo`, `sudo -l -U`, `ansible` y `ansible-playbook --check --diff`. Con ficheros que se editan de verdad (`sed -i`, `tee`, `cp`, `>`), y con sus permisos: `sudo cat a b > fichero` falla, como en la vida real.
+- **13 tickets**, los trece casos de CpdAdm. Los 6 de la fase 2: informes rechazados por `pg_hba.conf` (la regla tiene que ir encima del «reject»), la intranet en 403 por la etiqueta de SELinux (`semanage fcontext` + `restorecon`), la copia de MariaDB vacía tres noches por una contraseña rotada que lleva `#`, Prometheus sin métricas por firewalld, ampliar `/var` con LVM en caliente y la línea base de SSH sin dejarte fuera (con la consola del hipervisor como salida de emergencia). Los 7 de la fase 1: `/var` lleno por un log borrado que un proceso seguía teniendo abierto, la tienda en 502 por un booleano de SELinux, un certificado caducado con dos claves candidatas y la intermedia, un contenedor que muere por OOM, un usuario con sudo de mínimo privilegio, una ventana de parcheo en un Rocky y un Debian (con un Tomcat que no vuelve tras el reinicio) y NTP estandarizado con Ansible en un parque donde un servidor perdió la clave.
+- **Fase 3 — guardias y caos**: noches de averías al azar con semilla (14 familias en tres niveles: un servicio que muere por memoria, un disco lleno, un reloj que se va, la plantilla nueva de Rocky que rompe SELinux y firewalld a la vez, la noche del bastionado…), sin ticket, sólo con lo que ve Prometheus; y en el laboratorio libre, un botón que rompe algo sin avisar unos minutos después.
+- **Fase 4 — incidencias propias**: el catálogo de 16 averías del CPD para combinar en un fichero `.json` o en el **compositor** (`puesto-cpd/compositor.html`); antes de aceptarla, el puesto la aplica sobre un CPD nuevo y comprueba que su solución la cierra. 10 de los 13 tickets se pueden descargar como plantilla, y cada guardia es también un fichero.
+- **La sala del CPD**: los servidores en sus racks, en isométrico y con el estado en vivo (la distribución de cada uno, un LED que late si tiene alertas) y las aplicaciones de los clientes flotando sobre su rack con lo que responde la sonda. Toca un servidor para abrir una sesión, o una aplicación para pedirla con `curl`.
+- **Solucionario** (`puesto-cpd/soluciones.html`): cada ticket paso a paso, con la salida real de cada comando, lo que no lo arregla y un glosario de 42 términos.
+
+Comparte motor e interfaz con los otros puestos. Están las cuatro fases, el mismo recorrido que los otros tres puestos.
+
+> Simulador educativo independiente. Rocky Linux, Debian, Ubuntu y SUSE son marcas de sus respectivos propietarios; las empresas y los clientes de los tickets son ficticios.
+
 ## Estructura
 
 | Archivo | Descripción |

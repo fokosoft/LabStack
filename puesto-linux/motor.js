@@ -60,6 +60,8 @@ P.alParar = P.alParar || [];
 P.alApagar = P.alApagar || [];
 P.alVolver = P.alVolver || [];
 P.generadoresLog = P.generadoresLog || [];
+P.filtros = P.filtros || {};       // nombre -> (lineas, args, ctx) : lo que va detrás de un | (tee, openssl md5...)
+P.recargar = P.recargar || {};     // unidad -> (st, h) : systemctl reload sin parar el servicio
 
 // ------------------------------------------------------------------ utilidades
 const p2 = n => String(n).padStart(2, '0');
@@ -536,8 +538,12 @@ U.num = (a, def) => {
   }
   return def;
 };
-function filtrar(lineas, txt) {
-  const a = U.args(txt), cmd = a[0];
+// Tamaños humanos de du -h / ls -lh, para sort -h.
+const humano = t => { const m = /^\s*([\d.]+)([KMGT]?)/.exec(t); if (!m) return 0; return parseFloat(m[1]) * ({ '': 1, K: 1024, M: 1048576, G: 1073741824, T: 1099511627776 })[m[2]]; };
+function filtrar(lineas, txt, ctx) {
+  let a = U.args(txt), sudo = false;
+  if (a[0] === 'sudo' && P.filtros[a[1]]) { a = a.slice(1); sudo = true; }
+  const cmd = a[0];
   const err = lineas.filter(l => l.c === 'err'), sal = lineas.filter(l => l.c !== 'err');
   let r;
   if (cmd === 'grep' || cmd === 'egrep') {
@@ -554,7 +560,9 @@ function filtrar(lineas, txt) {
   else if (cmd === 'tail') r = sal.slice(-U.num(a, 10));
   else if (cmd === 'wc') r = [L(String(sal.length))];
   else if (['less', 'more', 'cat', 'column'].indexOf(cmd) >= 0) r = sal;
+  else if (cmd === 'sort' && a.some(x => /^-[a-z]*h/.test(x))) r = sal.slice().sort((x, y) => humano(x.t) - humano(y.t));
   else if (cmd === 'sort') r = sal.slice().sort((x, y) => (x.t < y.t ? -1 : x.t > y.t ? 1 : 0));
+  else if (P.filtros[cmd]) return err.concat(P.filtros[cmd](sal, a.slice(1), Object.assign({ sudo: sudo || !!(ctx && ctx.ses && ctx.ses.root) }, ctx || {})));
   else return err.concat([L(cmd + ': command not found', 'err')]);
   return err.concat(r);
 }
@@ -569,7 +577,11 @@ function correr(st, ses, txt) {
     a = a.slice(1); sudo = true;
     if (!a.length || a[0] === '-h') return { lineas: [L('usage: sudo -h | -K | -k | -V', 'err'), L('usage: sudo [-u user] command', 'err')], minutos: 0 };
     if (a[0] === '-i' || a[0] === '-s' || (a[0] === 'su' && (a.length === 1 || a[1] === '-'))) { U.entrar(ses, ses.host, '/root', true); return { lineas: [], minutos: 0 }; }
+    if (/^-l/.test(a[0]) && P.sudoLista) return { lineas: P.sudoLista(st, ses, st.hosts[ses.host], a), minutos: 0 };
   }
+  let como = null;
+  if (sudo && a[0] === '-u' && a[1]) { como = a[1]; a = a.slice(2); }
+  if (sudo && P.puedeSudo && a.length) { const e = P.puedeSudo(st, ses, st.hosts[ses.host], a, como); if (e) return { lineas: e, minutos: 0 }; }
   while (a.length && /^[A-Z_]+=/.test(a[0])) a = a.slice(1);   // VAR=valor comando
   if (!a.length) return { lineas: [], minutos: 0 };
   const nombre = a[0], h = st.hosts[ses.host], c = P.comandos[nombre];
@@ -578,16 +590,39 @@ function correr(st, ses, txt) {
     return { lineas: [L(nombre + ': command not found', 'err')].concat(c.fuera ? [L(c.fuera, 'dim')] : []), minutos: 0 };
   }
   if (c.provisionado && !h.provisionado) return { lineas: [L(nombre + ': command not found', 'err'), L(T('(' + h.nombre + ' aún no tiene OpenStack instalado)', '(' + h.nombre + ' does not have OpenStack installed yet)'), 'dim')], minutos: 0 };
-  const ctx = { st, ses, h, sudo: sudo || ses.root, args: a.slice(1), txt, nombre };
+  const ctx = { st, ses, h, sudo: (sudo && !como) || ses.root, como, args: a.slice(1), txt, nombre };
   const r = c.fn(ctx);
   if (!r) return { lineas: [] };
   if (Array.isArray(r)) return { lineas: r };
   return r;
 }
+// Saca del final de la línea un > fichero o >> fichero (fuera de comillas), y
+// descarta </dev/null, 2>/dev/null y 2>&1. Sólo si la plataforma define
+// P.redirigir: en los puestos que no lo hacen, la línea se queda como estaba.
+function redireccion(txt) {
+  let q = null, corte = -1, ap = false;
+  const limpio = txt.replace(/\s*(<\s*\/dev\/null|2>\s*\/dev\/null|2>&1)(?=\s|$)/g, '');
+  for (let i = 0; i < limpio.length; i++) {
+    const ch = limpio[i];
+    if (q) { if (ch === q) q = null; continue; }
+    if (ch === '"' || ch === "'") { q = ch; continue; }
+    if (ch === '>') { corte = i; ap = limpio[i + 1] === '>'; break; }
+  }
+  if (corte < 0) return { txt: limpio };
+  const dest = U.args(limpio.slice(corte + (ap ? 2 : 1)))[0];
+  return { txt: limpio.slice(0, corte), dest, ap };
+}
 function correrTuberia(st, ses, txt) {
-  const tramos = partir(txt, 'tuberia');
+  const red = P.redirigir ? redireccion(txt) : { txt };
+  const tramos = partir(red.txt, 'tuberia');
+  if (!tramos.length) return { lineas: [] };
   const r = correr(st, ses, tramos[0].txt.trim());
-  for (const t of tramos.slice(1)) r.lineas = filtrar(r.lineas || [], t.txt.trim());
+  for (const t of tramos.slice(1)) r.lineas = filtrar(r.lineas || [], t.txt.trim(), { st, ses, h: st.hosts[ses.host] });
+  if (red.dest) {
+    const err = (r.lineas || []).filter(l => l.c === 'err');
+    const e = P.redirigir(st, ses, red.dest, (r.lineas || []).filter(l => l.c !== 'err' && l.c !== 'dim').map(l => l.t), red.ap);
+    r.lineas = err.concat(e || []);
+  }
   return r;
 }
 function correrCadena(st, ses, lin) {
@@ -603,6 +638,8 @@ function correrCadena(st, ses, lin) {
   }
   return { lineas: out, limpiar, minutos, fallo };
 }
+// Una línea dentro de una sesión ya abierta (sudo sh -c "..."), sin tocar el reloj.
+P.correrLinea = (st, ses, txt) => correrCadena(st, ses, txt);
 // Para Ansible: ejecuta en otro equipo sin tocar el reloj ni el registro.
 P.correrEn = (st, host, txt, o) => {
   const ses = { host, cwd: HOME, env: {}, root: !!(o && o.sudo), pila: [], hist: [], pendiente: null };
@@ -694,6 +731,7 @@ function leer(ctx, cmd) {
     const p = U.ruta(ctx.ses.cwd, r, ctx.ses);
     if (fs.dirs[p]) { out.push(L(cmd + ': ' + r + ': Is a directory', 'err')); continue; }
     if (!fs.f[p]) { out.push(L(cmd + ': ' + r + ': No such file or directory', 'err')); continue; }
+    if (fs.f[p].priv && !ctx.sudo) { out.push(L(cmd + ': ' + r + ': Permission denied', 'err')); continue; }
     const c = fs.f[p].lineas();
     if (!c) { out.push(L(T('(' + r + ' es binario o está comprimido: ' + (/journal/.test(p) ? 'léelo con journalctl' : 'es un log rotado, anterior al incidente') + ')', '(' + r + ' is binary or compressed: ' + (/journal/.test(p) ? 'read it with journalctl' : 'it is a rotated log, older than the incident') + ')'), 'dim')); continue; }
     c.forEach(t => out.push(typeof t === 'string' ? L(t, /\b(ERROR|CRITICAL|error|FAILED|Input\/output error|enospc)\b/.test(t) ? 'rojo' : /\b(WARNING|WARN|warning)\b/.test(t) ? 'ambar' : 'out') : t));
@@ -877,11 +915,12 @@ function estadoTexto(st, h, u) {
   return { t: 'inactive (dead)' + (s.desde > -17280 ? ' since ' + U.larga(s.desde) + '; ' + U.hace(st.reloj - s.desde) : ''), c: 'out' };
 }
 U.journalLineas = (h, u, n) => h.svcs[u].log.slice(-n).map(x => L(U.sello(x.min) + ' ' + h.nombre + ' ' + x.src + ': ' + x.t, /(Failed|failed|ERROR|error|Aborted|Input\/output|enospc|killed|repeated too quickly|suicide)/.test(x.t) ? 'rojo' : 'out'));
+U.visible = U.visible || ((h, u) => u);
 function statusBloque(st, h, u) {
   const s = h.svcs[u], e = estadoTexto(st, h, u), m = P.motivos[s.motivo] || {};
-  const plantilla = u.indexOf('@') > 0 ? u.split('@')[0] + '@.service' : u + '.service';
+  const v = U.visible(h, u), plantilla = u.indexOf('@') > 0 ? u.split('@')[0] + '@.service' : v + '.service';
   const pid = U.pid(h.nombre + u + s.desde);
-  const out = [L('● ' + u + '.service - ' + U.desc(u), s.estado === 'active' ? 'verde' : s.estado === 'failed' ? 'rojo' : 'out'),
+  const out = [L('● ' + v + '.service - ' + U.desc(u), s.estado === 'active' ? 'verde' : s.estado === 'failed' ? 'rojo' : 'out'),
     L('     Loaded: loaded (/lib/systemd/system/' + plantilla + '; ' + (s.enabled ? 'enabled' : 'disabled') + '; vendor preset: enabled)', s.enabled ? 'out' : 'ambar'),
     L('     Active: ' + e.t, e.c)];
   if (s.estado === 'active') {
@@ -905,13 +944,13 @@ U.cmd('systemctl', { ayuda: T('servicios: status, restart, enable --now...', 'se
   if (verbo === '--failed' || (verbo === 'list-units' && a.indexOf('--failed') >= 0)) {
     const f = Object.keys(h.svcs).filter(u => h.svcs[u].estado === 'failed');
     const out = [L('  UNIT' + ' '.repeat(28) + 'LOAD   ACTIVE SUB    DESCRIPTION')];
-    f.forEach(u => out.push(L('● ' + (u + '.service').padEnd(32) + 'loaded failed failed ' + U.desc(u), 'rojo')));
+    f.forEach(u => out.push(L('● ' + (U.visible(h, u) + '.service').padEnd(32) + 'loaded failed failed ' + U.desc(u), 'rojo')));
     out.push(L('')); out.push(L(f.length + ' loaded units listed.'));
     return out;
   }
   if (verbo === 'list-units') {
     const out = [L('  UNIT' + ' '.repeat(38) + 'LOAD   ACTIVE   SUB     DESCRIPTION')];
-    Object.keys(h.svcs).forEach(u => { const s = h.svcs[u]; out.push(L((s.estado === 'failed' ? '● ' : '  ') + (u + '.service').padEnd(42) + 'loaded ' + s.estado.padEnd(8) + ' ' + (s.estado === 'active' ? 'running' : s.estado === 'failed' ? 'failed ' : 'dead   ') + ' ' + U.desc(u), s.estado === 'failed' ? 'rojo' : 'out')); });
+    Object.keys(h.svcs).forEach(u => { const s = h.svcs[u]; out.push(L((s.estado === 'failed' ? '● ' : '  ') + (U.visible(h, u) + '.service').padEnd(42) + 'loaded ' + s.estado.padEnd(8) + ' ' + (s.estado === 'active' ? 'running' : s.estado === 'failed' ? 'failed ' : 'dead   ') + ' ' + U.desc(u), s.estado === 'failed' ? 'rojo' : 'out')); });
     return out;
   }
   const noEsta = n => L('Unit ' + n.replace(/\.service$/, '') + '.service could not be found.', 'err');
@@ -950,6 +989,7 @@ U.cmd('systemctl', { ayuda: T('servicios: status, restart, enable --now...', 'se
       if (ahora) { if (verbo === 'enable') arrancarla(); else if (s.estado === 'active') P.parar(st, h, u); }
     } else if (verbo === 'start') arrancarla();
     else if (verbo === 'stop') P.parar(st, h, u);
+    else if (verbo === 'reload' && P.recargar[u] && s.estado === 'active') { if (P.recargar[u](st, h)) { out.push(L('Job for ' + nombreU + ' failed because the control process exited with error code.', 'err')); out.push(L('See "systemctl status ' + nombreU + '" and "journalctl -xeu ' + nombreU + '" for details.', 'err')); } }
     else if (verbo === 'restart' || verbo === 'reload' || verbo === 'try-restart') {
       if (verbo === 'try-restart' && s.estado !== 'active') return;
       if (s.limite) { fallo(); return; }
