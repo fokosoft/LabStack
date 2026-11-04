@@ -41,22 +41,25 @@
 <style>
   :root{
     --bg:#eef2f7; --panel:#ffffff; --panel-alt:#f6f9fc; --panel-2:#eef3f8;
-    --border:#e4eaf2; --border-strong:#cdd7e3; --text:#0f172a; --text-muted:#475569; --text-faint:#94a3b8;
-    --sel:#eef2ff; --grid:rgba(15,23,42,0.045); --header-bg:rgba(255,255,255,0.85);
-    --accent:#6366f1; --accent-2:#8b5cf6; --accent-b:#6366f1; --accent-tint:rgba(99,102,241,0.10); --badge-inner:rgba(255,255,255,0.62);
+    --border:#e4eaf2; --border-strong:#cdd7e3; --text:#0f172a; --text-muted:#475569; --text-faint:#566479; --line-faint:#94a3b8;
+    --sel:#eef2ff; --header-bg:rgba(255,255,255,0.85);
+    --accent:#4f46e5; --accent-2:#8b5cf6; --accent-b:#4f46e5; --accent-tint:rgba(99,102,241,0.10); --badge-inner:rgba(255,255,255,0.62);
     --card-shadow:0 1px 2px rgba(15,23,42,0.05), 0 10px 28px -14px rgba(15,23,42,0.18);
     --header-solid:#ffffff;
     --warm:#fff7ed; --warm-border:rgba(249,115,22,0.30);
+    --accent-solid:#4f46e5; --meta-learn:#4f46e5; --meta-practice:#b45309; --meta-explore:#0369a1; --meta-kids:#15803d;
   }
   .theme-dark{
     --bg:#0f172a; --panel:#152036; --panel-alt:#1a2640; --panel-2:#111a2e;
-    --border:#26324a; --border-strong:#37455f; --text:#e6edf7; --text-muted:#9aa7bd; --text-faint:#66748c;
-    --sel:#1e293b; --grid:rgba(255,255,255,0.03); --header-bg:rgba(15,23,42,0.8);
-    --accent:#818cf8; --accent-2:#a78bfa; --accent-b:#818cf8; --accent-tint:rgba(129,140,248,0.14); --badge-inner:rgba(0,0,0,0.28);
+    --border:#26324a; --border-strong:#37455f; --text:#e6edf7; --text-muted:#9aa7bd; --text-faint:#8a98ad; --line-faint:#66748c;
+    --sel:#1e293b; --header-bg:rgba(15,23,42,0.8);
+    --accent:#8f99fa; --accent-2:#a78bfa; --accent-b:#8f99fa; --accent-tint:rgba(129,140,248,0.14); --badge-inner:rgba(0,0,0,0.28);
     --card-shadow:0 1px 2px rgba(0,0,0,0.35), 0 12px 30px -14px rgba(0,0,0,0.6);
     --header-solid:#0f172a;
     --warm:#2a1c10; --warm-border:rgba(249,115,22,0.35);
+    --accent-solid:#4f46e5; --meta-learn:#8f99fa; --meta-practice:#f59e0b; --meta-explore:#38bdf8; --meta-kids:#22c55e;
   }
+  input::placeholder, textarea::placeholder{ color:var(--text-faint); opacity:1; }
   /* ---- la sala isométrica (sala.js) ---- */
   :root{
     --iso-suelo-t:#e6ebf2; --iso-suelo-f:#cfd7e2; --iso-suelo-r:#bcc6d4; --iso-rejilla:rgba(15,23,42,0.07);
@@ -94,7 +97,7 @@
   .iso-pieza.is-sel{ filter:drop-shadow(0 0 4px var(--accent)) brightness(1.2); }
   .iso-rotulo{ paint-order:stroke; stroke:var(--iso-suelo-t); stroke-width:3px; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; letter-spacing:0.08em; }
   .iso-rotulo-ops{ fill:#c026d3; }
-  .iso-fantasma{ fill:none; stroke:var(--text-faint); stroke-width:1.2; stroke-dasharray:4 4; }
+  .iso-fantasma{ fill:none; stroke:var(--line-faint); stroke-width:1.2; stroke-dasharray:4 4; }
   .iso-fantasma-txt{ font-size:10px; fill:var(--text-faint); }
   .iso-bandeja-t,.iso-bandeja-f,.iso-bandeja-r{ fill:var(--iso-bandeja); fill-opacity:0.35; stroke:var(--iso-bandeja); stroke-width:0.6; }
   .iso-cable{ fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
@@ -109,7 +112,7 @@
   .iso-nube{ fill:var(--panel); stroke-width:2; filter:drop-shadow(0 6px 10px var(--iso-sombra)); }
   .iso-chip{ fill:var(--panel-2); stroke-width:1.2; }
   .iso-chip-txt{ font-family:'JetBrains Mono',monospace; font-size:9px; font-weight:700; fill:var(--text); }
-  .iso-pilar{ fill:none; stroke:var(--text-faint); stroke-width:1.2; stroke-dasharray:3 4; }
+  .iso-pilar{ fill:none; stroke:var(--line-faint); stroke-width:1.2; stroke-dasharray:3 4; }
   .iso-placa-t{ fill:var(--c); fill-opacity:var(--iso-placa-op); stroke:var(--c); stroke-width:1.2; stroke-linejoin:round; }
   .iso-placa-f,.iso-placa-r{ fill:var(--c); fill-opacity:0.55; stroke:var(--c); stroke-width:0.8; }
   .iso-etq-placa{ font-size:12px; font-weight:700; }
@@ -228,7 +231,7 @@
 
     <nav aria-label="{{ t.navModes }}" style="display:flex; flex:0 1 auto; min-width:0; border:1px solid var(--border-strong); border-radius:10px; overflow:hidden; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; white-space:nowrap;">
       <sc-for list="{{ navGroups }}" as="g" hint-placeholder-count="3">
-        <button onClick="{{ g.onClick }}" aria-current="{{ g.current }}" title="{{ g.hint }}" style="display:flex; align-items:center; gap:7px; border:none; border-left:{{ g.sep }}; padding:8px 15px; cursor:pointer; background:{{ g.bg }}; color:{{ g.color }}; font-family:inherit; font-size:inherit; font-weight:inherit;" style-hover="{{ g.hoverStyle }}"><span style="font-size:13px; line-height:1;">{{ g.icon }}</span>{{ g.label }}</button>
+        <button onClick="{{ g.onClick }}" aria-current="{{ g.current }}" title="{{ g.hint }}" style="display:flex; align-items:center; gap:7px; border:none; border-left:{{ g.sep }}; padding:8px 15px; cursor:pointer; background:{{ g.bg }}; color:color-mix(in srgb, {{ g.color }} 45%, var(--text)); font-family:inherit; font-size:inherit; font-weight:inherit;" style-hover="{{ g.hoverStyle }}"><span style="font-size:13px; line-height:1;">{{ g.icon }}</span>{{ g.label }}</button>
       </sc-for>
     </nav>
 
@@ -286,9 +289,9 @@
       </div>
 
       <div style="display:flex; flex-wrap:wrap; gap:5px; margin:0 2px 16px;">
-        <button onClick="{{ famAll.onClick }}" style="border:1px solid {{ famAll.border }}; background:{{ famAll.bg }}; color:{{ famAll.color }}; padding:4px 10px; border-radius:99px; cursor:pointer; font-family:'Inter',sans-serif; font-size:11px; font-weight:600;">{{ t.famAllLabel }}</button>
+        <button onClick="{{ famAll.onClick }}" style="border:1px solid {{ famAll.border }}; background:{{ famAll.bg }}; color:color-mix(in srgb, {{ famAll.color }} 45%, var(--text)); padding:4px 10px; border-radius:99px; cursor:pointer; font-family:'Inter',sans-serif; font-size:11px; font-weight:600;">{{ t.famAllLabel }}</button>
         <sc-for list="{{ famChips }}" as="f" hint-placeholder-count="6">
-          <button onClick="{{ f.onClick }}" style="display:flex; align-items:center; gap:5px; border:1px solid {{ f.border }}; background:{{ f.bg }}; color:{{ f.color }}; padding:4px 9px; border-radius:99px; cursor:pointer; font-family:'Inter',sans-serif; font-size:11px; font-weight:600;"><span style="width:7px; height:7px; border-radius:6px; background:{{ f.dot }};"></span>{{ f.name }}</button>
+          <button onClick="{{ f.onClick }}" style="display:flex; align-items:center; gap:5px; border:1px solid {{ f.border }}; background:{{ f.bg }}; color:color-mix(in srgb, {{ f.color }} 45%, var(--text)); padding:4px 9px; border-radius:99px; cursor:pointer; font-family:'Inter',sans-serif; font-size:11px; font-weight:600;"><span style="width:7px; height:7px; border-radius:6px; background:{{ f.dot }};"></span>{{ f.name }}</button>
         </sc-for>
       </div>
 
@@ -300,10 +303,10 @@
         <div style="margin-bottom:16px;">
           <button type="button" onClick="{{ cat.onToggle }}" aria-expanded="{{ cat.expanded }}" aria-label="{{ cat.toggleAria }}" style="display:flex; align-items:center; gap:8px; width:100%; box-sizing:border-box; margin:0 0 8px; padding:2px 4px; cursor:pointer; user-select:none; background:transparent; border:none; font:inherit; text-align:left; color:inherit;">
             <span style="width:8px; height:8px; border-radius:6px; background:{{ cat.color }};"></span>
-            <span style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.04em; color:{{ cat.color }}; text-transform:uppercase; font-weight:700;">{{ cat.name }}</span>
-            <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-faint);">{{ cat.count }}</span>
+            <span style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.04em; color:color-mix(in srgb, {{ cat.color }} 45%, var(--text)); text-transform:uppercase; font-weight:700;">{{ cat.name }}</span>
+            <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint);">{{ cat.count }}</span>
             <span style="flex:1 1 auto;"></span>
-            <span style="color:var(--text-faint); font-size:10px;">{{ cat.chevron }}</span>
+            <span style="color:var(--text-faint); font-size:11px;">{{ cat.chevron }}</span>
           </button>
           <div style="display:flex; flex-wrap:wrap; gap:7px;">
             <sc-for list="{{ cat.blocks }}" as="b" hint-placeholder-count="4">
@@ -311,8 +314,8 @@
                    title="{{ b.name }}" aria-label="{{ b.aria }}" aria-pressed="{{ b.pressed }}"
                    style="display:flex; align-items:center; gap:7px; padding:7px 10px 7px 12px; border-radius:10px; cursor:{{ b.cursor }}; user-select:none; border:1px solid {{ b.border }}; background:{{ b.bg }}; box-shadow:inset 3px 0 0 0 {{ b.accent }}; opacity:{{ b.opacity }}; font:inherit; text-align:left; appearance:none; transition:transform .12s, border-color .15s, background .15s;"
                    style-hover="{{ b.hoverStyle }}">
-                <span style="width:26px; height:26px; flex:0 0 auto; border-radius:6px; display:grid; place-items:center; color:{{ cat.color }}; background:{{ b.badgeBg }}; border:1px solid {{ b.badgeBorder }};"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ b.iconPath }}"></path></svg></span>
-                <span style="font-size:12px; color:{{ b.textColor }}; white-space:nowrap; font-weight:500;">{{ b.name }}</span>
+                <span style="width:26px; height:26px; flex:0 0 auto; border-radius:6px; display:grid; place-items:center; color:color-mix(in srgb, {{ cat.color }} 45%, var(--text)); background:{{ b.badgeBg }}; border:1px solid {{ b.badgeBorder }};"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ b.iconPath }}"></path></svg></span>
+                <span style="font-size:12px; color:color-mix(in srgb, {{ b.textColor }} 45%, var(--text)); white-space:nowrap; font-weight:500;">{{ b.name }}</span>
                 <sc-if value="{{ b.placed }}" hint-placeholder-val="{{ false }}"><span style="color:#4ade80; font-size:13px; margin-left:1px;">✓</span></sc-if>
               </button>
             </sc-for>
@@ -323,7 +326,7 @@
     </sc-if>
 
     <!-- CANVAS -->
-    <main style="position:relative; overflow-y:auto; padding:16px 22px 60px; background-image:linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px); background-size:44px 44px;">
+    <main style="position:relative; overflow-y:auto; padding:16px 22px 60px;">
       <!-- HOME -->
       <sc-if value="{{ showHome }}" hint-placeholder-val="{{ false }}">
         <div style="max-width:940px; margin:0 auto; padding:28px 4px 24px; min-height:calc(100vh - 210px); display:flex; flex-direction:column; justify-content:center; animation:fadeUp .3s ease both;">
@@ -349,7 +352,7 @@
                 <span style="width:44px; height:44px; border-radius:14px; display:grid; place-items:center; font-size:20px; background:{{ hc.iconBg }}; border:1px solid {{ hc.iconBorder }}; margin-bottom:14px;">{{ hc.icon }}</span>
                 <span style="font-size:17px; font-weight:700; letter-spacing:-0.01em; margin-bottom:6px;">{{ hc.title }}</span>
                 <span style="font-size:13px; color:var(--text-muted); line-height:1.55; margin-bottom:14px;">{{ hc.desc }}</span>
-                <span style="margin-top:auto; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.05em; text-transform:uppercase; color:{{ hc.metaColor }};">{{ hc.meta }}</span>
+                <span style="margin-top:auto; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.05em; text-transform:uppercase; color:color-mix(in srgb, {{ hc.metaColor }} 45%, var(--text));">{{ hc.meta }}</span>
               </button>
             </sc-for>
           </div>
@@ -391,7 +394,7 @@
             <sc-for list="{{ home.stats }}" as="hs" hint-placeholder-count="4">
               <div style="text-align:center;">
                 <div style="font-family:'Inter',sans-serif; font-size:20px; font-weight:800; letter-spacing:-0.02em; color:var(--text);">{{ hs.value }}</div>
-                <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.07em; text-transform:uppercase; color:var(--text-faint); margin-top:2px;">{{ hs.label }}</div>
+                <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.07em; text-transform:uppercase; color:var(--text-faint); margin-top:2px;">{{ hs.label }}</div>
               </div>
             </sc-for>
           </div>
@@ -413,13 +416,13 @@
 
               <div style="display:flex; flex-wrap:wrap; gap:7px; margin-bottom:11px;">
                 <sc-for list="{{ events.counts }}" as="ec" hint-placeholder-count="4">
-                  <span style="display:flex; align-items:center; gap:7px; border:1px solid {{ ec.color }}; background:{{ ec.bg }}; border-radius:6px; padding:5px 11px; font-size:11px; color:var(--text);"><b style="font-family:'JetBrains Mono',monospace; font-size:13px; color:{{ ec.color }};">{{ ec.count }}</b>{{ ec.label }}</span>
+                  <span style="display:flex; align-items:center; gap:7px; border:1px solid {{ ec.color }}; background:{{ ec.bg }}; border-radius:6px; padding:5px 11px; font-size:11px; color:var(--text);"><b style="font-family:'JetBrains Mono',monospace; font-size:13px; color:color-mix(in srgb, {{ ec.color }} 45%, var(--text));">{{ ec.count }}</b>{{ ec.label }}</span>
                 </sc-for>
               </div>
 
               <div style="display:flex; flex-wrap:wrap; gap:6px; margin-bottom:12px;">
                 <sc-for list="{{ events.filters }}" as="ef" hint-placeholder-count="5">
-                  <button onClick="{{ ef.onClick }}" aria-label="{{ ef.aria }}" aria-pressed="{{ ef.active }}" style="display:flex; align-items:center; gap:6px; border:1px solid {{ ef.border }}; background:{{ ef.bg }}; color:{{ ef.color }}; padding:5px 11px; border-radius:99px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;" style-hover="border-color:var(--accent-b);">{{ ef.label }}<span style="font-family:'JetBrains Mono',monospace; font-size:10px; opacity:0.75;">{{ ef.count }}</span></button>
+                  <button onClick="{{ ef.onClick }}" aria-label="{{ ef.aria }}" aria-pressed="{{ ef.active }}" style="display:flex; align-items:center; gap:6px; border:1px solid {{ ef.border }}; background:{{ ef.bg }}; color:color-mix(in srgb, {{ ef.color }} 45%, var(--text)); padding:5px 11px; border-radius:99px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;" style-hover="border-color:var(--accent-b);">{{ ef.label }}<span style="font-family:'JetBrains Mono',monospace; font-size:11px; opacity:0.75;">{{ ef.count }}</span></button>
                 </sc-for>
               </div>
 
@@ -430,12 +433,12 @@
               <div style="display:flex; flex-direction:column; gap:4px;">
                 <sc-for list="{{ events.rows }}" as="er" hint-placeholder-count="8">
                   <button onClick="{{ er.onClick }}" aria-label="{{ er.aria }}" aria-pressed="{{ er.selected }}" style="display:flex; align-items:center; gap:10px; text-align:left; margin-left:{{ er.indent }}; border:1px solid {{ er.selBorder }}; background:{{ er.selBg }}; border-left:4px solid {{ er.bar }}; color:var(--text); padding:9px 12px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; opacity:{{ er.op }}; transition:all .13s;" style-hover="border-color:var(--accent-b);">
-                    <span style="flex:0 0 auto; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:{{ er.sevColor }}; background:{{ er.sevBg }}; border-radius:6px; padding:3px 7px; width:58px; text-align:center;">{{ er.sev }}</span>
+                    <span style="flex:0 0 auto; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:color-mix(in srgb, {{ er.sevColor }} 45%, var(--text)); background:{{ er.sevBg }}; border-radius:6px; padding:3px 7px; width:58px; text-align:center;">{{ er.sev }}</span>
                     <span style="flex:0 0 auto; display:flex; align-items:center; gap:5px; width:96px;"><span style="width:7px; height:7px; border-radius:50%; background:{{ er.nodeColor }};"></span><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ er.node }}</span></span>
                     <span style="min-width:0; flex:1 1 auto; font-size:12px; line-height:1.35; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ er.title }}</span>
-                    <span style="flex:0 0 auto; font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:{{ er.tagColor }};">{{ er.tag }}</span>
-                    <span style="flex:0 0 auto; font-size:11px; color:{{ er.stateColor }}; width:82px; text-align:right;">{{ er.state }}</span>
-                    <span style="flex:0 0 auto; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-faint); width:78px; text-align:right; white-space:nowrap;">{{ er.ago }}</span>
+                    <span style="flex:0 0 auto; font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:color-mix(in srgb, {{ er.tagColor }} 45%, var(--text));">{{ er.tag }}</span>
+                    <span style="flex:0 0 auto; font-size:11px; color:color-mix(in srgb, {{ er.stateColor }} 45%, var(--text)); width:82px; text-align:right;">{{ er.state }}</span>
+                    <span style="flex:0 0 auto; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint); width:78px; text-align:right; white-space:nowrap;">{{ er.ago }}</span>
                   </button>
                 </sc-for>
               </div>
@@ -446,7 +449,7 @@
               <sc-if value="{{ events.hasSel }}" hint-placeholder-val="{{ false }}">
                 <div>
                   <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:9px;">
-                    <span style="font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:{{ events.det.sevColor }}; background:{{ events.det.sevBg }}; border:1px solid {{ events.det.sevColor }}; border-radius:6px; padding:3px 8px;">{{ events.det.sev }}</span>
+                    <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:color-mix(in srgb, {{ events.det.sevColor }} 45%, var(--text)); background:{{ events.det.sevBg }}; border:1px solid {{ events.det.sevColor }}; border-radius:6px; padding:3px 8px;">{{ events.det.sev }}</span>
                     <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint);">{{ events.det.id }}</span>
                     <span style="flex:1 1 auto;"></span>
                     <span style="font-size:11px; color:var(--text-faint);">{{ events.det.ago }}</span>
@@ -460,18 +463,18 @@
 
                   <sc-if value="{{ events.det.hasParent }}" hint-placeholder-val="{{ false }}">
                     <button onClick="{{ events.det.parentClick }}" style="display:block; width:100%; box-sizing:border-box; text-align:left; border:1px dashed var(--border-strong); background:var(--panel-alt); color:var(--text); border-radius:10px; padding:9px 11px; margin-bottom:11px; cursor:pointer; font-family:'Inter',sans-serif;" style-hover="border-color:var(--accent-b);">
-                      <span style="display:block; font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint); margin-bottom:3px;">{{ events.det.parentTitle }} · {{ events.det.parentId }}</span>
+                      <span style="display:block; font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint); margin-bottom:3px;">{{ events.det.parentTitle }} · {{ events.det.parentId }}</span>
                       <span style="display:block; font-size:12px; line-height:1.4;">{{ events.det.parentText }}</span>
                     </button>
                   </sc-if>
 
                   <sc-if value="{{ events.det.hasKids }}" hint-placeholder-val="{{ false }}">
                     <div style="margin-bottom:13px;">
-                      <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint); margin-bottom:7px;">{{ events.det.kidsTitle }}</div>
+                      <div style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint); margin-bottom:7px;">{{ events.det.kidsTitle }}</div>
                       <div style="display:flex; flex-direction:column; gap:4px;">
                         <sc-for list="{{ events.det.kids }}" as="ek" hint-placeholder-count="0">
                           <div style="display:flex; align-items:center; gap:8px; border-left:3px solid {{ ek.color }}; background:var(--panel-alt); border-radius:0 7px 7px 0; padding:6px 9px;">
-                            <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-faint);">{{ ek.id }}</span>
+                            <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint);">{{ ek.id }}</span>
                             <span style="font-size:11px; line-height:1.35; color:var(--text-muted);">{{ ek.title }}</span>
                           </div>
                         </sc-for>
@@ -517,7 +520,7 @@
                 <div style="border-radius:14px; border:1px solid var(--border-strong); background:var(--panel); padding:15px 16px;">
                   <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-bottom:8px;">
                     <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:var(--text-faint);">{{ desk.ticket.id }}</span>
-                    <span style="font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:{{ desk.ticket.prioColor }}; background:{{ desk.ticket.prioBg }}; border:1px solid {{ desk.ticket.prioColor }}; border-radius:99px; padding:2px 9px;">{{ desk.ticket.prio }}</span>
+                    <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:color-mix(in srgb, {{ desk.ticket.prioColor }} 45%, var(--text)); background:{{ desk.ticket.prioBg }}; border:1px solid {{ desk.ticket.prioColor }}; border-radius:99px; padding:2px 9px;">{{ desk.ticket.prio }}</span>
                   </div>
                   <div style="font-family:'Inter',sans-serif; font-size:15px; font-weight:700; line-height:1.3; margin-bottom:4px;">{{ desk.ticket.subject }}</div>
                   <div style="font-size:12px; color:var(--text-faint); margin-bottom:10px;">{{ desk.ticket.from }}</div>
@@ -527,22 +530,22 @@
                 <div style="border-radius:14px; border:1px solid var(--border-strong); background:var(--panel); padding:14px 15px;">
                   <div style="display:flex; align-items:center; gap:6px; margin-bottom:11px;">
                     <sc-for list="{{ desk.itsm.states }}" as="st" hint-placeholder-count="4">
-                      <span style="flex:1 1 0; text-align:center; font-family:'Inter',sans-serif; font-size:10px; font-weight:700; color:{{ st.text }}; border-bottom:3px solid {{ st.color }}; padding-bottom:5px;">{{ st.name }}</span>
+                      <span style="flex:1 1 0; text-align:center; font-family:'Inter',sans-serif; font-size:11px; font-weight:700; color:color-mix(in srgb, {{ st.text }} 45%, var(--text)); border-bottom:3px solid {{ st.color }}; padding-bottom:5px;">{{ st.name }}</span>
                     </sc-for>
                   </div>
                   <div style="display:flex; gap:7px; margin-bottom:10px;">
-                    <span style="flex:0 0 auto; display:grid; place-items:center; font-family:'Inter',sans-serif; font-size:15px; font-weight:800; color:{{ desk.itsm.prioColor }}; background:{{ desk.itsm.prioBg }}; border:1px solid {{ desk.itsm.prioColor }}; border-radius:10px; width:44px;">{{ desk.itsm.prio }}</span>
-                    <span style="flex:1 1 0; min-width:0; border-radius:6px; border:1px solid var(--border); background:var(--panel-alt); padding:6px 9px;"><span style="display:block; font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint);">{{ desk.itsm.impactoLabel }}</span><span style="display:block; font-size:12px; font-weight:700;">{{ desk.itsm.impacto }}</span></span>
-                    <span style="flex:1 1 0; min-width:0; border-radius:6px; border:1px solid var(--border); background:var(--panel-alt); padding:6px 9px;"><span style="display:block; font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint);">{{ desk.itsm.urgenciaLabel }}</span><span style="display:block; font-size:12px; font-weight:700;">{{ desk.itsm.urgencia }}</span></span>
+                    <span style="flex:0 0 auto; display:grid; place-items:center; font-family:'Inter',sans-serif; font-size:15px; font-weight:800; color:color-mix(in srgb, {{ desk.itsm.prioColor }} 45%, var(--text)); background:{{ desk.itsm.prioBg }}; border:1px solid {{ desk.itsm.prioColor }}; border-radius:10px; width:44px;">{{ desk.itsm.prio }}</span>
+                    <span style="flex:1 1 0; min-width:0; border-radius:6px; border:1px solid var(--border); background:var(--panel-alt); padding:6px 9px;"><span style="display:block; font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint);">{{ desk.itsm.impactoLabel }}</span><span style="display:block; font-size:12px; font-weight:700;">{{ desk.itsm.impacto }}</span></span>
+                    <span style="flex:1 1 0; min-width:0; border-radius:6px; border:1px solid var(--border); background:var(--panel-alt); padding:6px 9px;"><span style="display:block; font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint);">{{ desk.itsm.urgenciaLabel }}</span><span style="display:block; font-size:12px; font-weight:700;">{{ desk.itsm.urgencia }}</span></span>
                   </div>
                   <div style="font-size:11px; color:var(--text-faint); line-height:1.45; margin-bottom:11px;">{{ desk.itsm.matrixNote }}</div>
-                  <div style="display:flex; align-items:center; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-faint); margin-bottom:5px;"><span>{{ desk.itsm.slaLabel }} {{ desk.itsm.sla }}</span><span>{{ desk.itsm.slaPct }}</span></div>
+                  <div style="display:flex; align-items:center; justify-content:space-between; font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-faint); margin-bottom:5px;"><span>{{ desk.itsm.slaLabel }} {{ desk.itsm.sla }}</span><span>{{ desk.itsm.slaPct }}</span></div>
                   <div style="height:6px; border-radius:99px; background:var(--panel-2); overflow:hidden; margin-bottom:7px;"><div style="height:100%; width:{{ desk.itsm.slaPct }}; background:{{ desk.itsm.slaColor }}; border-radius:99px; transition:width .4s;"></div></div>
                   <div style="font-size:11px; color:var(--text-muted); line-height:1.45;">{{ desk.itsm.assignee }}</div>
                 </div>
 
                 <div style="border-radius:14px; border:1px solid var(--border); background:var(--panel-alt); padding:13px 14px;">
-                  <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-faint); margin-bottom:4px;">{{ desk.suggestTitle }}</div>
+                  <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-faint); margin-bottom:4px;">{{ desk.suggestTitle }}</div>
                   <div style="font-size:11px; line-height:1.45; color:var(--text-faint); margin-bottom:9px;">{{ desk.suggestNote }}</div>
                   <div style="display:flex; flex-direction:column; gap:5px;">
                     <sc-for list="{{ desk.suggest }}" as="ds" hint-placeholder-count="4">
@@ -590,14 +593,14 @@
                 </sc-if>
 
                 <div style="border-radius:14px; border:1px solid var(--border); background:var(--panel-alt); padding:13px 14px;">
-                  <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-faint); margin-bottom:9px;">{{ desk.itsm.logTitle }}</div>
+                  <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-faint); margin-bottom:9px;">{{ desk.itsm.logTitle }}</div>
                   <sc-if value="{{ desk.itsm.logEmpty }}" hint-placeholder-val="{{ true }}">
                     <div style="font-size:11px; color:var(--text-faint); line-height:1.5;">{{ desk.itsm.logEmptyMsg }}</div>
                   </sc-if>
                   <div style="display:flex; flex-direction:column; gap:6px; max-height:190px; overflow-y:auto;">
                     <sc-for list="{{ desk.itsm.log }}" as="lg" hint-placeholder-count="0">
                       <div style="display:flex; gap:9px; align-items:flex-start;">
-                        <span style="flex:0 0 auto; font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-faint); padding-top:1px;">{{ lg.at }}</span>
+                        <span style="flex:0 0 auto; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint); padding-top:1px;">{{ lg.at }}</span>
                         <span style="min-width:0; font-size:11px; line-height:1.45; color:var(--text-muted); word-break:break-word;">{{ lg.t }}</span>
                       </div>
                     </sc-for>
@@ -612,7 +615,7 @@
                     </div>
                     <p style="font-size:13px; line-height:1.6; color:var(--text); margin:0 0 12px;">{{ desk.solvedText }}</p>
                     <div style="padding-top:11px; border-top:1px solid rgba(34,197,94,0.3);">
-                      <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.07em; text-transform:uppercase; color:var(--text-faint); margin-bottom:5px;">{{ desk.lessonLabel }}</div>
+                      <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.07em; text-transform:uppercase; color:var(--text-faint); margin-bottom:5px;">{{ desk.lessonLabel }}</div>
                       <p style="font-size:12px; line-height:1.6; color:var(--text-muted); margin:0;">{{ desk.lessonText }}</p>
                     </div>
                     <button onClick="{{ desk.onBack }}" style="margin-top:13px; border:1px solid var(--border-strong); background:var(--panel); color:var(--text); padding:9px 15px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;" style-hover="border-color:var(--accent-b);">{{ desk.nextTicketLabel }}</button>
@@ -622,7 +625,7 @@
 
               <!-- las cuatro sesiones -->
               <div>
-              <div style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-faint); margin:0 0 8px; text-align:right;">{{ desk.termHint }}</div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint); margin:0 0 8px; text-align:right;">{{ desk.termHint }}</div>
               <div class="desk-terms" style="display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px;">
                 <sc-for list="{{ desk.terms }}" as="dt" hint-placeholder-count="4">
                   <div onClick="{{ dt.onFocus }}" role="group" aria-label="{{ dt.a11yPane }}" style="display:flex; flex-direction:column; height:302px; border-radius:14px; border:2px solid {{ dt.border }}; box-shadow:{{ dt.glow }}; background:#0b1020; overflow:hidden; transition:border-color .15s, box-shadow .15s;">
@@ -637,7 +640,7 @@
                       </sc-for>
                     </div>
                     <div style="flex:0 0 auto; display:flex; align-items:center; gap:6px; padding:8px 12px; border-top:1px solid rgba(255,255,255,0.08);">
-                      <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:{{ dt.color }}; white-space:nowrap;">{{ dt.prompt }}</span>
+                      <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:color-mix(in srgb, {{ dt.color }} 55%, #fff); white-space:nowrap;">{{ dt.prompt }}</span>
                       <input value="{{ dt.input }}" onInput="{{ dt.onInput }}" onKeyDown="{{ dt.onKey }}" onFocus="{{ dt.onFocus }}" spellcheck="false" autocomplete="off" aria-label="{{ dt.a11yInput }}"
                         style="flex:1 1 auto; min-width:0; background:transparent; border:none; outline:none; color:#e6edf7; font-family:'JetBrains Mono',monospace; font-size:11px;" />
                     </div>
@@ -668,12 +671,12 @@
               <div style="display:flex; flex-direction:column; gap:9px;">
                 <sc-for list="{{ desk.queue }}" as="dq" hint-placeholder-count="5">
                   <button onClick="{{ dq.onClick }}" aria-label="{{ dq.aria }}" style="display:flex; align-items:center; gap:13px; text-align:left; border:1px solid var(--border-strong); background:var(--panel); color:var(--text); padding:13px 15px; border-radius:14px; cursor:pointer; font-family:'Inter',sans-serif; opacity:{{ dq.op }}; transition:all .15s;" style-hover="border-color:var(--accent-b); background:var(--accent-tint);">
-                    <span style="flex:0 0 auto; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; font-size:12px; font-weight:700; color:{{ dq.markColor }}; border:1.5px solid {{ dq.markColor }};">{{ dq.mark }}</span>
+                    <span style="flex:0 0 auto; width:22px; height:22px; border-radius:50%; display:grid; place-items:center; font-size:12px; font-weight:700; color:color-mix(in srgb, {{ dq.markColor }} 45%, var(--text)); border:1.5px solid {{ dq.markColor }};">{{ dq.mark }}</span>
                     <span style="min-width:0; flex:1 1 auto;">
                       <span style="display:block; font-size:13px; font-weight:700; line-height:1.3;">{{ dq.subject }}</span>
                       <span style="display:block; font-size:12px; color:var(--text-muted); margin-top:2px;">{{ dq.from }}</span>
                     </span>
-                    <span style="flex:0 0 auto; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:{{ dq.prioColor }}; background:{{ dq.prioBg }}; border:1px solid {{ dq.prioColor }}; border-radius:99px; padding:3px 10px;">{{ dq.prio }}</span>
+                    <span style="flex:0 0 auto; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:color-mix(in srgb, {{ dq.prioColor }} 45%, var(--text)); background:{{ dq.prioBg }}; border:1px solid {{ dq.prioColor }}; border-radius:99px; padding:3px 10px;">{{ dq.prio }}</span>
                     <span style="flex:0 0 auto; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint);">{{ dq.id }}</span>
                   </button>
                 </sc-for>
@@ -702,11 +705,11 @@
               </div>
               <div class="kids-opts" style="display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:16px;">
                 <sc-for list="{{ kids.parts }}" as="kpt" hint-placeholder-count="2">
-                  <button onClick="{{ kpt.onClick }}" aria-label="{{ kpt.aria }}" style="display:flex; flex-direction:column; align-items:flex-start; text-align:left; gap:10px; padding:24px 22px; border-radius:20px; border:4px solid {{ kpt.border }}; background:var(--panel); box-shadow:{{ kpt.lift }}; cursor:pointer; font-family:'Inter',sans-serif; transition:transform .16s, box-shadow .16s;" style-hover="{{ kpt.hoverStyle }}">
+                  <button onClick="{{ kpt.onClick }}" aria-label="{{ kpt.aria }}" style="color:var(--text); display:flex; flex-direction:column; align-items:flex-start; text-align:left; gap:10px; padding:24px 22px; border-radius:20px; border:4px solid {{ kpt.border }}; background:var(--panel); box-shadow:{{ kpt.lift }}; cursor:pointer; font-family:'Inter',sans-serif; transition:transform .16s, box-shadow .16s;" style-hover="{{ kpt.hoverStyle }}">
                     <span style="width:62px; height:62px; border-radius:20px; background:{{ kpt.iconBg }}; display:grid; place-items:center; font-size:32px;">{{ kpt.icon }}</span>
                     <span style="font-size:20px; font-weight:800; letter-spacing:-0.01em;">{{ kpt.title }}</span>
                     <span style="font-size:15px; color:var(--text-muted); line-height:1.5;">{{ kpt.desc }}</span>
-                    <span style="margin-top:4px; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:{{ kpt.metaColor }};">{{ kpt.meta }}</span>
+                    <span style="margin-top:4px; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:color-mix(in srgb, {{ kpt.metaColor }} 45%, var(--text));">{{ kpt.meta }}</span>
                   </button>
                 </sc-for>
               </div>
@@ -721,7 +724,7 @@
                   <sc-if value="{{ kids.contShow }}" hint-placeholder-val="{{ false }}">
                     <button onClick="{{ kids.onCont }}" style="border:none; background:#9333ea; color:#fff; padding:15px 28px; border-radius:99px; cursor:pointer; font-family:'Inter',sans-serif; font-size:17px; font-weight:800; box-shadow:0 5px 0 0 rgba(0,0,0,0.16);" style-hover="filter:brightness(1.08);">🧰 {{ kids.contLabel }}</button>
                   </sc-if>
-                  <button onClick="{{ kids.onAgain }}" style="border:none; background:var(--accent); color:#fff; padding:15px 28px; border-radius:99px; cursor:pointer; font-family:'Inter',sans-serif; font-size:17px; font-weight:800; box-shadow:0 5px 0 0 rgba(0,0,0,0.16);" style-hover="filter:brightness(1.08);">🔁 {{ kids.again }}</button>
+                  <button onClick="{{ kids.onAgain }}" style="border:none; background:var(--accent-solid); color:#fff; padding:15px 28px; border-radius:99px; cursor:pointer; font-family:'Inter',sans-serif; font-size:17px; font-weight:800; box-shadow:0 5px 0 0 rgba(0,0,0,0.16);" style-hover="filter:brightness(1.08);">🔁 {{ kids.again }}</button>
                   <button onClick="{{ kids.onMap }}" style="border:3px solid var(--border-strong); background:var(--panel); color:var(--text); padding:13px 24px; border-radius:99px; cursor:pointer; font-family:'Inter',sans-serif; font-size:15px; font-weight:700;" style-hover="border-color:var(--accent);">🗺 {{ kids.toMap }}</button>
                 </div>
               </div>
@@ -729,7 +732,7 @@
 
             <sc-if value="{{ kids.chapterShow }}" hint-placeholder-val="{{ false }}">
               <div style="text-align:center; margin:0 0 16px;">
-                <span style="display:inline-block; padding:7px 18px; border-radius:99px; background:{{ kids.color }}; color:#fff; font-family:'Inter',sans-serif; font-size:13px; font-weight:800; letter-spacing:0.01em; box-shadow:0 4px 0 0 rgba(0,0,0,0.14); animation:kidPop .45s ease both;">{{ kids.chapterTitle }}</span>
+                <span style="display:inline-block; padding:7px 18px; border-radius:99px; background:color-mix(in srgb, {{ kids.color }} 60%, #000); color:#fff; font-family:'Inter',sans-serif; font-size:13px; font-weight:800; letter-spacing:0.01em; box-shadow:0 4px 0 0 rgba(0,0,0,0.14); animation:kidPop .45s ease both;">{{ kids.chapterTitle }}</span>
               </div>
             </sc-if>
             <sc-if value="{{ kids.guideShow }}" hint-placeholder-val="{{ true }}">
@@ -749,7 +752,7 @@
                   </svg>
                 </span>
                 <div style="min-width:0; flex:1 1 auto; position:relative; border-radius:20px; border:3px solid {{ kids.color }}; background:var(--panel); padding:15px 19px;">
-                  <div style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:{{ kids.color }}; margin-bottom:5px;">{{ kids.stepLabel }} · {{ kids.title }}</div>
+                  <div style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; letter-spacing:0.1em; text-transform:uppercase; color:color-mix(in srgb, {{ kids.color }} 45%, var(--text)); margin-bottom:5px;">{{ kids.stepLabel }} · {{ kids.title }}</div>
                   <div style="font-size:17px; line-height:1.55; color:var(--text);">{{ kids.say }}</div>
                 </div>
               </div>
@@ -774,10 +777,10 @@
                     </span>
                     <span style="font-size:17px; font-weight:800; color:var(--text); text-align:center; line-height:1.2;">{{ ko.name }}</span>
                     <sc-if value="{{ ko.layerShow }}" hint-placeholder-val="{{ false }}">
-                      <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:{{ ko.color }}; animation:fadeUp .25s ease both;">{{ ko.layer }}</span>
+                      <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:color-mix(in srgb, {{ ko.color }} 45%, var(--text)); animation:fadeUp .25s ease both;">{{ ko.layer }}</span>
                     </sc-if>
                     <sc-if value="{{ ko.markShow }}" hint-placeholder-val="{{ false }}">
-                      <span style="position:absolute; top:-12px; right:-8px; width:34px; height:34px; border-radius:50%; display:grid; place-items:center; font-size:17px; color:#fff; background:#22c55e; box-shadow:0 3px 0 0 rgba(0,0,0,0.15); animation:kidPop .4s ease both;">{{ ko.mark }}</span>
+                      <span style="position:absolute; top:-12px; right:-8px; width:34px; height:34px; border-radius:50%; display:grid; place-items:center; font-size:17px; color:#fff; background:#15803d; box-shadow:0 3px 0 0 rgba(0,0,0,0.15); animation:kidPop .4s ease both;">{{ ko.mark }}</span>
                     </sc-if>
                   </button>
                 </sc-for>
@@ -799,7 +802,7 @@
                   <span style="font-family:'Inter',sans-serif; font-size:20px; font-weight:800; color:#16a34a;">{{ kids.okTitle }}</span>
                 </div>
                 <div style="font-size:17px; line-height:1.6; color:var(--text);">{{ kids.why }}</div>
-                <button onClick="{{ kids.onNext }}" style="margin-top:16px; border:none; background:var(--accent); color:#fff; padding:14px 30px; border-radius:99px; cursor:pointer; font-family:'Inter',sans-serif; font-size:17px; font-weight:800; box-shadow:0 5px 0 0 rgba(0,0,0,0.16);" style-hover="filter:brightness(1.08);">{{ kids.nextLabel }} →</button>
+                <button onClick="{{ kids.onNext }}" style="margin-top:16px; border:none; background:var(--accent-solid); color:#fff; padding:14px 30px; border-radius:99px; cursor:pointer; font-family:'Inter',sans-serif; font-size:17px; font-weight:800; box-shadow:0 5px 0 0 rgba(0,0,0,0.16);" style-hover="filter:brightness(1.08);">{{ kids.nextLabel }} →</button>
               </div>
             </sc-if>
           </div>
@@ -822,7 +825,7 @@
                   </svg>
                   <span style="min-width:0;">
                     <span style="display:block; font-size:13px; font-weight:700; color:var(--text); line-height:1.2;">{{ kt.name }}</span>
-                    <span style="display:block; font-size:10px; color:{{ kt.color }}; font-weight:600; margin-top:1px;">{{ kt.layer }}</span>
+                    <span style="display:block; font-size:11px; color:color-mix(in srgb, {{ kt.color }} 45%, var(--text)); font-weight:600; margin-top:1px;">{{ kt.layer }}</span>
                   </span>
                 </div>
               </sc-for>
@@ -840,7 +843,7 @@
                       </svg>
                       <span style="min-width:0;">
                         <span style="display:block; font-size:12px; font-weight:700; color:var(--text); line-height:1.2;">{{ kg.name }}</span>
-                        <span style="display:block; font-size:10px; color:{{ kg.color }}; font-weight:600; margin-top:1px;">{{ kg.layer }}</span>
+                        <span style="display:block; font-size:11px; color:color-mix(in srgb, {{ kg.color }} 45%, var(--text)); font-weight:600; margin-top:1px;">{{ kg.layer }}</span>
                       </span>
                     </div>
                   </sc-for>
@@ -855,10 +858,10 @@
       <!-- SUB-NAV (vistas dentro de un grupo) -->
       <sc-if value="{{ subnavShow }}" hint-placeholder-val="{{ false }}">
         <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:-4px -4px 16px; padding-left:4px;">
-          <span style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-faint); margin-right:2px;">{{ subnavLabel }}</span>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-faint); margin-right:2px;">{{ subnavLabel }}</span>
           <div style="display:flex; flex-wrap:wrap; gap:6px;">
             <sc-for list="{{ subnav }}" as="sv" hint-placeholder-count="6">
-              <button onClick="{{ sv.onClick }}" aria-current="{{ sv.current }}" style="display:flex; align-items:center; gap:6px; border:1px solid {{ sv.border }}; background:{{ sv.bg }}; color:{{ sv.color }}; padding:6px 12px; border-radius:99px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600; white-space:nowrap; transition:all .14s;" style-hover="{{ sv.hoverStyle }}"><span style="font-size:13px; line-height:1;">{{ sv.icon }}</span>{{ sv.label }}</button>
+              <button onClick="{{ sv.onClick }}" aria-current="{{ sv.current }}" style="display:flex; align-items:center; gap:6px; border:1px solid {{ sv.border }}; background:{{ sv.bg }}; color:color-mix(in srgb, {{ sv.color }} 45%, var(--text)); padding:6px 12px; border-radius:99px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600; white-space:nowrap; transition:all .14s;" style-hover="{{ sv.hoverStyle }}"><span style="font-size:13px; line-height:1;">{{ sv.icon }}</span>{{ sv.label }}</button>
             </sc-for>
           </div>
         </div>
@@ -875,7 +878,7 @@
                 <div style="display:flex; align-items:center; gap:8px; margin-bottom:4px;">
                   <span style="font-weight:700; font-size:15px;">{{ ms.name }}</span>
                   <span style="flex:1 1 auto;"></span>
-                  <span style="font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:{{ ms.levelColor }}; background:{{ ms.levelBg }}; border:1px solid {{ ms.levelColor }}; border-radius:99px; padding:2px 9px;">{{ ms.levelLabel }}</span>
+                  <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:color-mix(in srgb, {{ ms.levelColor }} 45%, var(--text)); background:{{ ms.levelBg }}; border:1px solid {{ ms.levelColor }}; border-radius:99px; padding:2px 9px;">{{ ms.levelLabel }}</span>
                 </div>
                 <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">{{ ms.brief }}</div>
               </button>
@@ -891,7 +894,7 @@
             <div style="min-width:0; flex:1 1 240px;">
               <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                 <span style="font-family:'Inter',sans-serif; font-size:15px; font-weight:700; letter-spacing:-0.01em;">{{ mission.name }}</span>
-                <span style="font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:{{ mission.levelColor }}; background:{{ mission.levelBg }}; border:1px solid {{ mission.levelColor }}; border-radius:99px; padding:2px 9px;">{{ mission.levelLabel }}</span>
+                <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:color-mix(in srgb, {{ mission.levelColor }} 45%, var(--text)); background:{{ mission.levelBg }}; border:1px solid {{ mission.levelColor }}; border-radius:99px; padding:2px 9px;">{{ mission.levelLabel }}</span>
               </div>
               <div style="font-size:12px; color:var(--text-muted); line-height:1.5; margin-top:4px;">{{ mission.brief }}</div>
             </div>
@@ -901,12 +904,12 @@
               <button onClick="{{ mission.onCheck }}" style="border:1px solid rgba(99,102,241,0.5); background:rgba(99,102,241,0.14); color:var(--accent); padding:7px 15px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;" style-hover="background:rgba(99,102,241,0.24); border-color:var(--accent);">{{ t.missionCheck }}</button>
             </div>
           </div>
-          <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-faint); margin:0 0 8px;">{{ t.missionGoals }}</div>
+          <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-faint); margin:0 0 8px;">{{ t.missionGoals }}</div>
           <div style="display:flex; flex-wrap:wrap; gap:7px;">
             <sc-for list="{{ mission.goals }}" as="g" hint-placeholder-count="6">
               <div title="{{ g.hint }}" style="display:flex; align-items:center; gap:7px; padding:6px 11px 6px 8px; border-radius:99px; border:1px solid {{ g.chipBorder }}; background:{{ g.chipBg }}; opacity:{{ g.chipOpacity }};">
-                <span style="width:16px; height:16px; border-radius:50%; display:grid; place-items:center; font-size:10px; font-weight:700; color:#05080f; background:{{ g.dotBg }}; border:1px solid {{ g.dotBorder }};">{{ g.mark }}</span>
-                <span style="font-size:12px; font-weight:500; color:{{ g.nameColor }};">{{ g.name }}</span>
+                <span style="width:16px; height:16px; border-radius:50%; display:grid; place-items:center; font-size:11px; font-weight:700; color:#05080f; background:{{ g.dotBg }}; border:1px solid {{ g.dotBorder }};">{{ g.mark }}</span>
+                <span style="font-size:12px; font-weight:500; color:color-mix(in srgb, {{ g.nameColor }} 45%, var(--text));">{{ g.name }}</span>
               </div>
             </sc-for>
           </div>
@@ -915,8 +918,8 @@
               <sc-for list="{{ mission.meters }}" as="mt" hint-placeholder-count="1">
                 <div>
                   <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                    <span style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted);">{{ mt.label }}</span>
-                    <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; color:{{ mt.markColor }};">{{ mt.mark }} {{ mt.txt }}</span>
+                    <span style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted);">{{ mt.label }}</span>
+                    <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; color:color-mix(in srgb, {{ mt.markColor }} 45%, var(--text));">{{ mt.mark }} {{ mt.txt }}</span>
                   </div>
                   <div style="height:6px; border-radius:99px; background:var(--panel-2); overflow:hidden;">
                     <div style="height:100%; width:{{ mt.pct }}; background:{{ mt.barColor }}; border-radius:99px; transition:width .4s;"></div>
@@ -938,13 +941,13 @@
               <div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-muted); margin-bottom:18px;">{{ quiz.pct }}</div>
               <sc-if value="{{ quiz.hasMastered }}" hint-placeholder-val="{{ false }}">
                 <div style="display:flex; gap:8px; align-items:flex-start; text-align:left; border-radius:10px; border:1px solid rgba(34,197,94,0.35); background:rgba(34,197,94,0.08); padding:9px 12px; margin-bottom:8px;">
-                  <span style="color:#22c55e; font-weight:700; font-size:12px;">✓ {{ t.quizMastered }}:</span>
+                  <span style="color:color-mix(in srgb, #22c55e 45%, var(--text)); font-weight:700; font-size:12px;">✓ {{ t.quizMastered }}:</span>
                   <span style="font-size:12px; color:var(--text-muted); line-height:1.4;">{{ quiz.masteredLabel }}</span>
                 </div>
               </sc-if>
               <sc-if value="{{ quiz.hasWeak }}" hint-placeholder-val="{{ false }}">
                 <div style="display:flex; gap:8px; align-items:flex-start; text-align:left; border-radius:10px; border:1px solid var(--warm-border); background:var(--warm); padding:9px 12px; margin-bottom:8px;">
-                  <span style="color:#f97316; font-weight:700; font-size:12px;">↻ {{ t.quizWeak }}:</span>
+                  <span style="color:color-mix(in srgb, #f97316 45%, var(--text)); font-weight:700; font-size:12px;">↻ {{ t.quizWeak }}:</span>
                   <span style="font-size:12px; color:var(--text-muted); line-height:1.4;">{{ quiz.weakLabel }}</span>
                 </div>
               </sc-if>
@@ -960,21 +963,21 @@
               </div>
               <div style="font-family:'Inter',sans-serif; font-size:13px; color:var(--text-muted); margin-bottom:14px;">{{ t.quizQ }}</div>
               <div style="display:flex; align-items:center; gap:12px; padding:14px 16px; border-radius:10px; background:var(--panel-2); border:1px solid var(--border); margin-bottom:20px;">
-                <span style="width:44px; height:44px; flex:0 0 auto; border-radius:10px; display:grid; place-items:center; font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; color:{{ quiz.blockColor }}; background:{{ quiz.badgeBg }}; border:1px solid {{ quiz.badgeBorder }};">{{ quiz.code }}</span>
+                <span style="width:44px; height:44px; flex:0 0 auto; border-radius:10px; display:grid; place-items:center; font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; color:color-mix(in srgb, {{ quiz.blockColor }} 45%, var(--text)); background:{{ quiz.badgeBg }}; border:1px solid {{ quiz.badgeBorder }};">{{ quiz.code }}</span>
                 <span style="font-family:'Inter',sans-serif; font-size:17px; font-weight:700; letter-spacing:-0.01em;">{{ quiz.blockName }}</span>
               </div>
               <div style="display:flex; flex-direction:column; gap:9px;">
                 <sc-for list="{{ quiz.options }}" as="o" hint-placeholder-count="4">
-                  <button onClick="{{ o.onClick }}" style="display:flex; align-items:center; gap:11px; text-align:left; border:1px solid {{ o.border }}; background:{{ o.bg }}; color:{{ o.color }}; padding:12px 14px; border-radius:10px; cursor:{{ o.cursor }}; font-family:'Inter',sans-serif; font-size:13px; font-weight:500; transition:all .13s;" style-hover="{{ o.hoverStyle }}">
+                  <button onClick="{{ o.onClick }}" style="display:flex; align-items:center; gap:11px; text-align:left; border:1px solid {{ o.border }}; background:{{ o.bg }}; color:color-mix(in srgb, {{ o.color }} 45%, var(--text)); padding:12px 14px; border-radius:10px; cursor:{{ o.cursor }}; font-family:'Inter',sans-serif; font-size:13px; font-weight:500; transition:all .13s;" style-hover="{{ o.hoverStyle }}">
                     <span style="width:9px; height:9px; border-radius:6px; background:{{ o.dot }}; flex:0 0 auto;"></span>
                     <span style="flex:1 1 auto;">{{ o.label }}</span>
-                    <span style="font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; color:{{ o.color }};">{{ o.mark }}</span>
+                    <span style="font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; color:color-mix(in srgb, {{ o.color }} 45%, var(--text));">{{ o.mark }}</span>
                   </button>
                 </sc-for>
               </div>
               <sc-if value="{{ quiz.explainShow }}" hint-placeholder-val="{{ false }}">
                 <div style="margin-top:16px; border-radius:10px; border:1px solid {{ quiz.explainBorder }}; background:{{ quiz.explainBg }}; padding:12px 14px; animation:fadeUp .2s ease both;">
-                  <div style="font-family:'Inter',sans-serif; font-weight:600; font-size:13px; color:{{ quiz.explainColor }}; margin-bottom:4px;">{{ quiz.explainTitle }}</div>
+                  <div style="font-family:'Inter',sans-serif; font-weight:600; font-size:13px; color:color-mix(in srgb, {{ quiz.explainColor }} 45%, var(--text)); margin-bottom:4px;">{{ quiz.explainTitle }}</div>
                   <div style="font-size:12px; color:var(--text-muted); line-height:1.55;">{{ quiz.explain }}</div>
                   <button onClick="{{ quiz.onNext }}" style="margin-top:12px; border:1px solid var(--border-strong); background:var(--panel-alt); color:var(--text); padding:8px 18px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:600;" style-hover="border-color:var(--accent-b); background:var(--panel-2);">{{ quiz.nextLabel }} →</button>
                 </div>
@@ -1013,7 +1016,7 @@
                 </sc-if>
               </svg>
               <sc-for list="{{ map.labels }}" as="g" hint-placeholder-count="0">
-                <div title="{{ g.alertMsg }}" style="position:absolute; left:{{ g.left }}px; top:{{ g.top }}px; width:{{ g.w }}px; display:flex; align-items:center; gap:4px; font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:{{ g.color }}; white-space:nowrap;">
+                <div title="{{ g.alertMsg }}" style="position:absolute; left:{{ g.left }}px; top:{{ g.top }}px; width:{{ g.w }}px; display:flex; align-items:center; gap:4px; font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:color-mix(in srgb, {{ g.color }} 45%, var(--text)); white-space:nowrap;">
                   <span style="overflow:hidden; text-overflow:ellipsis;">{{ g.name }}</span>
                   <sc-if value="{{ g.alert }}" hint-placeholder-val="{{ false }}"><span style="flex:0 0 auto; width:13px; height:13px; border-radius:50%; display:grid; place-items:center; font-size:10px; font-weight:700; color:#05080f; background:{{ g.alertColor }};">{{ g.alertIcon }}</span></sc-if>
                 </div>
@@ -1031,12 +1034,12 @@
                   </span>
                   <span style="flex:1 1 auto; min-width:0; display:flex; flex-direction:column; gap:3px;">
                     <span style="font-size:12px; font-weight:600; color:var(--text); line-height:1.2; overflow:hidden; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical;">{{ n.name }}</span>
-                    <span style="font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; letter-spacing:0.05em; color:{{ n.color }};">{{ n.code }}</span>
+                    <span style="font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; letter-spacing:0.05em; color:color-mix(in srgb, {{ n.color }} 45%, var(--text));">{{ n.code }}</span>
                   </span>
                 </div>
               </sc-for>
               <sc-if value="{{ map.packet.show }}" hint-placeholder-val="{{ false }}">
-                <div style="position:absolute; left:0; top:0; z-index:6; pointer-events:none; offset-path:{{ map.packet.path }}; offset-rotate:0deg; offset-distance:{{ map.packet.dist }}; transition:offset-distance .85s cubic-bezier(.45,0,.3,1); display:flex; align-items:center; gap:6px; padding:5px 11px 5px 8px; border-radius:99px; background:var(--accent); color:#fff; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; letter-spacing:0.04em; white-space:nowrap; box-shadow:0 0 0 5px rgba(99,102,241,0.18), 0 0 26px 5px var(--accent);">
+                <div style="position:absolute; left:0; top:0; z-index:6; pointer-events:none; offset-path:{{ map.packet.path }}; offset-rotate:0deg; offset-distance:{{ map.packet.dist }}; transition:offset-distance .85s cubic-bezier(.45,0,.3,1); display:flex; align-items:center; gap:6px; padding:5px 11px 5px 8px; border-radius:99px; background:var(--accent-solid); color:#fff; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; letter-spacing:0.04em; white-space:nowrap; box-shadow:0 0 0 5px rgba(99,102,241,0.18), 0 0 26px 5px var(--accent);">
                   <span style="width:7px; height:7px; border-radius:50%; background:#fff; box-shadow:0 0 8px #fff;"></span>{{ map.packet.label }}
                 </div>
               </sc-if>
@@ -1048,14 +1051,14 @@
           </sc-if>
           <div style="position:absolute; left:16px; top:14px; display:flex; flex-direction:column; align-items:flex-start; gap:6px; max-width:calc(100% - 360px); pointer-events:none;">
             <div style="display:flex; align-items:center; gap:4px; padding:3px; border-radius:99px; background:var(--header-bg); border:1px solid var(--border); pointer-events:auto;">
-              <span style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint); padding:0 6px 0 8px;">{{ map.viewLabel }}</span>
+              <span style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint); padding:0 6px 0 8px;">{{ map.viewLabel }}</span>
               <sc-for list="{{ map.viewTabs }}" as="vt" hint-placeholder-count="2">
-                <button onClick="{{ vt.onClick }}" style="border:none; border-radius:99px; padding:4px 12px; font-size:12px; font-weight:{{ vt.weight }}; background:{{ vt.bg }}; color:{{ vt.color }}; cursor:pointer;">{{ vt.label }}</button>
+                <button onClick="{{ vt.onClick }}" style="border:none; border-radius:99px; padding:4px 12px; font-size:12px; font-weight:{{ vt.weight }}; background:{{ vt.bg }}; color:color-mix(in srgb, {{ vt.color }} 45%, var(--text)); cursor:pointer;">{{ vt.label }}</button>
               </sc-for>
             </div>
             <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-muted); background:var(--header-bg); padding:5px 11px; border-radius:99px; border:1px solid var(--border); max-width:100%;">{{ map.hint }}</span>
             <sc-if value="{{ map.isDemo }}" hint-placeholder-val="{{ false }}">
-              <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:#f97316; background:var(--warm); padding:5px 11px; border-radius:99px; border:1px solid var(--warm-border); max-width:100%;">{{ t.mapDemo }}</span>
+              <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:color-mix(in srgb, #f97316 45%, var(--text)); background:var(--warm); padding:5px 11px; border-radius:99px; border:1px solid var(--warm-border); max-width:100%;">{{ t.mapDemo }}</span>
             </sc-if>
           </div>
           <button onClick="{{ map.runFlow }}" disabled="{{ map.flowDisabled }}"
@@ -1070,7 +1073,7 @@
           </sc-if>
           <sc-if value="{{ map.chaosActive }}" hint-placeholder-val="{{ false }}">
             <div style="position:absolute; right:16px; top:110px; display:flex; flex-direction:column; align-items:flex-end; gap:6px; max-width:290px; pointer-events:none;">
-              <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:{{ map.resColor }}; background:var(--header-bg); padding:5px 11px; border-radius:99px; border:1px solid var(--border);">{{ map.resLabel }}</span>
+              <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:color-mix(in srgb, {{ map.resColor }} 45%, var(--text)); background:var(--header-bg); padding:5px 11px; border-radius:99px; border:1px solid var(--border);">{{ map.resLabel }}</span>
               <span style="font-size:11px; color:var(--text-muted); background:var(--header-bg); padding:5px 11px; border-radius:99px; border:1px solid var(--border); text-align:right; line-height:1.4;">{{ map.chaosHint }}</span>
             </div>
           </sc-if>
@@ -1092,7 +1095,7 @@
           </sc-if>
           <sc-if value="{{ map.isPlano }}" hint-placeholder-val="{{ false }}">
           <div style="position:absolute; left:16px; bottom:16px; max-width:calc(100% - 230px); display:flex; flex-wrap:wrap; align-items:center; gap:5px 11px; padding:8px 13px; border-radius:10px; background:var(--header-bg); border:1px solid var(--border); pointer-events:none;">
-            <span style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint); margin-right:1px;">{{ t.mapLegend }}</span>
+            <span style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint); margin-right:1px;">{{ t.mapLegend }}</span>
             <span style="display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-muted);"><svg width="26" height="9" style="display:block; overflow:visible;"><path d="M1 4.5h17" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" fill="none"></path><path d="M25 4.5 18 1.5 18 7.5Z" fill="var(--accent)"></path></svg>{{ t.legFlow }}</span>
             <span style="display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-muted);"><svg width="26" height="9" style="display:block;"><path d="M1 4.5h24" stroke="var(--text-faint)" stroke-width="1.6" stroke-dasharray="5 5" stroke-linecap="round" fill="none"></path></svg>{{ t.legDep }}</span>
             <span style="display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-muted);"><svg width="26" height="9" style="display:block;"><path d="M1 4.5h24" stroke="#9333ea" stroke-width="1.6" stroke-dasharray="2 6" stroke-linecap="round" fill="none"></path></svg>{{ t.legOps }}</span>
@@ -1104,7 +1107,7 @@
           </sc-if>
           <sc-if value="{{ map.isSala }}" hint-placeholder-val="{{ false }}">
             <div style="position:absolute; left:16px; bottom:16px; max-width:calc(100% - 32px); display:flex; flex-wrap:wrap; align-items:center; gap:5px 13px; padding:8px 13px; border-radius:10px; background:var(--header-bg); border:1px solid var(--border); pointer-events:none;">
-              <span style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint); margin-right:1px;">{{ t.mapLegend }}</span>
+              <span style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint); margin-right:1px;">{{ t.mapLegend }}</span>
               <sc-for list="{{ map.salaLegend }}" as="sl" hint-placeholder-count="5">
                 <span style="display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-muted);"><svg viewBox="0 0 26 9" style="display:block; width:26px; height:9px;"><path d="M1 4.5h24" stroke="{{ sl.stroke }}" stroke-width="2" stroke-dasharray="{{ sl.dash }}" stroke-linecap="round"></path></svg>{{ sl.label }}</span>
               </sc-for>
@@ -1128,7 +1131,7 @@
               <span style="width:11px; height:11px; border-radius:50%; background:#ff5f56;"></span>
               <span style="width:11px; height:11px; border-radius:50%; background:#ffbd2e;"></span>
               <span style="width:11px; height:11px; border-radius:50%; background:#27c93f;"></span>
-              <span style="margin-left:8px; font-family:'JetBrains Mono',monospace; font-size:11px; color:#5a6a85;">labuser@labstack — {{ t.termTitle }}</span>
+              <span style="margin-left:8px; font-family:'JetBrains Mono',monospace; font-size:11px; color:#8b98ad;">labuser@labstack — {{ t.termTitle }}</span>
               <span style="flex:1 1 auto;"></span>
               <button onClick="{{ toggleCmdRef }}" style="border:1px solid #24344f; background:#0c1320; color:#8a97ad; padding:4px 11px; border-radius:6px; cursor:pointer; font-family:'JetBrains Mono',monospace; font-size:11px;" style-hover="border-color:#3fb950; color:#c9d3e3;">📋 {{ t.cmdRefBtn }}</button>
             </div>
@@ -1164,7 +1167,7 @@
                 <div style="border-radius:14px; border:1px solid {{ ti.border }}; background:var(--panel); padding:15px 16px;">
                   <div style="display:flex; justify-content:space-between; align-items:baseline;">
                     <span style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted);">{{ ti.label }}</span>
-                    <span style="font-family:'Inter',sans-serif; font-weight:800; font-size:20px; letter-spacing:-0.02em; color:{{ ti.valColor }};">{{ ti.val }}</span>
+                    <span style="font-family:'Inter',sans-serif; font-weight:800; font-size:20px; letter-spacing:-0.02em; color:color-mix(in srgb, {{ ti.valColor }} 45%, var(--text));">{{ ti.val }}</span>
                   </div>
                   <svg viewBox="0 0 100 30" preserveAspectRatio="none" style="width:100%; height:46px; margin-top:10px; overflow:visible;">
                     <path d="{{ ti.path }}" fill="none" stroke="{{ ti.stroke }}" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"></path>
@@ -1174,9 +1177,9 @@
             </div>
             <sc-if value="{{ metHasAlerts }}" hint-placeholder-val="{{ false }}">
               <div style="border-radius:14px; border:1px solid var(--warm-border); background:var(--warm); padding:12px 14px;">
-                <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:#f97316; margin-bottom:7px;">{{ t.metAlertsLabel }}</div>
+                <div style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:color-mix(in srgb, #f97316 45%, var(--text)); margin-bottom:7px;">{{ t.metAlertsLabel }}</div>
                 <sc-for list="{{ metAlerts }}" as="al" hint-placeholder-count="1">
-                  <div style="display:flex; gap:8px; align-items:flex-start; font-size:12px; color:var(--text-muted); line-height:1.5; margin-bottom:4px;"><span style="color:#f97316; flex:0 0 auto; font-weight:700;">!</span><span>{{ al.t }}</span></div>
+                  <div style="display:flex; gap:8px; align-items:flex-start; font-size:12px; color:var(--text-muted); line-height:1.5; margin-bottom:4px;"><span style="color:color-mix(in srgb, #f97316 45%, var(--text)); flex:0 0 auto; font-weight:700;">!</span><span>{{ al.t }}</span></div>
                 </sc-for>
               </div>
             </sc-if>
@@ -1195,13 +1198,13 @@
             <div style="border-radius:14px; border:1px solid var(--border); background:var(--panel-alt); padding:16px; margin-bottom:16px;">
               <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin-bottom:14px;">
                 <span style="font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; color:var(--text);">{{ waterfall.method }}</span>
-                <span style="font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700; padding:3px 10px; border-radius:99px; color:{{ waterfall.statusColor }}; background:{{ waterfall.statusBg }}; border:1px solid {{ waterfall.statusBorder }};">{{ waterfall.statusLabel }}</span>
+                <span style="font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700; padding:3px 10px; border-radius:99px; color:color-mix(in srgb, {{ waterfall.statusColor }} 45%, var(--text)); background:{{ waterfall.statusBg }}; border:1px solid {{ waterfall.statusBorder }};">{{ waterfall.statusLabel }}</span>
                 <span style="flex:1 1 auto;"></span>
                 <button onClick="{{ relaunchRequest }}" style="border:1px solid var(--accent); background:var(--accent-tint); color:var(--accent); border-radius:10px; padding:7px 14px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;">↻ {{ t.httpRelaunch }}</button>
               </div>
               <div style="display:flex; align-items:baseline; gap:8px; margin-bottom:14px;">
-                <span style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted);">{{ t.httpTotal }}</span>
-                <span style="font-family:'Inter',sans-serif; font-weight:800; font-size:20px; letter-spacing:-0.02em; color:{{ waterfall.statusColor }};">{{ waterfall.totalLabel }}</span>
+                <span style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted);">{{ t.httpTotal }}</span>
+                <span style="font-family:'Inter',sans-serif; font-weight:800; font-size:20px; letter-spacing:-0.02em; color:color-mix(in srgb, {{ waterfall.statusColor }} 45%, var(--text));">{{ waterfall.totalLabel }}</span>
               </div>
               <div style="display:flex; flex-direction:column; gap:7px;">
                 <sc-for list="{{ waterfall.hops }}" as="hop" hint-placeholder-count="5">
@@ -1215,7 +1218,7 @@
                       <div style="position:absolute; top:0; height:100%; border-radius:6px; left:{{ hop.offsetPct }}; width:{{ hop.widthPct }}; background:{{ hop.barColor }};"></div>
                     </div>
                     <sc-if value="{{ hop.hasNote }}" hint-placeholder-val="{{ false }}">
-                      <div style="font-size:11px; color:{{ hop.noteColor }}; margin:4px 0 0 18px;">{{ hop.note }}</div>
+                      <div style="font-size:11px; color:color-mix(in srgb, {{ hop.noteColor }} 45%, var(--text)); margin:4px 0 0 18px;">{{ hop.note }}</div>
                     </sc-if>
                   </div>
                 </sc-for>
@@ -1229,9 +1232,9 @@
             </div>
             <sc-if value="{{ waterfall.hasNotes }}" hint-placeholder-val="{{ false }}">
               <div style="border-radius:14px; border:1px solid var(--warm-border); background:var(--warm); padding:12px 14px;">
-                <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:#f97316; margin-bottom:7px;">{{ t.httpNotesLabel }}</div>
+                <div style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:color-mix(in srgb, #f97316 45%, var(--text)); margin-bottom:7px;">{{ t.httpNotesLabel }}</div>
                 <sc-for list="{{ waterfall.notes }}" as="nt" hint-placeholder-count="1">
-                  <div style="display:flex; gap:8px; align-items:flex-start; font-size:12px; color:var(--text-muted); line-height:1.5; margin-bottom:4px;"><span style="color:#f97316; flex:0 0 auto; font-weight:700;">!</span><span>{{ nt }}</span></div>
+                  <div style="display:flex; gap:8px; align-items:flex-start; font-size:12px; color:var(--text-muted); line-height:1.5; margin-bottom:4px;"><span style="color:color-mix(in srgb, #f97316 45%, var(--text)); flex:0 0 auto; font-weight:700;">!</span><span>{{ nt }}</span></div>
                 </sc-for>
               </div>
             </sc-if>
@@ -1246,37 +1249,37 @@
             <div style="font-size:12px; color:var(--text-muted); margin-bottom:14px;">{{ t.depHint }}</div>
             <div style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px;">
               <sc-for list="{{ deploy.strategies }}" as="st" hint-placeholder-count="3">
-                <button onClick="{{ st.onClick }}" style="border:1px solid {{ st.border }}; background:{{ st.bg }}; color:{{ st.color }}; border-radius:10px; padding:7px 16px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:600;">{{ st.name }}</button>
+                <button onClick="{{ st.onClick }}" style="border:1px solid {{ st.border }}; background:{{ st.bg }}; color:color-mix(in srgb, {{ st.color }} 45%, var(--text)); border-radius:10px; padding:7px 16px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:600;">{{ st.name }}</button>
               </sc-for>
             </div>
             <div style="font-size:12px; color:var(--text-muted); line-height:1.5; margin-bottom:16px; border-left:3px solid var(--accent); padding:2px 0 2px 11px;">{{ deploy.why }}</div>
             <div style="border-radius:14px; border:1px solid var(--border); background:var(--panel-alt); padding:16px;">
               <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:14px;">
                 <span style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted);">{{ t.depStep }} {{ deploy.stepLabel }}</span>
-                <span style="display:inline-flex; align-items:baseline; gap:5px; font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted);">{{ t.depDowntime }}<span style="color:#22c55e; font-weight:700;">{{ deploy.downtime }}</span></span>
+                <span style="display:inline-flex; align-items:baseline; gap:5px; font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted);">{{ t.depDowntime }}<span style="color:color-mix(in srgb, #22c55e 45%, var(--text)); font-weight:700;">{{ deploy.downtime }}</span></span>
                 <sc-if value="{{ deploy.done }}" hint-placeholder-val="{{ false }}">
-                  <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; padding:2px 9px; border-radius:99px; color:#22c55e; background:rgba(34,197,94,0.14); border:1px solid rgba(34,197,94,0.5);">✓ {{ t.depDoneTag }}</span>
+                  <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; padding:2px 9px; border-radius:99px; color:color-mix(in srgb, #22c55e 45%, var(--text)); background:rgba(34,197,94,0.14); border:1px solid rgba(34,197,94,0.5);">✓ {{ t.depDoneTag }}</span>
                 </sc-if>
               </div>
               <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:16px;">
                 <sc-for list="{{ deploy.groups }}" as="g" hint-placeholder-count="1">
                   <div>
-                    <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:6px;">{{ g.label }}</div>
+                    <div style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:6px;">{{ g.label }}</div>
                     <div style="display:flex; gap:8px; flex-wrap:wrap;">
                       <sc-for list="{{ g.boxes }}" as="b" hint-placeholder-count="6">
                         <div style="width:64px; height:52px; border-radius:10px; border:1px solid {{ b.border }}; background:{{ b.bg }}; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:2px; animation:{{ b.anim }};">
-                          <span style="font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:800; color:{{ b.color }};">{{ b.verLabel }}</span>
-                          <span style="font-size:10px; text-transform:uppercase; letter-spacing:0.03em; color:{{ b.color }};">{{ b.tag }}</span>
+                          <span style="font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:800; color:color-mix(in srgb, {{ b.color }} 45%, var(--text));">{{ b.verLabel }}</span>
+                          <span style="font-size:11px; text-transform:uppercase; letter-spacing:0.03em; color:color-mix(in srgb, {{ b.color }} 45%, var(--text));">{{ b.tag }}</span>
                         </div>
                       </sc-for>
                     </div>
                   </div>
                 </sc-for>
               </div>
-              <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:6px;">{{ t.depTraffic }}</div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted); margin-bottom:6px;">{{ t.depTraffic }}</div>
               <div style="display:flex; height:22px; border-radius:6px; overflow:hidden; border:1px solid var(--border); margin-bottom:6px;">
-                <div style="width:{{ deploy.splitV1W }}; background:{{ deploy.colV1 }}; display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; color:#fff; transition:width .5s ease;">{{ deploy.splitV1 }}</div>
-                <div style="width:{{ deploy.splitV2W }}; background:{{ deploy.colV2 }}; display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; color:#fff; transition:width .5s ease;">{{ deploy.splitV2 }}</div>
+                <div style="width:{{ deploy.splitV1W }}; background:color-mix(in srgb, {{ deploy.colV1 }} 60%, #000); display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:#fff; transition:width .5s ease;">{{ deploy.splitV1 }}</div>
+                <div style="width:{{ deploy.splitV2W }}; background:color-mix(in srgb, {{ deploy.colV2 }} 60%, #000); display:flex; align-items:center; justify-content:center; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:#fff; transition:width .5s ease;">{{ deploy.splitV2 }}</div>
               </div>
               <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:14px;">
                 <button onClick="{{ deploy.onReset }}" style="border:1px solid var(--border-strong); background:var(--panel-2); color:var(--text-muted); border-radius:10px; padding:7px 12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;">⟲ {{ t.depReset }}</button>
@@ -1284,7 +1287,7 @@
                 <button onClick="{{ deploy.onPlay }}" style="border:1px solid var(--accent); background:var(--accent-tint); color:var(--accent); border-radius:10px; padding:7px 16px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:700;">{{ deploy.playIcon }} {{ deploy.playLabel }}</button>
                 <button onClick="{{ deploy.onNext }}" style="border:1px solid var(--border-strong); background:var(--panel-2); color:var(--text-muted); border-radius:10px; padding:7px 12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;">{{ t.depNext }} ›</button>
                 <span style="flex:1 1 auto;"></span>
-                <button onClick="{{ deploy.onRollback }}" style="border:1px solid rgba(239,68,68,0.5); background:rgba(239,68,68,0.10); color:#ef4444; border-radius:10px; padding:7px 14px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;">⤺ {{ t.depRollback }}</button>
+                <button onClick="{{ deploy.onRollback }}" style="border:1px solid rgba(239,68,68,0.5); background:rgba(239,68,68,0.10); color:color-mix(in srgb, #ef4444 45%, var(--text)); border-radius:10px; padding:7px 14px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;">⤺ {{ t.depRollback }}</button>
               </div>
             </div>
             <div style="display:flex; gap:16px; flex-wrap:wrap; margin-top:14px; font-size:11px; color:var(--text-muted);">
@@ -1309,7 +1312,7 @@
                 <sc-for list="{{ incident.picker }}" as="it" hint-placeholder-count="3">
                   <div role="button" tabindex="0" onKeyDown="{{ it.onKey }}" aria-label="{{ it.aria }}" onClick="{{ it.onClick }}" style="cursor:pointer; border-radius:14px; border:1px solid var(--border-strong); background:var(--panel); padding:14px 16px;" style-hover="border-color:var(--accent); background:var(--panel-2);">
                     <div style="display:flex; align-items:center; gap:9px; margin-bottom:5px;">
-                      <span style="font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; padding:2px 8px; border-radius:99px; color:{{ it.levelColor }}; border:1px solid {{ it.levelColor }};">{{ it.levelLabel }}</span>
+                      <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; padding:2px 8px; border-radius:99px; color:color-mix(in srgb, {{ it.levelColor }} 45%, var(--text)); border:1px solid {{ it.levelColor }};">{{ it.levelLabel }}</span>
                       <span style="font-family:'Inter',sans-serif; font-size:15px; font-weight:700;">{{ it.title }}</span>
                     </div>
                     <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">{{ it.symptom }}</div>
@@ -1320,13 +1323,13 @@
 
             <sc-if value="{{ incident.hasActive }}" hint-placeholder-val="{{ false }}">
               <div style="display:flex; align-items:center; gap:9px; flex-wrap:wrap; margin-bottom:12px;">
-                <span style="font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; padding:2px 8px; border-radius:99px; color:{{ incident.levelColor }}; border:1px solid {{ incident.levelColor }};">{{ incident.levelLabel }}</span>
+                <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; padding:2px 8px; border-radius:99px; color:color-mix(in srgb, {{ incident.levelColor }} 45%, var(--text)); border:1px solid {{ incident.levelColor }};">{{ incident.levelLabel }}</span>
                 <span style="font-family:'Inter',sans-serif; font-size:15px; font-weight:700;">{{ incident.title }}</span>
                 <span style="flex:1 1 auto;"></span>
                 <button onClick="{{ incident.onExit }}" style="border:1px solid var(--border-strong); background:var(--panel-2); color:var(--text-muted); border-radius:6px; padding:5px 12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;">✕ {{ t.incExit }}</button>
               </div>
               <div style="border-radius:10px; border:1px solid var(--warm-border); background:var(--warm); padding:12px 14px; margin-bottom:16px;">
-                <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:#f97316; margin-bottom:5px;">{{ t.incSymptom }}</div>
+                <div style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:color-mix(in srgb, #f97316 45%, var(--text)); margin-bottom:5px;">{{ t.incSymptom }}</div>
                 <div style="font-size:13px; color:var(--text); line-height:1.5;">{{ incident.symptom }}</div>
               </div>
 
@@ -1354,11 +1357,11 @@
                 <div style="font-family:'Inter',sans-serif; font-size:13px; font-weight:700; margin-bottom:11px;">{{ t.incDiagnoseTitle }}</div>
                 <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:12px;">
                   <sc-for list="{{ incident.causes }}" as="ca" hint-placeholder-count="4">
-                    <button type="button" onClick="{{ ca.onClick }}" aria-pressed="{{ ca.selected }}" style="width:100%; box-sizing:border-box; text-align:left; cursor:pointer; border-radius:10px; border:1px solid {{ ca.border }}; background:{{ ca.bg }}; color:{{ ca.color }}; padding:11px 14px; font-size:13px; font-family:inherit; line-height:1.45; appearance:none;">{{ ca.text }}</button>
+                    <button type="button" onClick="{{ ca.onClick }}" aria-pressed="{{ ca.selected }}" style="width:100%; box-sizing:border-box; text-align:left; cursor:pointer; border-radius:10px; border:1px solid {{ ca.border }}; background:{{ ca.bg }}; color:color-mix(in srgb, {{ ca.color }} 45%, var(--text)); padding:11px 14px; font-size:13px; font-family:inherit; line-height:1.45; appearance:none;">{{ ca.text }}</button>
                   </sc-for>
                 </div>
                 <sc-if value="{{ incident.causeMsgShow }}" hint-placeholder-val="{{ false }}">
-                  <div style="font-size:12px; color:#ef4444; margin-bottom:12px;">{{ incident.causeMsg }}</div>
+                  <div style="font-size:12px; color:color-mix(in srgb, #ef4444 45%, var(--text)); margin-bottom:12px;">{{ incident.causeMsg }}</div>
                 </sc-if>
                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
                   <button onClick="{{ incident.onConfirmCause }}" style="border:1px solid var(--accent); background:var(--accent-tint); color:var(--accent); border-radius:10px; padding:9px 16px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:700;">{{ t.incConfirmCause }}</button>
@@ -1370,22 +1373,22 @@
                 <div style="font-family:'Inter',sans-serif; font-size:13px; font-weight:700; margin-bottom:11px;">{{ t.incFixTitle }}</div>
                 <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:12px;">
                   <sc-for list="{{ incident.fixes }}" as="fx" hint-placeholder-count="3">
-                    <button type="button" onClick="{{ fx.onClick }}" aria-pressed="{{ fx.selected }}" style="width:100%; box-sizing:border-box; text-align:left; cursor:pointer; border-radius:10px; border:1px solid {{ fx.border }}; background:{{ fx.bg }}; color:{{ fx.color }}; padding:11px 14px; font-size:13px; font-family:inherit; line-height:1.45; appearance:none;">{{ fx.text }}</button>
+                    <button type="button" onClick="{{ fx.onClick }}" aria-pressed="{{ fx.selected }}" style="width:100%; box-sizing:border-box; text-align:left; cursor:pointer; border-radius:10px; border:1px solid {{ fx.border }}; background:{{ fx.bg }}; color:color-mix(in srgb, {{ fx.color }} 45%, var(--text)); padding:11px 14px; font-size:13px; font-family:inherit; line-height:1.45; appearance:none;">{{ fx.text }}</button>
                   </sc-for>
                 </div>
                 <sc-if value="{{ incident.fixMsgShow }}" hint-placeholder-val="{{ false }}">
-                  <div style="font-size:12px; color:#ef4444; margin-bottom:12px;">{{ incident.fixMsg }}</div>
+                  <div style="font-size:12px; color:color-mix(in srgb, #ef4444 45%, var(--text)); margin-bottom:12px;">{{ incident.fixMsg }}</div>
                 </sc-if>
                 <button onClick="{{ incident.onApplyFix }}" style="border:1px solid var(--accent); background:var(--accent-tint); color:var(--accent); border-radius:10px; padding:9px 16px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:700;">🔧 {{ t.incApplyFix }}</button>
               </sc-if>
 
               <sc-if value="{{ incident.showDone }}" hint-placeholder-val="{{ false }}">
                 <div style="border-radius:14px; border:1px solid rgba(34,197,94,0.5); background:rgba(34,197,94,0.10); padding:14px 16px; margin-bottom:14px;">
-                  <div style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:#22c55e; margin-bottom:6px;">✓ {{ t.incResolvedTag }}</div>
+                  <div style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:color-mix(in srgb, #22c55e 45%, var(--text)); margin-bottom:6px;">✓ {{ t.incResolvedTag }}</div>
                   <div style="font-size:13px; color:var(--text); line-height:1.55;">{{ incident.resolvedMsg }}</div>
                 </div>
                 <div style="border-radius:14px; border:1px solid var(--border); background:var(--panel); padding:13px 15px; margin-bottom:16px;">
-                  <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent); margin-bottom:6px;">💡 {{ t.incLearnLabel }}</div>
+                  <div style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--accent); margin-bottom:6px;">💡 {{ t.incLearnLabel }}</div>
                   <div style="font-size:13px; color:var(--text-muted); line-height:1.55;">{{ incident.learn }}</div>
                 </div>
                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
@@ -1418,7 +1421,7 @@
 
       <sc-if value="{{ placing.active }}" hint-placeholder-val="{{ false }}">
         <div role="status" style="display:flex; align-items:center; gap:11px; flex-wrap:wrap; margin:0 -4px 14px; padding:10px 14px; border-radius:10px; border:1px solid {{ placing.border }}; background:{{ placing.bg }}; animation:fadeUp .2s ease both;">
-          <span style="width:28px; height:28px; flex:0 0 auto; border-radius:6px; display:grid; place-items:center; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; color:{{ placing.color }}; background:{{ placing.badgeBg }}; border:1px solid {{ placing.badgeBorder }};">{{ placing.code }}</span>
+          <span style="width:28px; height:28px; flex:0 0 auto; border-radius:6px; display:grid; place-items:center; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; color:color-mix(in srgb, {{ placing.color }} 45%, var(--text)); background:{{ placing.badgeBg }}; border:1px solid {{ placing.badgeBorder }};">{{ placing.code }}</span>
           <span style="font-family:'Inter',sans-serif; font-size:13px; color:var(--text); font-weight:700;">{{ placing.name }}</span>
           <span style="font-family:'Inter',sans-serif; font-size:13px; color:var(--text-muted);">{{ placing.hint }}</span>
           <span style="flex:1 1 auto;"></span>
@@ -1428,7 +1431,7 @@
 
       <sc-if value="{{ showPresets }}" hint-placeholder-val="{{ true }}">
       <div style="display:flex; align-items:center; gap:8px; max-width:900px; margin:10px auto 12px; overflow-x:auto; padding-bottom:2px;">
-        <span style="flex:0 0 auto; font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-muted); margin-right:2px;">{{ examplesLabel }}</span>
+        <span style="flex:0 0 auto; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-muted); margin-right:2px;">{{ examplesLabel }}</span>
         <sc-for list="{{ presets }}" as="p" hint-placeholder-count="3">
           <button onClick="{{ p.onClick }}" title="{{ p.desc }}"
             style="display:flex; flex:0 0 auto; align-items:center; gap:7px; border:1px solid var(--border-strong); background:var(--panel-alt); color:var(--text); padding:7px 13px; border-radius:99px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:500; transition:all .15s;"
@@ -1456,8 +1459,8 @@
           <sc-for list="{{ planes }}" as="pl" hint-placeholder-count="5">
             <div style="position:relative; border-left:2px solid {{ pl.color }}; padding-left:15px;">
               <div style="display:flex; align-items:center; gap:8px; margin:0 0 7px;">
-                <span style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; font-weight:700; color:{{ pl.color }};">{{ pl.name }}</span>
-                <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-faint);">{{ pl.count }}</span>
+                <span style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; font-weight:700; color:color-mix(in srgb, {{ pl.color }} 45%, var(--text));">{{ pl.name }}</span>
+                <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint);">{{ pl.count }}</span>
                 <span style="flex:1 1 auto;"></span>
                 <span style="font-size:11px; color:var(--text-faint); text-align:right;">{{ pl.role }}</span>
               </div>
@@ -1467,15 +1470,15 @@
                     style="position:relative; border-radius:10px; padding:{{ layer.pad }}; border:1px solid {{ layer.borderColor }}; background:{{ layer.bg }}; box-shadow:{{ layer.cardShadow }}; transition:border-color .18s, background .18s, transform .14s, box-shadow .18s; animation:{{ layer.anim }}; cursor:{{ layer.cursor }};"
                     style-hover="{{ layer.hoverStyle }}">
                     <div style="display:flex; align-items:center; gap:12px;">
-                      <span style="flex:0 0 auto; width:20px; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:{{ layer.color }}; opacity:0.65;">{{ layer.num }}</span>
-                      <div style="width:{{ layer.iconBox }}; height:{{ layer.iconBox }}; flex:0 0 auto; border-radius:10px; display:grid; place-items:center; color:{{ layer.color }}; background:{{ layer.numTint }};">
+                      <span style="flex:0 0 auto; width:20px; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:color-mix(in srgb, {{ layer.color }} 45%, var(--text));">{{ layer.num }}</span>
+                      <div style="width:{{ layer.iconBox }}; height:{{ layer.iconBox }}; flex:0 0 auto; border-radius:10px; display:grid; place-items:center; color:color-mix(in srgb, {{ layer.color }} 45%, var(--text)); background:{{ layer.numTint }};">
                         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" style="width:{{ layer.iconSz }}px; height:{{ layer.iconSz }}px;"><path d="{{ layer.iconPath }}"></path></svg>
                       </div>
                       <div style="min-width:0; flex:1 1 auto;">
                         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                           <span style="font-family:'Inter',sans-serif; font-weight:600; font-size:13px; color:var(--text); letter-spacing:-0.01em;">{{ layer.name }}</span>
-                          <sc-if value="{{ layer.done }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px; color:#22c55e; line-height:1;">✓</span></sc-if>
-                          <sc-if value="{{ layer.hintTagShow }}" hint-placeholder-val="{{ false }}"><span style="font-size:10px; font-family:'JetBrains Mono',monospace; color:{{ layer.hintTagColor }}; border:1px solid {{ layer.hintTagColor }}; border-radius:99px; padding:2px 8px; text-transform:uppercase; letter-spacing:0.05em; font-weight:600;">{{ layer.hintTag }}</span></sc-if>
+                          <sc-if value="{{ layer.done }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px; color:color-mix(in srgb, #22c55e 45%, var(--text)); line-height:1;">✓</span></sc-if>
+                          <sc-if value="{{ layer.hintTagShow }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px; font-family:'JetBrains Mono',monospace; color:color-mix(in srgb, {{ layer.hintTagColor }} 45%, var(--text)); border:1px solid {{ layer.hintTagColor }}; border-radius:99px; padding:2px 8px; text-transform:uppercase; letter-spacing:0.05em; font-weight:600;">{{ layer.hintTag }}</span></sc-if>
                         </div>
                         <sc-if value="{{ layer.showHint }}" hint-placeholder-val="{{ false }}">
                           <div style="font-size:12px; color:var(--text-muted); line-height:1.45; margin-top:3px;">{{ layer.hint }}</div>
@@ -1485,8 +1488,8 @@
                         <div style="flex:0 0 auto; display:flex; flex-wrap:wrap; justify-content:flex-end; gap:5px; max-width:52%;">
                           <sc-for list="{{ layer.placedBlocks }}" as="pb" hint-placeholder-count="2">
                             <button type="button" onClick="{{ pb.onClick }}" title="{{ pb.removeTip }}" aria-label="{{ pb.aria }}"
-                              style="display:flex; align-items:center; gap:5px; padding:3px 8px; border-radius:6px; background:{{ pb.bg }}; border:1px solid {{ pb.border }}; color:{{ pb.color }}; cursor:pointer; font-size:11px; font-weight:500; font-family:inherit; appearance:none; animation:chipIn .25s ease both; white-space:nowrap;"
-                              style-hover="filter:brightness(1.15);">{{ pb.name }}<span style="opacity:0.5; font-family:'JetBrains Mono',monospace; font-size:10px;">✕</span></button>
+                              style="display:flex; align-items:center; gap:5px; padding:3px 8px; border-radius:6px; background:{{ pb.bg }}; border:1px solid {{ pb.border }}; color:color-mix(in srgb, {{ pb.color }} 45%, var(--text)); cursor:pointer; font-size:11px; font-weight:500; font-family:inherit; appearance:none; animation:chipIn .25s ease both; white-space:nowrap;"
+                              style-hover="filter:brightness(1.15);">{{ pb.name }}<span style="opacity:0.5; font-family:'JetBrains Mono',monospace; font-size:11px;">✕</span></button>
                           </sc-for>
                         </div>
                       </sc-if>
@@ -1495,9 +1498,9 @@
                       <div style="display:flex; flex-wrap:wrap; gap:6px; margin-top:11px; padding-left:64px;">
                         <sc-for list="{{ layer.placedBlocks }}" as="pb" hint-placeholder-count="2">
                           <button type="button" onClick="{{ pb.onClick }}" title="{{ pb.removeTip }}" aria-label="{{ pb.aria }}"
-                            style="display:flex; align-items:center; gap:6px; padding:5px 8px 5px 6px; border-radius:6px; background:{{ pb.bg }}; border:1px solid {{ pb.border }}; color:{{ pb.color }}; cursor:pointer; font-size:11px; font-weight:500; font-family:inherit; appearance:none; animation:chipIn .25s ease both;"
+                            style="display:flex; align-items:center; gap:6px; padding:5px 8px 5px 6px; border-radius:6px; background:{{ pb.bg }}; border:1px solid {{ pb.border }}; color:color-mix(in srgb, {{ pb.color }} 45%, var(--text)); cursor:pointer; font-size:11px; font-weight:500; font-family:inherit; appearance:none; animation:chipIn .25s ease both;"
                             style-hover="filter:brightness(1.15);">
-                            <span style="width:20px; height:20px; border-radius:6px; display:grid; place-items:center; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:600; background:var(--badge-inner); color:{{ pb.color }};">{{ pb.code }}</span>
+                            <span style="width:20px; height:20px; border-radius:6px; display:grid; place-items:center; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:600; background:var(--badge-inner); color:color-mix(in srgb, {{ pb.color }} 45%, var(--text));">{{ pb.code }}</span>
                             {{ pb.name }}
                             <span style="opacity:0.55; margin-left:1px; font-family:'JetBrains Mono',monospace;">✕</span>
                           </button>
@@ -1514,7 +1517,7 @@
         <!-- cinturón transversal: atraviesa todas las capas -->
         <div style="margin-top:15px; padding-top:12px; border-top:1.5px dashed var(--border-strong);">
           <div style="display:flex; align-items:baseline; gap:9px; flex-wrap:wrap; margin:0 0 10px;">
-            <span style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.1em; text-transform:uppercase; font-weight:700; color:var(--text-muted);">{{ pillarsLabel }}</span>
+            <span style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.1em; text-transform:uppercase; font-weight:700; color:var(--text-muted);">{{ pillarsLabel }}</span>
             <span style="font-size:11px; color:var(--text-faint);">{{ pillarsHint }}</span>
           </div>
           <div class="pillar-belt" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(108px, 1fr)); gap:8px;">
@@ -1522,12 +1525,12 @@
               <div role="button" tabindex="0" onKeyDown="{{ tr.onKey }}" aria-label="{{ tr.aria }}" onDragOver="{{ tr.onDragOver }}" onDragLeave="{{ tr.onDragLeave }}" onDrop="{{ tr.onDrop }}" onClick="{{ tr.onClick }}"
                 style="border-radius:10px; border:1px dashed {{ tr.borderColor }}; background:{{ tr.bg }}; padding:10px 11px; cursor:{{ tr.cursor }}; transition:all .16s; animation:{{ tr.anim }};"
                 style-hover="{{ tr.hoverStyle }}">
-                <span style="width:26px; height:26px; border-radius:6px; display:grid; place-items:center; color:{{ tr.color }}; background:{{ tr.numBg }};"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ tr.iconPath }}"></path></svg></span>
+                <span style="width:26px; height:26px; border-radius:6px; display:grid; place-items:center; color:color-mix(in srgb, {{ tr.color }} 45%, var(--text)); background:{{ tr.numBg }};"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ tr.iconPath }}"></path></svg></span>
                 <div style="font-family:'Inter',sans-serif; font-weight:600; font-size:11px; color:var(--text); line-height:1.3; margin-top:7px;">{{ tr.name }}</div>
                 <sc-if value="{{ tr.hasBlocks }}" hint-placeholder-val="{{ false }}">
                   <div style="display:flex; flex-wrap:wrap; gap:4px; margin-top:8px;">
                     <sc-for list="{{ tr.placedBlocks }}" as="pb" hint-placeholder-count="0">
-                      <button type="button" onClick="{{ pb.onClick }}" title="{{ pb.removeTip }}" aria-label="{{ pb.aria }}" style="padding:3px 7px; border-radius:6px; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:600; background:{{ pb.bg }}; border:1px solid {{ pb.border }}; color:{{ pb.color }}; cursor:pointer; appearance:none; animation:chipIn .25s ease both;" style-hover="filter:brightness(1.15);">{{ pb.code }}</button>
+                      <button type="button" onClick="{{ pb.onClick }}" title="{{ pb.removeTip }}" aria-label="{{ pb.aria }}" style="padding:3px 7px; border-radius:6px; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:600; background:{{ pb.bg }}; border:1px solid {{ pb.border }}; color:color-mix(in srgb, {{ pb.color }} 45%, var(--text)); cursor:pointer; appearance:none; animation:chipIn .25s ease both;" style-hover="filter:brightness(1.15);">{{ pb.code }}</button>
                     </sc-for>
                   </div>
                 </sc-if>
@@ -1546,7 +1549,7 @@
         <div style="margin:16px 16px 0; border-radius:10px; padding:12px 14px; border:1px solid {{ feedback.border }}; background:{{ feedback.bg }}; animation:fadeUp .25s ease both;">
           <div style="display:flex; align-items:center; gap:8px; margin-bottom:5px;">
             <span style="width:18px; height:18px; border-radius:6px; display:grid; place-items:center; font-size:12px; font-weight:700; color:#05080f; background:{{ feedback.iconBg }};">{{ feedback.icon }}</span>
-            <span style="font-family:'Inter',sans-serif; font-weight:600; font-size:13px; color:{{ feedback.titleColor }};">{{ feedback.title }}</span>
+            <span style="font-family:'Inter',sans-serif; font-weight:600; font-size:13px; color:color-mix(in srgb, {{ feedback.titleColor }} 45%, var(--text));">{{ feedback.title }}</span>
           </div>
           <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">{{ feedback.msg }}</div>
         </div>
@@ -1555,10 +1558,10 @@
       <sc-if value="{{ hasDetail }}" hint-placeholder-val="{{ false }}">
         <div style="padding:16px; animation:fadeUp .25s ease both;">
           <div style="display:flex; align-items:center; gap:11px; margin-bottom:12px;">
-            <div style="width:42px; height:42px; flex:0 0 auto; border-radius:10px; display:grid; place-items:center; font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; color:{{ detail.color }}; background:{{ detail.badgeBg }}; border:1px solid {{ detail.badgeBorder }};">{{ detail.code }}</div>
+            <div style="width:42px; height:42px; flex:0 0 auto; border-radius:10px; display:grid; place-items:center; font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; color:color-mix(in srgb, {{ detail.color }} 45%, var(--text)); background:{{ detail.badgeBg }}; border:1px solid {{ detail.badgeBorder }};">{{ detail.code }}</div>
             <div style="min-width:0;">
               <div style="font-family:'Inter',sans-serif; font-weight:700; font-size:17px; letter-spacing:-0.01em;">{{ detail.name }}</div>
-              <div style="font-size:11px; font-family:'JetBrains Mono',monospace; color:{{ detail.color }}; text-transform:uppercase; letter-spacing:0.04em; margin-top:1px;">{{ detail.catName }}</div>
+              <div style="font-size:11px; font-family:'JetBrains Mono',monospace; color:color-mix(in srgb, {{ detail.color }} 45%, var(--text)); text-transform:uppercase; letter-spacing:0.04em; margin-top:1px;">{{ detail.catName }}</div>
             </div>
           </div>
 
@@ -1572,7 +1575,7 @@
 
           <p style="font-size:13px; color:var(--text-muted); line-height:1.6; margin:0 0 16px;">{{ detail.desc }}</p>
 
-          <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted); margin:0 0 8px;">{{ t.keyIdeas }}</div>
+          <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted); margin:0 0 8px;">{{ t.keyIdeas }}</div>
           <div style="display:flex; flex-direction:column; gap:7px; margin-bottom:16px;">
             <sc-for list="{{ detail.facts }}" as="f" hint-placeholder-count="2">
               <div style="display:flex; gap:9px; align-items:flex-start; font-size:12px; color:var(--text-muted); line-height:1.5;">
@@ -1584,19 +1587,19 @@
 
           <sc-if value="{{ detail.hasUse }}" hint-placeholder-val="{{ false }}">
             <div style="border-radius:10px; border:1px solid var(--border); background:var(--panel-alt); padding:11px 13px; margin-bottom:10px;">
-              <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:{{ detail.color }}; margin-bottom:5px;">{{ t.infoUse }}</div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:color-mix(in srgb, {{ detail.color }} 45%, var(--text)); margin-bottom:5px;">{{ t.infoUse }}</div>
               <div style="font-size:13px; color:var(--text-muted); line-height:1.5;">{{ detail.useCase }}</div>
             </div>
           </sc-if>
           <sc-if value="{{ detail.hasAlt }}" hint-placeholder-val="{{ false }}">
             <div style="display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; margin-bottom:18px;">
-              <span style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint); flex:0 0 auto;">{{ t.infoAlt }}:</span>
+              <span style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint); flex:0 0 auto;">{{ t.infoAlt }}:</span>
               <span style="font-size:12px; color:var(--text-muted);">{{ detail.alt }}</span>
             </div>
           </sc-if>
 
           <sc-if value="{{ detail.hasSteps }}" hint-placeholder-val="{{ false }}">
-            <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted); margin:0 0 8px;">{{ t.flow }}</div>
+            <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted); margin:0 0 8px;">{{ t.flow }}</div>
             <div style="display:flex; flex-direction:column; gap:0; margin-bottom:18px;">
               <sc-for list="{{ detail.steps }}" as="s" hint-placeholder-count="3">
                 <div style="display:flex; gap:11px; align-items:flex-start; position:relative; padding-bottom:12px;">
@@ -1608,13 +1611,13 @@
           </sc-if>
 
           <sc-if value="{{ detail.hasTerm }}" hint-placeholder-val="{{ false }}">
-            <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted); margin:0 0 8px;">{{ t.terminal }}</div>
+            <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted); margin:0 0 8px;">{{ t.terminal }}</div>
             <div style="border-radius:10px; overflow:hidden; border:1px solid #24344f; background:#060911; margin-bottom:6px;">
               <div style="display:flex; align-items:center; gap:6px; padding:8px 11px; background:#0c1320; border-bottom:1px solid #24344f;">
                 <span style="width:10px; height:10px; border-radius:50%; background:#ff5f56;"></span>
                 <span style="width:10px; height:10px; border-radius:50%; background:#ffbd2e;"></span>
                 <span style="width:10px; height:10px; border-radius:50%; background:#27c93f;"></span>
-                <span style="margin-left:6px; font-family:'JetBrains Mono',monospace; font-size:10px; color:#5a6a85;">{{ detail.termTitle }}</span>
+                <span style="margin-left:6px; font-family:'JetBrains Mono',monospace; font-size:11px; color:#5a6a85;">{{ detail.termTitle }}</span>
               </div>
               <div style="padding:12px 13px; font-family:'JetBrains Mono',monospace; font-size:12px; line-height:1.75; overflow-x:auto;">
                 <sc-for list="{{ detail.term }}" as="line" hint-placeholder-count="3">
@@ -1630,33 +1633,33 @@
       <sc-if value="{{ hasLayerDetail }}" hint-placeholder-val="{{ false }}">
         <div style="padding:16px; animation:fadeUp .25s ease both;">
           <div style="display:flex; align-items:center; gap:11px; margin-bottom:14px;">
-            <div style="min-width:42px; height:42px; padding:0 10px; flex:0 0 auto; border-radius:10px; display:grid; place-items:center; font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; color:{{ layerDetail.color }}; background:{{ layerDetail.badgeBg }}; border:1px solid {{ layerDetail.badgeBorder }};">{{ layerDetail.badge }}</div>
+            <div style="min-width:42px; height:42px; padding:0 10px; flex:0 0 auto; border-radius:10px; display:grid; place-items:center; font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:600; color:color-mix(in srgb, {{ layerDetail.color }} 45%, var(--text)); background:{{ layerDetail.badgeBg }}; border:1px solid {{ layerDetail.badgeBorder }};">{{ layerDetail.badge }}</div>
             <div style="min-width:0;">
               <div style="font-family:'Inter',sans-serif; font-weight:700; font-size:17px; letter-spacing:-0.01em;">{{ layerDetail.name }}</div>
-              <div style="font-size:11px; font-family:'JetBrains Mono',monospace; color:{{ layerDetail.color }}; text-transform:uppercase; letter-spacing:0.04em; margin-top:1px;">{{ t.whyLayer }}</div>
+              <div style="font-size:11px; font-family:'JetBrains Mono',monospace; color:color-mix(in srgb, {{ layerDetail.color }} 45%, var(--text)); text-transform:uppercase; letter-spacing:0.04em; margin-top:1px;">{{ t.whyLayer }}</div>
             </div>
           </div>
 
           <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:16px;">
             <div style="border-radius:10px; border:1px solid var(--border); background:var(--panel-alt); padding:12px 13px;">
-              <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color:{{ layerDetail.color }}; margin-bottom:5px;">{{ t.whyLayer }}</div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:color-mix(in srgb, {{ layerDetail.color }} 45%, var(--text)); margin-bottom:5px;">{{ t.whyLayer }}</div>
               <div style="font-size:13px; color:var(--text); line-height:1.55;">{{ layerDetail.why }}</div>
             </div>
             <div style="border-radius:10px; border:1px solid rgba(251,113,133,0.3); background:rgba(251,113,133,0.07); padding:12px 13px;">
-              <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color:#fb7185; margin-bottom:5px;">{{ t.ifMissing }}</div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:#fb7185; margin-bottom:5px;">{{ t.ifMissing }}</div>
               <div style="font-size:13px; color:var(--text-muted); line-height:1.55;">{{ layerDetail.miss }}</div>
             </div>
             <div style="border-radius:10px; border:1px solid var(--border); background:var(--panel-2); padding:12px 13px;">
-              <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:5px;">{{ t.analogy }}</div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-bottom:5px;">{{ t.analogy }}</div>
               <div style="font-size:13px; color:var(--text-muted); line-height:1.55; font-style:italic;">{{ layerDetail.anal }}</div>
             </div>
           </div>
 
-          <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted); margin:0 0 9px;">{{ t.belongs }}</div>
+          <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-muted); margin:0 0 9px;">{{ t.belongs }}</div>
           <div style="display:flex; flex-wrap:wrap; gap:7px;">
             <sc-for list="{{ layerDetail.belongs }}" as="pb" hint-placeholder-count="3">
-              <button type="button" onClick="{{ pb.onClick }}" aria-label="{{ pb.aria }}" style="display:flex; align-items:center; gap:6px; padding:5px 9px 5px 6px; border-radius:6px; background:{{ pb.bg }}; border:1px solid {{ pb.border }}; color:{{ pb.color }}; cursor:pointer; font-size:12px; font-weight:500; font-family:inherit; appearance:none;" style-hover="filter:brightness(1.1);">
-                <span style="width:20px; height:20px; border-radius:6px; display:grid; place-items:center; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:600; background:var(--badge-inner); color:{{ pb.color }};">{{ pb.code }}</span>{{ pb.name }}
+              <button type="button" onClick="{{ pb.onClick }}" aria-label="{{ pb.aria }}" style="display:flex; align-items:center; gap:6px; padding:5px 9px 5px 6px; border-radius:6px; background:{{ pb.bg }}; border:1px solid {{ pb.border }}; color:color-mix(in srgb, {{ pb.color }} 45%, var(--text)); cursor:pointer; font-size:12px; font-weight:500; font-family:inherit; appearance:none;" style-hover="filter:brightness(1.1);">
+                <span style="width:20px; height:20px; border-radius:6px; display:grid; place-items:center; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:600; background:var(--badge-inner); color:color-mix(in srgb, {{ pb.color }} 45%, var(--text));">{{ pb.code }}</span>{{ pb.name }}
               </button>
             </sc-for>
           </div>
@@ -1669,7 +1672,7 @@
             <div style="border-radius:14px; border:1px solid var(--border); background:var(--panel-alt); padding:14px; margin-bottom:16px; animation:fadeUp .25s ease both;">
               <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:9px;">
                 <div style="font-family:'Inter',sans-serif; font-weight:700; font-size:13px;">{{ t.analysisTitle }}</div>
-                <div style="display:flex; align-items:center; gap:7px;"><span style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-faint);">{{ t.analysisRobust }}</span><span style="font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; color:{{ analysis.scoreColor }};">{{ analysis.scorePct }}</span></div>
+                <div style="display:flex; align-items:center; gap:7px;"><span style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-faint);">{{ t.analysisRobust }}</span><span style="font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; color:color-mix(in srgb, {{ analysis.scoreColor }} 45%, var(--text));">{{ analysis.scorePct }}</span></div>
               </div>
               <div style="height:6px; border-radius:99px; background:var(--panel-2); overflow:hidden; margin-bottom:12px;">
                 <div style="height:100%; width:{{ analysis.scorePct }}; background:{{ analysis.scoreColor }}; border-radius:99px; transition:width .4s;"></div>
@@ -1679,7 +1682,7 @@
                   <div style="display:flex; gap:9px; align-items:flex-start; padding:9px 11px; border-radius:10px; border:1px solid {{ a.border }}; background:{{ a.bg }};">
                     <span style="flex:0 0 auto; width:17px; height:17px; margin-top:1px; border-radius:6px; display:grid; place-items:center; font-size:11px; font-weight:700; color:#05080f; background:{{ a.color }};">{{ a.icon }}</span>
                     <div style="min-width:0;">
-                      <div style="font-size:12px; font-weight:600; color:{{ a.color }}; margin-bottom:2px;">{{ a.title }}</div>
+                      <div style="font-size:12px; font-weight:600; color:color-mix(in srgb, {{ a.color }} 45%, var(--text)); margin-bottom:2px;">{{ a.title }}</div>
                       <div style="font-size:12px; color:var(--text-muted); line-height:1.45;">{{ a.msg }}</div>
                     </div>
                   </div>
@@ -1693,8 +1696,8 @@
               <div style="display:flex; gap:8px;">
                 <sc-for list="{{ sizing.tiles }}" as="s" hint-placeholder-count="3">
                   <div style="flex:1 1 0; min-width:0; border-radius:10px; border:1px solid var(--border); background:var(--panel-2); padding:11px 8px; text-align:center;">
-                    <div style="font-family:'Inter',sans-serif; font-weight:800; font-size:20px; letter-spacing:-0.02em; color:{{ s.color }}; line-height:1;">{{ s.value }}</div>
-                    <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-faint); margin-top:6px;">{{ s.unit }}</div>
+                    <div style="font-family:'Inter',sans-serif; font-weight:800; font-size:20px; letter-spacing:-0.02em; color:color-mix(in srgb, {{ s.color }} 45%, var(--text)); line-height:1;">{{ s.value }}</div>
+                    <div style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-faint); margin-top:6px;">{{ s.unit }}</div>
                   </div>
                 </sc-for>
               </div>
@@ -1727,8 +1730,8 @@
             <div style="display:flex; gap:8px; margin-bottom:11px;">
               <sc-for list="{{ progressParts }}" as="pp" hint-placeholder-count="2">
                 <div style="flex:1 1 0; min-width:0; border-radius:10px; border:1px solid var(--border); background:var(--panel); padding:9px 11px;">
-                  <div style="font-family:'Inter',sans-serif; font-size:15px; font-weight:700; letter-spacing:-0.01em; color:{{ pp.color }};">{{ pp.value }}</div>
-                  <div style="font-family:'JetBrains Mono',monospace; font-size:10px; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-top:2px;">{{ pp.label }}</div>
+                  <div style="font-family:'Inter',sans-serif; font-size:15px; font-weight:700; letter-spacing:-0.01em; color:color-mix(in srgb, {{ pp.color }} 45%, var(--text));">{{ pp.value }}</div>
+                  <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.06em; text-transform:uppercase; color:var(--text-faint); margin-top:2px;">{{ pp.label }}</div>
                 </div>
               </sc-for>
             </div>
@@ -1765,7 +1768,7 @@
             <div style="display:flex; align-items:center; gap:11px; padding:11px 13px; border-radius:10px; border:1px solid {{ a.border }}; background:{{ a.bg }}; opacity:{{ a.opacity }};">
               <span style="font-size:26px; line-height:1; flex:0 0 auto;">{{ a.icon }}</span>
               <div style="min-width:0;">
-                <div style="font-family:'Inter',sans-serif; font-weight:600; font-size:13px; color:{{ a.titleColor }};">{{ a.name }}</div>
+                <div style="font-family:'Inter',sans-serif; font-weight:600; font-size:13px; color:color-mix(in srgb, {{ a.titleColor }} 45%, var(--text));">{{ a.name }}</div>
                 <div style="font-size:11px; color:var(--text-muted); line-height:1.4; margin-top:1px;">{{ a.desc }}</div>
               </div>
             </div>
@@ -1799,7 +1802,7 @@
           <sc-if value="{{ cmdRef.empty }}" hint-placeholder-val="{{ false }}"><div style="text-align:center; color:var(--text-faint); font-size:13px; padding:24px;">{{ t.cmdRefEmpty }}</div></sc-if>
           <sc-for list="{{ cmdRef.groups }}" as="grp" hint-placeholder-count="6">
             <div style="margin-bottom:14px;">
-              <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint); margin:0 2px 7px;">{{ grp.name }}</div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint); margin:0 2px 7px;">{{ grp.name }}</div>
               <div style="display:flex; flex-direction:column; gap:5px;">
                 <sc-for list="{{ grp.cmds }}" as="cd" hint-placeholder-count="6">
                   <button onClick="{{ cd.onInsert }}" title="{{ cd.ex }}" style="display:flex; align-items:baseline; gap:11px; text-align:left; border:1px solid var(--border); background:var(--panel-alt); border-radius:10px; padding:9px 12px; cursor:pointer;" style-hover="border-color:var(--accent-b); background:var(--panel-2);">
@@ -1834,7 +1837,7 @@
                 <div style="min-width:0; flex:1 1 auto;">
                   <div style="display:flex; align-items:baseline; gap:8px; flex-wrap:wrap;">
                     <span style="font-family:'Inter',sans-serif; font-weight:600; font-size:13px;">{{ g.name }}</span>
-                    <span style="font-family:'JetBrains Mono',monospace; font-size:10px; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.04em;">{{ g.kindLabel }}</span>
+                    <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint); text-transform:uppercase; letter-spacing:0.04em;">{{ g.kindLabel }}</span>
                   </div>
                   <div style="font-size:12px; color:var(--text-muted); line-height:1.4; margin-top:1px;">{{ g.short }}</div>
                 </div>
@@ -1843,7 +1846,7 @@
                 <div style="padding:11px 13px 13px 32px; border-top:1px solid var(--border);">
                   <div style="font-size:12px; color:var(--text-muted); line-height:1.55;">{{ g.body }}</div>
                   <sc-for list="{{ g.more }}" as="mr" hint-placeholder-count="0">
-                    <div style="margin-top:8px;"><span style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-faint);">{{ mr.l }}: </span><span style="font-size:12px; color:var(--text-muted);">{{ mr.v }}</span></div>
+                    <div style="margin-top:8px;"><span style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-faint);">{{ mr.l }}: </span><span style="font-size:12px; color:var(--text-muted);">{{ mr.v }}</span></div>
                   </sc-for>
                   <sc-if value="{{ g.hasView }}" hint-placeholder-val="{{ false }}">
                     <button onClick="{{ g.onView }}" style="margin-top:11px; border:1px solid rgba(99,102,241,0.5); background:rgba(99,102,241,0.12); color:var(--accent); padding:6px 13px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;">{{ t.glView }} →</button>
@@ -1871,7 +1874,7 @@
         <sc-for list="{{ path.steps }}" as="st" hint-placeholder-count="8">
           <div style="border-radius:10px; border:1px solid {{ st.cardBorder }}; background:{{ st.cardBg }}; padding:13px 14px; margin-bottom:9px;">
             <div style="display:flex; align-items:center; gap:11px;">
-              <span style="width:30px; height:30px; flex:0 0 auto; border-radius:10px; display:grid; place-items:center; font-size:13px; font-weight:700; color:{{ st.statusColor }}; background:{{ st.statusBg }}; border:1px solid {{ st.statusBorder }};">{{ st.statusIcon }}</span>
+              <span style="width:30px; height:30px; flex:0 0 auto; border-radius:10px; display:grid; place-items:center; font-size:13px; font-weight:700; color:color-mix(in srgb, {{ st.statusColor }} 45%, var(--text)); background:{{ st.statusBg }}; border:1px solid {{ st.statusBorder }};">{{ st.statusIcon }}</span>
               <div style="min-width:0; flex:1 1 auto;">
                 <div style="font-family:'Inter',sans-serif; font-weight:600; font-size:13px;">{{ st.title }}</div>
                 <sc-if value="{{ st.desc }}" hint-placeholder-val="{{ false }}"><div style="font-size:12px; color:var(--text-muted); margin-top:1px;">{{ st.desc }}</div></sc-if>
@@ -1881,7 +1884,7 @@
             <sc-if value="{{ st.bodyOpen }}" hint-placeholder-val="{{ false }}">
               <div style="margin-top:11px; padding:12px 13px; border-radius:10px; background:var(--panel-2); border:1px solid var(--border);">
                 <div style="font-size:13px; color:var(--text-muted); line-height:1.6;">{{ st.body }}</div>
-                <button onClick="{{ st.onMarkRead }}" style="margin-top:11px; border:1px solid rgba(34,197,94,0.5); background:rgba(34,197,94,0.12); color:#22c55e; padding:7px 14px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;">✓ {{ t.pathMarkRead }}</button>
+                <button onClick="{{ st.onMarkRead }}" style="margin-top:11px; border:1px solid rgba(34,197,94,0.5); background:rgba(34,197,94,0.12); color:color-mix(in srgb, #22c55e 45%, var(--text)); padding:7px 14px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;">✓ {{ t.pathMarkRead }}</button>
               </div>
             </sc-if>
           </div>
@@ -1902,14 +1905,14 @@
         <textarea value="{{ contentDraft }}" onInput="{{ onContentDraft }}" placeholder="{{ t.contentPlaceholder }}" spellcheck="false"
           style="width:100%; box-sizing:border-box; height:300px; resize:vertical; padding:12px 14px; border-radius:10px; border:1px solid var(--border-strong); background:#060911; color:#c9d3e3; font-family:'JetBrains Mono',monospace; font-size:12px; line-height:1.6; outline:none;"></textarea>
         <sc-if value="{{ contentMsgShow }}" hint-placeholder-val="{{ false }}">
-          <div style="margin-top:10px; padding:9px 13px; border-radius:10px; border:1px solid {{ contentMsgBorder }}; background:{{ contentMsgBg }}; color:{{ contentMsgColor }}; font-size:12px; font-family:'JetBrains Mono',monospace;">{{ contentMsgText }}</div>
+          <div style="margin-top:10px; padding:9px 13px; border-radius:10px; border:1px solid {{ contentMsgBorder }}; background:{{ contentMsgBg }}; color:color-mix(in srgb, {{ contentMsgColor }} 45%, var(--text)); font-size:12px; font-family:'JetBrains Mono',monospace;">{{ contentMsgText }}</div>
         </sc-if>
         <div style="display:flex; flex-wrap:wrap; align-items:center; gap:9px; margin-top:14px;">
           <button onClick="{{ contentTemplateFill }}" style="border:1px solid var(--border-strong); background:var(--panel-alt); color:var(--text-muted); padding:9px 14px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:500;" style-hover="background:var(--panel-2);">{{ t.contentTpl }}</button>
           <label style="border:1px solid var(--border-strong); background:var(--panel-alt); color:var(--text-muted); padding:9px 14px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:500;" style-hover="background:var(--panel-2);">{{ t.contentFile }}<input type="file" accept=".json,application/json" onChange="{{ importContentFile }}" style="display:none;" /></label>
           <button onClick="{{ exportContent }}" style="border:1px solid var(--border-strong); background:var(--panel-alt); color:var(--text-muted); padding:9px 14px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:500;" style-hover="background:var(--panel-2);">{{ t.contentExportBtn }}</button>
           <span style="flex:1 1 auto;"></span>
-          <button onClick="{{ clearContent }}" style="border:1px solid var(--warm-border); background:var(--warm); color:#f97316; padding:9px 14px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:500;">{{ t.contentClearBtn }}</button>
+          <button onClick="{{ clearContent }}" style="border:1px solid var(--warm-border); background:var(--warm); color:color-mix(in srgb, #f97316 45%, var(--text)); padding:9px 14px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:500;">{{ t.contentClearBtn }}</button>
           <button onClick="{{ applyContent }}" style="border:1px solid rgba(99,102,241,0.5); background:rgba(99,102,241,0.16); color:var(--accent); padding:9px 20px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:700;" style-hover="background:rgba(99,102,241,0.26);">{{ t.contentApply }}</button>
         </div>
       </div>
@@ -1920,7 +1923,7 @@
     <div style="position:fixed; top:70px; left:50%; transform:translateX(-50%); z-index:60; display:flex; align-items:center; gap:12px; padding:12px 18px; border-radius:10px; background:var(--panel); border:1px solid rgba(245,158,11,0.5); box-shadow:0 10px 30px -8px rgba(0,0,0,0.4); animation:fadeUp .25s ease both;">
       <span style="font-size:26px; line-height:1;">{{ toastIcon }}</span>
       <div>
-        <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:#f59e0b; font-weight:700;">{{ t.toastLabel }}</div>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:color-mix(in srgb, #f59e0b 45%, var(--text)); font-weight:700;">{{ t.toastLabel }}</div>
         <div style="font-family:'Inter',sans-serif; font-weight:600; font-size:13px; color:var(--text);">{{ toastName }}</div>
       </div>
     </div>
@@ -1933,22 +1936,22 @@
         <div style="padding:24px;">
           <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
             <div style="display:flex; align-items:center; gap:12px; min-width:0;">
-              <div style="width:46px; height:46px; flex:0 0 auto; border-radius:10px; display:grid; place-items:center; color:{{ tour.color }}; background:{{ tour.badgeBg }}; border:1px solid {{ tour.badgeBorder }};"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ tour.icon }}"></path></svg></div>
+              <div style="width:46px; height:46px; flex:0 0 auto; border-radius:10px; display:grid; place-items:center; color:color-mix(in srgb, {{ tour.color }} 45%, var(--text)); background:{{ tour.badgeBg }}; border:1px solid {{ tour.badgeBorder }};"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="{{ tour.icon }}"></path></svg></div>
               <div style="min-width:0;"><div style="font-family:'Inter',sans-serif; font-weight:700; font-size:17px;">{{ tour.name }}</div><div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint);">{{ tour.num }} / {{ tour.total }}</div></div>
             </div>
             <button onClick="{{ tour.onClose }}" style="border:1px solid var(--border-strong); background:var(--panel-alt); color:var(--text-muted); width:30px; height:30px; flex:0 0 auto; border-radius:6px; cursor:pointer; font-size:15px;" aria-label="{{ t.closeLbl }}">✕</button>
           </div>
           <div style="display:flex; flex-direction:column; gap:10px; margin-bottom:20px;">
             <div style="border-radius:10px; border:1px solid var(--border); background:var(--panel-alt); padding:12px 13px;">
-              <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:{{ tour.color }}; margin-bottom:5px;">{{ t.tourWhy }}</div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:color-mix(in srgb, {{ tour.color }} 45%, var(--text)); margin-bottom:5px;">{{ t.tourWhy }}</div>
               <div style="font-size:13px; color:var(--text); line-height:1.55;">{{ tour.why }}</div>
             </div>
             <div style="border-radius:10px; border:1px solid rgba(251,113,133,0.3); background:rgba(251,113,133,0.07); padding:12px 13px;">
-              <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:#fb7185; margin-bottom:5px;">{{ t.tourMiss }}</div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:#fb7185; margin-bottom:5px;">{{ t.tourMiss }}</div>
               <div style="font-size:13px; color:var(--text-muted); line-height:1.55;">{{ tour.miss }}</div>
             </div>
             <div style="border-radius:10px; border:1px solid var(--border); background:var(--panel-2); padding:12px 13px;">
-              <div style="font-family:'JetBrains Mono',monospace; font-size:10px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint); margin-bottom:5px;">{{ t.tourAnal }}</div>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint); margin-bottom:5px;">{{ t.tourAnal }}</div>
               <div style="font-size:13px; color:var(--text-muted); line-height:1.55; font-style:italic;">{{ tour.anal }}</div>
             </div>
           </div>
@@ -3291,7 +3294,7 @@ class Component extends DCLogic {
     if(r.cwd) patch.cwd=r.cwd;
     this.setState({ term:patch });
   }
-  termColor(c){ return c==='in'?'var(--accent)': c==='ok'?'#4ade80': c==='err'?'#fb7185': c==='dim'?'#5a6a85': c==='sys'?'var(--text-muted)':'#c9d3e3'; }
+  termColor(c){ return c==='in'?'#8f99fa': c==='ok'?'#4ade80': c==='err'?'#fb7185': c==='dim'?'#8b98ad': c==='sys'?'#9aa7bd':'#c9d3e3'; }
 
   // ================= CONSOLA DE EVENTOS (estilo OBM) =================
   // Un evento no es una incidencia. Llegan a montones, casi todos son ruido o
@@ -4048,7 +4051,7 @@ class Component extends DCLogic {
       links.push({
         tip: head+' — '+catName(aCat)+' → '+catName(bCat)+(why? '. '+why : ''),
         d: this.orthoPath(rt.pts, 11),
-        stroke: flow? 'var(--accent)' : (ops? '#9333ea' : 'var(--text-faint)'),
+        stroke: flow? 'var(--accent)' : (ops? '#9333ea' : 'var(--line-faint)'),
         w: flow? '2' : '1.5',
         dash: flow? 'none' : (ops? '2 6' : '5 5'),
         op: flow? '0.75' : (ops? '0.6' : '0.7'),
@@ -4531,7 +4534,7 @@ class Component extends DCLogic {
       const vTab=(id,label)=>{ const on=(id==='sala')===isSala; return { label, onClick:()=>this.setMapView(id), bg:on?'var(--accent-tint)':'transparent', color:on?'var(--accent)':'var(--text-muted)', weight:on?700:500 }; };
       map.isSala=isSala; map.isPlano=!isSala; map.viewLabel=t.mapViewLabel;
       map.viewTabs=[ vTab('sala',t.mapViewSala), vTab('plano',t.mapViewPlano) ];
-      map.salaLegend=[ { label:t.legSalaRed, stroke:'#3b82f6', dash:'10 4' }, { label:t.legSalaAlm, stroke:'#06b6d4', dash:'7 3' }, { label:t.legSalaNube, stroke:'#38bdf8', dash:'9 5' }, { label:t.legSalaPilar, stroke:'var(--text-faint)', dash:'3 4' }, { label:t.legSalaOps, stroke:'#c026d3', dash:'2 5' } ];
+      map.salaLegend=[ { label:t.legSalaRed, stroke:'#3b82f6', dash:'10 4' }, { label:t.legSalaAlm, stroke:'#06b6d4', dash:'7 3' }, { label:t.legSalaNube, stroke:'#38bdf8', dash:'9 5' }, { label:t.legSalaPilar, stroke:'var(--line-faint)', dash:'3 4' }, { label:t.legSalaOps, stroke:'#c026d3', dash:'2 5' } ];
       if(isSala){
         const e=this.salaEscena(), par=e?e.paradas:[], st=(S.flowing && S.flowStep>=0) ? par[S.flowStep] : null, sc=st?st.cat:null;
         const off=S.flowing || par.length<2;
@@ -4639,13 +4642,13 @@ class Component extends DCLogic {
       jobHref:'./puesto-linux/index.html?lang='+(S.lang==='en'?'en':'es'),
       cloudHref:'./puesto-cloud/index.html?lang='+(S.lang==='en'?'en':'es'), cloudTitle:t.homeCloudT, cloudDesc:t.homeCloudD, cloudCta:t.homeCloudCta, devopsHref:'./puesto-devops/index.html?lang='+(S.lang==='en'?'en':'es'), devopsTitle:t.homeDevopsT, devopsDesc:t.homeDevopsD, devopsCta:t.homeDevopsCta, cpdHref:'./puesto-cpd/index.html?lang='+(S.lang==='en'?'en':'es'), cpdTitle:t.homeCpdT, cpdDesc:t.homeCpdD, cpdCta:t.homeCpdCta, jobTitle:t.homeJobT, jobDesc:t.homeJobD, jobCta:t.homeJobCta,
       cards: [
-        { icon:'🧱', title:t.cardLearnT, desc:t.cardLearnD, meta:t.cardLearnM, color:'#6366f1', to:'sandbox' },
-        { icon:'🎯', title:t.cardPracticeT, desc:t.cardPracticeD, meta:t.cardPracticeM, color:'#f59e0b', to:'mission' },
-        { icon:'🔭', title:t.cardExploreT, desc:t.cardExploreD, meta:t.cardExploreM, color:'#38bdf8', to:'map' },
-        { icon:'🚀', title:t.cardKidsT, desc:t.cardKidsD, meta:t.cardKidsM, color:'#22c55e', to:'kids' },
+        { icon:'🧱', title:t.cardLearnT, desc:t.cardLearnD, meta:t.cardLearnM, color:'#6366f1', tag:'var(--meta-learn)', to:'sandbox' },
+        { icon:'🎯', title:t.cardPracticeT, desc:t.cardPracticeD, meta:t.cardPracticeM, color:'#f59e0b', tag:'var(--meta-practice)', to:'mission' },
+        { icon:'🔭', title:t.cardExploreT, desc:t.cardExploreD, meta:t.cardExploreM, color:'#38bdf8', tag:'var(--meta-explore)', to:'map' },
+        { icon:'🚀', title:t.cardKidsT, desc:t.cardKidsD, meta:t.cardKidsM, color:'#22c55e', tag:'var(--meta-kids)', to:'kids' },
       ].map(c=>({ icon:c.icon, title:c.title, desc:c.desc, meta:c.meta,
         border:this.hexA(c.color,0.34), bg:'var(--panel)',
-        iconBg:this.hexA(c.color,0.12), iconBorder:this.hexA(c.color,0.30), metaColor:c.color,
+        iconBg:this.hexA(c.color,0.12), iconBorder:this.hexA(c.color,0.30), metaColor:c.tag,
         hoverStyle:'transform:translateY(-3px); border-color:'+c.color+';',
         onClick:()=>this.setMode(c.to) })),
       stats: [

@@ -62,7 +62,6 @@ P.ui = {
   clave: 'puesto-devops-v1',
   claveImp: P.compositorCfg.claveImp,
   oferta: {
-    tag: T('📌 Puesto', '📌 Job opening'),
     titulo: T('Ingeniero/a DevOps (Kubernetes)', 'DevOps Engineer (Kubernetes)'),
     sub: T('Plataforma de pagos · remoto · contrato indefinido', 'Payments platform · remote · permanent, full-time'),
     txt: T('Operar y mantener clústeres de Kubernetes en producción, desplegar y versionar aplicaciones sin cortes, mantener los pipelines de CI/CD, observabilidad con Prometheus y Alertmanager con guardias, y seguridad de la plataforma (RBAC, Secrets, NetworkPolicies). Cada función del puesto tiene sus tickets:', 'Operate and maintain production Kubernetes clusters, deploy and version applications without downtime, maintain the CI/CD pipelines, observability with Prometheus and Alertmanager with on-call duty, and platform security (RBAC, Secrets, NetworkPolicies). Each duty of the role has its own tickets:'),

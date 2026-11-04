@@ -1,20 +1,20 @@
 /* Puesto · estilos compartidos por index.html y soluciones.html */
 :root{
   --bg:#eef2f7; --panel:#ffffff; --panel-2:#f6f9fc; --border:#e4eaf2; --border-strong:#cdd7e3;
-  --text:#0f172a; --muted:#475569; --faint:#94a3b8;
-  --accent:#6366f1; --accent-tint:rgba(99,102,241,.10); --accent-2:#8b5cf6;
-  --ok:#16a34a; --ok-tint:rgba(22,163,74,.12); --warn:#d97706; --warn-tint:rgba(217,119,6,.13);
-  --bad:#dc2626; --bad-tint:rgba(220,38,38,.10); --info:#0284c7; --info-tint:rgba(2,132,199,.11);
+  --text:#0f172a; --muted:#475569; --faint:#566479;
+  --accent:#4f46e5; --accent-tint:rgba(99,102,241,.10); --accent-2:#8b5cf6; --accent-solid:#4f46e5;
+  --ok:#15803d; --ok-tint:rgba(22,163,74,.12); --warn:#a84b08; --warn-tint:rgba(217,119,6,.13);
+  --bad:#b91c1c; --bad-tint:rgba(220,38,38,.10); --info:#0369a1; --info-tint:rgba(2,132,199,.11);
   --shadow:0 1px 2px rgba(15,23,42,.05), 0 10px 28px -14px rgba(15,23,42,.18);
   --header:#ffffff;
-  --term-bg:#0a0f1c; --term-panel:#101729; --term-border:#1c2640; --term-text:#d6deeb; --term-dim:#6b7a90;
+  --term-bg:#0a0f1c; --term-panel:#101729; --term-border:#1c2640; --term-text:#d6deeb; --term-dim:#7d8ba1;
   --term-red:#ff7b7b; --term-amber:#f7b955; --term-green:#5ee08a; --term-blue:#7aa2f7; --term-prompt:#8bd5ca;
   color-scheme: light;
 }
 body.oscuro{
   --bg:#0b1120; --panel:#131c2e; --panel-2:#18233a; --border:#22304a; --border-strong:#30425f;
-  --text:#e2e8f0; --muted:#a3b1c6; --faint:#6b7a90;
-  --accent:#818cf8; --accent-tint:rgba(129,140,248,.16); --accent-2:#a78bfa;
+  --text:#e2e8f0; --muted:#a3b1c6; --faint:#8a98ad;
+  --accent:#8b95fa; --accent-tint:rgba(129,140,248,.16); --accent-2:#a78bfa;
   --ok:#22c55e; --ok-tint:rgba(34,197,94,.15); --warn:#f59e0b; --warn-tint:rgba(245,158,11,.16);
   --bad:#f87171; --bad-tint:rgba(248,113,113,.15); --info:#38bdf8; --info-tint:rgba(56,189,248,.15);
   --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 30px -14px rgba(0,0,0,.6);
@@ -22,6 +22,7 @@ body.oscuro{
   color-scheme: dark;
 }
 *{box-sizing:border-box}
+input::placeholder,textarea::placeholder{color:var(--faint);opacity:1}
 html,body{margin:0}
 body{background:var(--bg);color:var(--text);font:13px/1.5 Inter,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
 button{font:inherit;color:inherit;cursor:pointer}
@@ -44,6 +45,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .oferta{padding:22px 24px}
 .oferta-tag{display:inline-block;font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);background:var(--accent-tint);border-radius:99px;padding:3px 10px}
 .oferta h1{font-size:26px;line-height:1.2;margin:12px 0 4px;font-weight:800;letter-spacing:-.01em}
+.oferta h1:first-child{margin-top:0}
 .oferta-sub{margin:0;color:var(--muted);font-size:13px}
 .oferta-txt{margin:12px 0 16px;color:var(--muted);font-size:13px;max-width:60ch}
 .funcs{display:grid;gap:8px}
@@ -61,7 +63,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 .modo-tx b{display:block;font-size:15px}
 .modo-tx small{display:block;font-size:12px;color:var(--muted)}
 .como{padding:14px 16px}
-.como h3{margin:0 0 8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.como h2{margin:0 0 8px;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+.oferta-txt,.como li{text-wrap:pretty}
 .como ol{margin:0;padding-left:18px;color:var(--muted);font-size:12px;display:grid;gap:4px}
 .como b{color:var(--text);font-weight:600}
 .cola-cab{display:flex;align-items:baseline;gap:12px;margin:0 2px 10px}
@@ -82,7 +85,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .t-incidente{background:var(--bad-tint);color:var(--bad)}
 .t-peticion{background:var(--info-tint);color:var(--info)}
 .t-cambio{background:var(--accent-tint);color:var(--accent)}
-.p-P1{background:var(--bad);color:#fff}.p-P2{background:#ea580c;color:#fff}.p-P3{background:var(--warn);color:#fff}.p-P4{background:var(--info);color:#fff}
+.p-P1{background:#b91c1c;color:#fff}.p-P2{background:#c2410c;color:#fff}.p-P3{background:#f59e0b;color:#1c1000}.p-P4{background:#0369a1;color:#fff}
 
 /* ------------------------------------------------ puesto */
 .puesto{display:grid;grid-template-columns:272px minmax(0,1fr) 344px;grid-template-rows:auto minmax(0,1fr);gap:12px;height:calc(100vh - 56px);padding:12px}
@@ -168,20 +171,20 @@ button{font:inherit;color:inherit;cursor:pointer}
 /* ticket */
 .tk-cab{display:flex;flex-wrap:wrap;gap:6px;align-items:center;margin-bottom:8px}
 .tk-cab .mono{font-size:12px;color:var(--muted)}
-.ticket h2{margin:0 0 6px;font-size:15px;line-height:1.35}
+.ticket h2{margin:0 0 6px;font-size:15px;line-height:1.35;text-wrap:balance}
 .ticket .de{font-size:12px;color:var(--muted);margin:0 0 8px}
 .ticket p{margin:0 0 8px;font-size:13px;color:var(--text)}
 .itsm{display:grid;grid-template-columns:auto 1fr;gap:4px 12px;font-size:12px;margin-top:10px;padding-top:10px;border-top:1px solid var(--border)}
 .itsm dt{color:var(--faint)} .itsm dd{margin:0;font-weight:600}
 .estado-itsm{display:flex;gap:4px;margin-top:10px}
 .estado-itsm span{flex:1;text-align:center;font-size:11px;padding:3px 0;border-radius:6px;background:var(--panel-2);color:var(--faint);border:1px solid var(--border)}
-.estado-itsm span.on{background:var(--accent);color:#fff;border-color:var(--accent)}
+.estado-itsm span.on{background:var(--accent-solid);color:#fff;border-color:var(--accent-solid)}
 .estado-itsm span.hecho{color:var(--accent);border-color:var(--accent)}
 .pista{font-size:12px;background:var(--accent-tint);border-radius:10px;padding:8px 10px;margin:0 0 6px;color:var(--text)}
 .pista b{color:var(--accent);margin-right:4px}
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;border-radius:10px;padding:8px 14px;font-size:13px;font-weight:600;border:1px solid var(--border-strong);background:var(--panel)}
 .btn:hover{border-color:var(--accent)}
-.btn.primario{background:var(--accent);border-color:var(--accent);color:#fff;width:100%;padding:11px 14px;font-size:15px}
+.btn.primario{background:var(--accent-solid);border-color:var(--accent-solid);color:#fff;width:100%;padding:11px 14px;font-size:15px}
 .btn.primario:hover{filter:brightness(1.07)}
 .btn.suave{width:100%;background:var(--panel-2)}
 .btn[disabled]{opacity:.5;cursor:default}
@@ -244,7 +247,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .imp-txt p{margin:4px 0 0;color:var(--muted);font-size:13px;max-width:78ch}
 .imp-txt code,.cat-item code{font-family:"JetBrains Mono",monospace;font-size:12px;background:var(--panel-2);border:1px solid var(--border);border-radius:6px;padding:0 5px}
 .imp-acc{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
-.primario-in{background:var(--accent);border-color:var(--accent);color:#fff}
+.primario-in{background:var(--accent-solid);border-color:var(--accent-solid);color:#fff}
 .imp-sep{font-size:12px;color:var(--faint)}
 .imp-acc select{font:inherit;font-size:12px;color:var(--text);background:var(--panel);border:1px solid var(--border-strong);border-radius:10px;padding:8px 10px;max-width:340px}
 .imp-res{border-radius:10px;padding:10px 12px;font-size:12px;display:grid;gap:3px}
@@ -298,8 +301,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 /* ------------------------------------------------ solucionario */
 .sol-wrap{max-width:1000px}
 .sol-hero{margin:4px 2px 26px}
-.sol-hero h1{font-size:32px;line-height:1.15;margin:12px 0 8px;font-weight:800;letter-spacing:-.02em}
-.sol-hero p{margin:0;color:var(--muted);font-size:15px;max-width:68ch}
+.sol-hero h1{font-size:32px;line-height:1.15;margin:0 0 8px;font-weight:800;letter-spacing:-.02em}
+.sol-hero p{margin:0;color:var(--muted);font-size:15px;max-width:60ch}
 .sol-hero p b{color:var(--text)}
 .sol-nav{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
 .sol-nav a,.sol-nav button{font-size:12px;color:var(--text);text-decoration:none;border:1px solid var(--border-strong);border-radius:99px;padding:6px 13px;background:var(--panel)}
@@ -314,7 +317,8 @@ button{font:inherit;color:inherit;cursor:pointer}
 .sol-n::after{content:" \25BE";color:var(--accent)}
 .sol[open] .sol-n::after{content:" \25B4"}
 .sol-cuerpo{padding:16px 18px 18px}
-.sol-cuerpo h4{margin:0 0 6px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);display:flex;align-items:baseline;gap:10px}
+.sol-wrap p,.sol-wrap li,.ticket p{text-wrap:pretty}
+.sol-cuerpo h3{margin:0 0 6px;font-size:11px;letter-spacing:.09em;text-transform:uppercase;color:var(--faint);display:flex;align-items:baseline;gap:10px}
 .sol-cuerpo p{margin:0 0 8px;font-size:13px}
 .sol-leyenda{letter-spacing:0;text-transform:none;font-weight:500;color:var(--faint)}
 .sol-dos{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-bottom:16px}
@@ -339,7 +343,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .trampas span{color:var(--muted)}
 .valoran li::marker{color:var(--ok)}
 .sol-leccion{background:var(--accent-tint);border-radius:10px;padding:12px 14px;margin-bottom:14px}
-.sol-leccion h4{color:var(--accent)}
+.sol-leccion h3{color:var(--accent)}
 .sol-leccion p{margin:0}
 .sol-pie{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .sol-pie .btn{text-decoration:none;color:var(--text)}
@@ -402,7 +406,7 @@ details.comp-sec:not([open]) h2{margin:0}
 .av-card.av-cond{border-left-color:var(--info);border-left-style:dashed}
 .av-card.av-mala{border-left-color:var(--bad);display:flex;justify-content:space-between;align-items:center}
 .av-cab{display:flex;align-items:center;gap:8px}
-.av-n{width:22px;height:22px;border-radius:99px;background:var(--accent);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;flex:none}
+.av-n{width:22px;height:22px;border-radius:99px;background:var(--accent-solid);color:#fff;font-size:11px;font-weight:700;display:grid;place-items:center;flex:none}
 .av-cond .av-n{background:var(--info)}
 .av-cab .av-tipo{flex:1;font-weight:600}
 .av-acc{display:flex;gap:4px}

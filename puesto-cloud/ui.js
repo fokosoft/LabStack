@@ -76,7 +76,6 @@ P.ui = {
   clave: 'puesto-cloud-v1',
   claveImp: P.compositorCfg.claveImp,
   oferta: {
-    tag: T('📌 Puesto', '📌 Job opening'),
     titulo: T('Ingeniero/a de Sistemas Cloud (AWS)', 'Cloud Systems Engineer (AWS)'),
     sub: T('Comercio electrónico · remoto · contrato indefinido', 'E-commerce · remote · permanent, full-time'),
     txt: T('Administración de la infraestructura de una tienda online en AWS: instancias EC2, almacenamiento, balanceo y Auto Scaling, bases de datos RDS, redes y seguridad en la VPC, identidades y permisos con IAM, S3, coste, Terraform, y monitorización con CloudWatch y resolución de incidencias. Cada función del puesto tiene sus tickets:', 'Run an online store\'s infrastructure on AWS: EC2 instances, storage, load balancing and Auto Scaling, RDS databases, VPC networking and security, identities and permissions with IAM, S3, cost, Terraform, and CloudWatch monitoring and incident resolution. Each duty of the role has its own tickets:'),

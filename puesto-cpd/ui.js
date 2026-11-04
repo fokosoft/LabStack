@@ -78,7 +78,6 @@ P.ui = {
   clave: 'puesto-cpd-v1',
   claveImp: P.compositorCfg.claveImp,
   oferta: {
-    tag: T('📌 Puesto', '📌 Job opening'),
     titulo: T('Técnico/a de Sistemas Linux N2/N3', 'Linux Systems Engineer (L2/L3)'),
     sub: T('Proveedor de servicios gestionados · CPD propio · guardias', 'Managed services provider · own datacenter · on-call'),
     txt: T('Administrar el CPD de un proveedor de hosting gestionado: servidores Linux de varias familias (Rocky, Debian, Ubuntu y SUSE) en los que corren las aplicaciones de los clientes. Resolver incidencias N2/N3, mantener la seguridad y el bastionado, parchear sin romper nada y automatizar con Ansible. Cada función del puesto tiene sus tickets:', 'Run a managed hosting provider\'s datacenter: Linux servers from several families (Rocky, Debian, Ubuntu and SUSE) running the customers\' applications. Resolve L2/L3 incidents, keep security and hardening in place, patch without breaking anything and automate with Ansible. Each duty of the role has its own tickets:'),

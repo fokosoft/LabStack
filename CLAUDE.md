@@ -270,6 +270,8 @@ Two scales, and **nothing outside them**:
 - **Type**: `10 · 11 · 12 · 13 · 15 · 17 · 20 · 26 · 32 · 44 · 58` (was 30 arbitrary values across 456 usages).
 - **Radius**: `6 · 10 · 14 · 20 · 99` (was 22 values). `99` is the pill.
 
+`10` is only for labels inside drawings (map nodes, code badges); anything read to understand something is `11` or larger. Text in a family colour goes through `color-mix(in srgb, {{ x }} 45%, var(--text))`: it keeps the hue and reaches 4.5:1 in both themes, while fills and borders keep the pure colour. `--text-faint` is for text; lines use `--line-faint`.
+
 Every `font-size` and `border-radius` lives inline in the template — there are none in the logic — so slipping in an off-scale value is easy and invisible. Resist it: if a new size feels necessary, the answer is almost always an existing step.
 
 Also gone, deliberately: the `gridDrift` background animation, the two radial gradients on `.lab-root`, and the hard-coded dark header. The header now reads `var(--header-solid)` (white in light, `#0f172a` in dark) so it belongs to the theme instead of fighting it. To bring the always-dark header back, that one token is the only edit.

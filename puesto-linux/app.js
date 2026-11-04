@@ -16,7 +16,6 @@ const UI = Object.assign({
   clave: 'puesto-linux-v1',
   claveImp: 'puesto-linux-importadas',   // la misma que escribe el compositor
   oferta: {
-    tag: T('📌 Puesto', '📌 Job opening'),
     titulo: T('Administrador/a de Sistemas Linux', 'Linux Systems Administrator'),
     sub: T('Proyecto retail · remoto · contrato indefinido', 'Retail project · remote · permanent, full-time'),
     txt: T('Despliegue y mantenimiento de la plataforma OpenStack, administración y monitorización del almacenamiento Ceph, automatización con Ansible y Terraform, y monitorización y resolución de incidencias. Cada función del puesto tiene sus tickets:', 'Deploy and maintain the OpenStack platform, administer and monitor Ceph storage, automate with Ansible and Terraform, and monitor and resolve incidents. Each duty of the role has its own tickets:'),
@@ -65,7 +64,6 @@ function vistaCola() {
   <div class="cola-wrap">
     <section class="hero">
       <div class="card oferta">
-        <span class="oferta-tag">${UI.oferta.tag}</span>
         <h1>${UI.oferta.titulo}</h1>
         <p class="oferta-sub">${UI.oferta.sub}</p>
         <p class="oferta-txt">${UI.oferta.txt}</p>
@@ -79,7 +77,7 @@ function vistaCola() {
         ${app.guardiaPanel ? panelGuardia() : ''}` : ''}
         <button class="modo" data-act="libre"><span class="modo-ic" style="background:var(--accent-tint)">🧪</span><span class="modo-tx"><b>${T('Laboratorio libre', 'Free lab')}</b><small>${T('La plataforma sana, sin ticket. Rompe cosas a propósito y mira qué pasa.', 'A healthy platform, no ticket. Break things on purpose and see what happens.')}</small></span></button>
         <div class="card como">
-          <h3>${T('Cómo funciona', 'How it works')}</h3>
+          <h2>${T('Cómo funciona', 'How it works')}</h2>
           <ol>
             ${UI.como.map(x => '<li>' + x + '</li>').join('')}
           </ol>

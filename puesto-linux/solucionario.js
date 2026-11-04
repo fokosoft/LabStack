@@ -55,16 +55,16 @@ function ticket(e) {
     </summary>
     <div class="sol-cuerpo">
       <div class="sol-dos">
-        <div><h4>${T('El síntoma', 'The symptom')}</h4>${e.cuerpo.map(x => '<p>' + h(x) + '</p>').join('')}</div>
-        <div><h4>${T('Qué pasaba', 'What was going on')}</h4><p>${h(e.causa)}</p></div>
+        <div><h3>${T('El síntoma', 'The symptom')}</h3>${e.cuerpo.map(x => '<p>' + h(x) + '</p>').join('')}</div>
+        <div><h3>${T('Qué pasaba', 'What was going on')}</h3><p>${h(e.causa)}</p></div>
       </div>
-      <h4>${T('Cómo se resuelve', 'How to solve it')} <span class="sol-leyenda">${T(`diagnóstico → arreglo (${nPasos}) → comprobación`, `diagnosis → fix (${nPasos}) → verification`)}</span></h4>
+      <h3>${T('Cómo se resuelve', 'How to solve it')} <span class="sol-leyenda">${T(`diagnóstico → arreglo (${nPasos}) → comprobación`, `diagnosis → fix (${nPasos}) → verification`)}</span></h3>
       <ol class="pasos">${pasos}</ol>
       <div class="sol-dos">
-        <div><h4>${T('Lo que no lo arregla', 'What does not fix it')}</h4><ul class="trampas">${(e.trampas || []).map(t => `<li><code>${h((typeof t.cmds === 'function' ? t.cmds(P.preparar(e)) : t.cmds).filter(c => !/^(ssh|exit|cd|source|sleep)\b/.test(c)).join(' · '))}</code><span>${h(t.porque.charAt(0).toUpperCase() + t.porque.slice(1))}.</span></li>`).join('')}</ul></div>
-        <div><h4>${T('Buenas prácticas que se valoran', 'Good practices that earn credit')}</h4><ul class="valoran">${e.practicas.map(x => '<li>' + h(x.t) + '</li>').join('')}</ul></div>
+        <div><h3>${T('Lo que no lo arregla', 'What does not fix it')}</h3><ul class="trampas">${(e.trampas || []).map(t => `<li><code>${h((typeof t.cmds === 'function' ? t.cmds(P.preparar(e)) : t.cmds).filter(c => !/^(ssh|exit|cd|source|sleep)\b/.test(c)).join(' · '))}</code><span>${h(t.porque.charAt(0).toUpperCase() + t.porque.slice(1))}.</span></li>`).join('')}</ul></div>
+        <div><h3>${T('Buenas prácticas que se valoran', 'Good practices that earn credit')}</h3><ul class="valoran">${e.practicas.map(x => '<li>' + h(x.t) + '</li>').join('')}</ul></div>
       </div>
-      <div class="sol-leccion"><h4>${T('Lo que te llevas', 'The takeaway')}</h4><p>${h(e.leccion)}</p></div>
+      <div class="sol-leccion"><h3>${T('Lo que te llevas', 'The takeaway')}</h3><p>${h(e.leccion)}</p></div>
       <div class="sol-pie">
         <span>${(s.terminos || []).map(t => { const g = P.glosario.find(x => x.id === t); return `<a class="termino" href="#g-${t}">${h(g.t)}</a>`; }).join('')}</span>
         <a class="btn" href="./index.html#${e.id}">${T('Practicarlo →', 'Practice it →')}</a>
@@ -81,7 +81,6 @@ function glosario() {
 
 $('#vista').innerHTML = `<div class="cola-wrap sol-wrap">
   <section class="sol-hero">
-    <span class="oferta-tag">📘 ${T('Solucionario', 'Answer book')}</span>
     <h1>${T('Cómo se resuelve cada ticket', 'How each ticket is solved')}</h1>
     <p>${T('Paso a paso, con lo que te dice cada comando y la salida real que verás en la terminal. Úsalo <b>después</b> de intentarlo: el oficio se aprende buscando, y cada ticket admite más de un camino. Este es uno bueno.', 'Step by step, with what each command tells you and the real output you will see in the terminal. Use it <b>after</b> you have tried: the craft is learned by searching, and every ticket has more than one path. This is a good one.')}</p>
     <nav class="sol-nav"><a href="#tickets">Tickets (${P.escenarios.length})</a><a href="#glosario">${T('Glosario', 'Glossary')} (${P.glosario.length})</a><button data-act="todos">${T('Abrir todos', 'Expand all')}</button><button data-act="imprimir">${T('Imprimir', 'Print')}</button></nav>
