@@ -198,6 +198,8 @@ console.log('\n  guardias y caos:');
     for (let s = 1; s <= 30; s++) {
       const semilla = s * 7919, g = P.generarGuardia(n, semilla);
       if (!g.ok) { mal('nivel ' + n + ' semilla ' + semilla + ': no sale una guardia jugable'); continue; }
+      // El generador descarta en silencio lo que no se cierra: así se escondía el fallo de httpd. Aquí no se descarta nada.
+      if (g.intentos !== 1) mal('nivel ' + n + ' semilla ' + semilla + ': el generador tuvo que descartar ' + (g.intentos - 1) + ' noches');
       const e = g.escenario, st = P.preparar(e);
       if (!P.alertasActivas(st).length) mal('guardia ' + e.id + ': sin alertas, no se puede jugar');
       if (e.guardia.familias.length !== n || P.familias.find(f => f.id === e.guardia.familias[0]).nivel !== n) mal('guardia ' + e.id + ': no es de nivel ' + n);
@@ -239,6 +241,22 @@ console.log('\n  catálogo de averías:');
     if (q.length) mal(id + ': su arreglo no lo deja sano: ' + q.join(' | '));
     if (al.length) mal(id + ': tras su arreglo siguen alertas: ' + al.map(x => x.nombre + '/' + x.host).join(', '));
   });
+  // No sólo el ejemplo: cada avería con cada servidor posible. El ejemplo de servicio-caido es Tomcat,
+  // y por eso nadie vio que en web03 systemctl no encontraba httpd.
+  const SRV = ['web01', 'web02', 'web03', 'app01', 'db01', 'db02'];
+  const todas = C.SERVICIOS_CAIBLES.map(([host, servicio]) => ({ tipo: 'servicio-caido', host, servicio, hace: 25 }))
+    .concat(Object.keys(C.LOGS_GIGANTES).map(host => ({ tipo: 'log-gigante', host })), SRV.map(host => ({ tipo: 'reloj-parado', host })), SRV.map(host => ({ tipo: 'sin-clave', host })), SRV.map(host => ({ tipo: 'parches-pendientes', host })), ['web01', 'web02', 'web03', 'db02'].map(host => ({ tipo: 'firewall-sin-puerto', host })));
+  todas.forEach(a => {
+    const st = P.crear(), et = a.tipo + ' en ' + a.host + (a.servicio ? ' (' + a.servicio + ')' : '');
+    if (P.validarAverias([a]).length) { mal(et + ': no valida'); return; }
+    P.aplicarAverias(st, [a]);
+    if (!P.pendientesAverias(st, [a]).length) mal(et + ': no rompe nada');
+    correr(P, st, P.arregloAverias(st, [a]));
+    const q = P.pendientesAverias(st, [a]), al = P.alertasActivas(st).filter(x => x.sev !== 'info');
+    if (q.length || al.length) mal(et + ': su arreglo no lo cierra: ' + q.concat(al.map(x => x.nombre)).join(' | '));
+  });
+  // Cada servicio responde por el nombre que tiene en su servidor.
+  { const st = P.crear(); P.topologia.forEach(d => { const h = st.hosts[d.n]; Object.keys(h.svcs).forEach(u => { const v = U.visible(h, u); if (U.unidad(h, v) !== u) mal(d.n + ': systemctl no encuentra ' + v); }); }); }
   P.escenarios.filter(e => !e.objetivo).forEach(e => {
     const st = P.preparar(e); correr(P, st, P.arregloAverias(st, e.averias));
     const q = e.resuelto(st, P); if (q.length) mal(e.id + ': encadenar los arreglos de sus averías no lo cierra: ' + q.join(' | '));

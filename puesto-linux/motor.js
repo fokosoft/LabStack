@@ -174,6 +174,7 @@ U.binario = u => ({ 'openvswitch-switch': 'ovs-vswitchd', ssh: 'sshd', chrony: '
 const ALIAS = { chronyd: 'chrony', sshd: 'ssh', rabbitmq: 'rabbitmq-server', mysql: 'mariadb', mysqld: 'mariadb', grafana: 'grafana-server', httpd: 'apache2', libvirt: 'libvirtd' };
 U.unidad = (h, nombre) => {
   let n = String(nombre || '').replace(/\.service$/, '');
+  if (h.svcs[n]) return n;   // el nombre real manda: en Rocky httpd existe, y no es apache2
   n = ALIAS[n] || n;
   const m = /^ceph-osd@osd\.(\d+)$/.exec(n); if (m) n = 'ceph-osd@' + m[1];
   return h.svcs[n] ? n : null;
