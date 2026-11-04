@@ -46,7 +46,7 @@
   function escena(d) {
     var piezas = d.piezas || [], cats = d.cats || {}, T = d.textos || {};
     var por = {}; piezas.forEach(function (p) { (por[p.cat] = por[p.cat] || []).push(p); });
-    var color = function (cat) { return (cats[cat] && cats[cat].color) || '#64748b'; };
+    var color = function (cat) { return (cats[cat] && cats[cat].color) || '#6b7078'; };
     var nombre = function (cat) { return (cats[cat] && cats[cat].name) || cat; };
 
     // ---------- límites y proyección ----------
@@ -132,7 +132,7 @@
     capas.suelo += '<path d="' + rej + '" class="iso-rejilla"/>';
 
     // ---------- racks ----------
-    var LED = ['#22c55e', '#22c55e', '#22c55e', '#f59e0b'];
+    var LED = ['#2f9e5e', '#2f9e5e', '#2f9e5e', '#d9930f'];
     function frontal(xr, it, zTop, col) {
       var h = it.u * U_ALTO - 0.025, z0 = zTop - h, yF = 1.03, x0 = xr + 0.07, x1 = xr + 0.93, s = '';
       var F = function (u, v) { return P(x0 + u * (x1 - x0), yF, z0 + v * h); };
@@ -415,10 +415,12 @@
     // Un poco por debajo del centro: abajo está el rótulo del paso.
     return [cx - w / 2, cy - h * 0.42, w, h];
   }
+  // Cada pieza se alcanza con el teclado y dice su nombre: su <title> ya lo lleva.
+  function accesible(svg) { return svg.replace(/class="iso-pieza"><title>([^<]*)<\/title>/g, 'class="iso-pieza" tabindex="0" role="button" aria-label="$1"><title>$1</title>'); }
   function sync(el, esc, est) {
     if (!el || !esc) return;
     if (el.__firma !== esc.firma) {
-      el.innerHTML = esc.svg; el.__firma = esc.firma; el.__paso = -1; el.__vb = esc.vista.map(Number); el.__sel = undefined;
+      el.innerHTML = accesible(esc.svg); el.__firma = esc.firma; el.__paso = -1; el.__vb = esc.vista.map(Number); el.__sel = undefined;
     }
     var svg = el.firstElementChild; if (!svg) return;
     var paso = est.flujo ? est.paso : -1;

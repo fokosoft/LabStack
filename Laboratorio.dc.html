@@ -40,38 +40,38 @@
 <link href="./vendor/fuentes.css" rel="stylesheet">
 <style>
   :root{
-    --bg:#eef2f7; --panel:#ffffff; --panel-alt:#f6f9fc; --panel-2:#eef3f8;
-    --border:#e4eaf2; --border-strong:#cdd7e3; --text:#0f172a; --text-muted:#475569; --text-faint:#566479; --line-faint:#94a3b8;
-    --sel:#eef2ff; --header-bg:rgba(255,255,255,0.85);
-    --accent:#4f46e5; --accent-2:#8b5cf6; --accent-b:#4f46e5; --accent-tint:rgba(99,102,241,0.10); --badge-inner:rgba(255,255,255,0.62);
-    --card-shadow:0 1px 2px rgba(15,23,42,0.05), 0 10px 28px -14px rgba(15,23,42,0.18);
-    --header-solid:#ffffff;
+    --bg:#ececec; --panel:#fbfbfb; --panel-alt:#f5f5f5; --panel-2:#e7e7e7;
+    --border:#dcdcdc; --border-strong:#c4c4c4; --text:#16181a; --text-muted:#46494c; --text-faint:#55585a; --line-faint:#9a9a9a;
+    --sel:#e2e7f2; --header-bg:rgba(251,251,251,0.9);
+    --accent:#1f4fbf; --accent-2:#b4531a; --accent-b:#1f4fbf; --accent-tint:rgba(31,79,191,0.10); --badge-inner:rgba(255,255,255,0.62);
+    --card-shadow:0 1px 2px rgba(0,0,0,0.07);
+    --header-solid:#fbfbfb;
     --warm:#fff7ed; --warm-border:rgba(249,115,22,0.30);
-    --accent-solid:#4f46e5; --meta-learn:#4f46e5; --meta-practice:#b45309; --meta-explore:#0369a1; --meta-kids:#15803d;
+    --accent-solid:#1f4fbf; --meta-learn:#1f4fbf; --meta-practice:#92590a; --meta-explore:#1f6f8f; --meta-kids:#1f7a48;
   }
   .theme-dark{
-    --bg:#0f172a; --panel:#152036; --panel-alt:#1a2640; --panel-2:#111a2e;
-    --border:#26324a; --border-strong:#37455f; --text:#e6edf7; --text-muted:#9aa7bd; --text-faint:#8a98ad; --line-faint:#66748c;
-    --sel:#1e293b; --header-bg:rgba(15,23,42,0.8);
-    --accent:#8f99fa; --accent-2:#a78bfa; --accent-b:#8f99fa; --accent-tint:rgba(129,140,248,0.14); --badge-inner:rgba(0,0,0,0.28);
-    --card-shadow:0 1px 2px rgba(0,0,0,0.35), 0 12px 30px -14px rgba(0,0,0,0.6);
-    --header-solid:#0f172a;
+    --bg:#15181c; --panel:#1c2025; --panel-alt:#21262c; --panel-2:#181b20;
+    --border:#2d333a; --border-strong:#3e454e; --text:#e9e7e1; --text-muted:#b0b1ac; --text-faint:#979a95; --line-faint:#6c706c;
+    --sel:#283040; --header-bg:rgba(21,24,28,0.88);
+    --accent:#8fb0f5; --accent-2:#e0925a; --accent-b:#8fb0f5; --accent-tint:rgba(143,176,245,0.14); --badge-inner:rgba(0,0,0,0.28);
+    --card-shadow:0 1px 2px rgba(0,0,0,0.4);
+    --header-solid:#15181c;
     --warm:#2a1c10; --warm-border:rgba(249,115,22,0.35);
-    --accent-solid:#4f46e5; --meta-learn:#8f99fa; --meta-practice:#f59e0b; --meta-explore:#38bdf8; --meta-kids:#22c55e;
+    --accent-solid:#2a59c9; --meta-learn:#8fb0f5; --meta-practice:#e0a93f; --meta-explore:#6fb6d4; --meta-kids:#5fc48a;
   }
   input::placeholder, textarea::placeholder{ color:var(--text-faint); opacity:1; }
   /* ---- la sala isométrica (sala.js) ---- */
   :root{
-    --iso-suelo-t:#e6ebf2; --iso-suelo-f:#cfd7e2; --iso-suelo-r:#bcc6d4; --iso-rejilla:rgba(15,23,42,0.07);
-    --iso-rack-t:#3b4658; --iso-rack-f:#1f2937; --iso-rack-r:#151c28; --iso-hueco:#0b1019;
-    --iso-mesa-t:#f8fafc; --iso-mesa-f:#dbe2ec; --iso-mesa-r:#c7d0dc;
-    --iso-bandeja:#94a3b8; --iso-placa-op:0.13; --iso-sombra:rgba(15,23,42,0.18);
+    --iso-suelo-t:#e2e2e2; --iso-suelo-f:#cdcdcd; --iso-suelo-r:#bcbcbc; --iso-rejilla:rgba(0,0,0,0.08);
+    --iso-rack-t:#3f4348; --iso-rack-f:#24272b; --iso-rack-r:#191b1e; --iso-hueco:#0d0e10;
+    --iso-mesa-t:#f7f7f7; --iso-mesa-f:#dedede; --iso-mesa-r:#cccccc;
+    --iso-bandeja:#9a9a9a; --iso-placa-op:0.13; --iso-sombra:rgba(0,0,0,0.18);
   }
   .theme-dark{
-    --iso-suelo-t:#18233a; --iso-suelo-f:#111a2c; --iso-suelo-r:#0c1322; --iso-rejilla:rgba(255,255,255,0.05);
-    --iso-rack-t:#3a4a66; --iso-rack-f:#243149; --iso-rack-r:#1a2438; --iso-hueco:#0a0f1a;
-    --iso-mesa-t:#2a3854; --iso-mesa-f:#1d2940; --iso-mesa-r:#162034;
-    --iso-bandeja:#475569; --iso-placa-op:0.2; --iso-sombra:rgba(0,0,0,0.4);
+    --iso-suelo-t:#23272d; --iso-suelo-f:#1a1d22; --iso-suelo-r:#131518; --iso-rejilla:rgba(255,255,255,0.05);
+    --iso-rack-t:#464b53; --iso-rack-f:#2c3036; --iso-rack-r:#1f2226; --iso-hueco:#0d0e10;
+    --iso-mesa-t:#2f343b; --iso-mesa-f:#22262b; --iso-mesa-r:#1a1d21;
+    --iso-bandeja:#5a5e62; --iso-placa-op:0.2; --iso-sombra:rgba(0,0,0,0.4);
   }
   .sala{ width:100%; height:100%; display:block; font-family:'Inter',sans-serif; }
   .sala text{ pointer-events:none; }
@@ -87,7 +87,7 @@
   .iso-bahia{ fill:rgba(15,23,42,0.75); stroke:rgba(255,255,255,0.28); stroke-width:0.35; }
   .iso-rejilla-eq{ stroke:rgba(255,255,255,0.22); stroke-width:0.7; }
   .iso-ventana{ fill:#0b1220; stroke:rgba(255,255,255,0.3); stroke-width:0.5; }
-  .iso-cinta{ stroke:#f59e0b; stroke-width:1.6; opacity:0.85; }
+  .iso-cinta{ stroke:#d9930f; stroke-width:1.6; opacity:0.85; }
   .iso-led{ filter:drop-shadow(0 0 2px currentColor); }
   .iso-cod{ font-family:'JetBrains Mono',monospace; font-size:7px; font-weight:700; fill:rgba(255,255,255,0.88); letter-spacing:0.03em; }
   .iso-cod-cubo{ font-size:8px; fill:#fff; }
@@ -96,16 +96,16 @@
   .iso-pieza:hover{ filter:brightness(1.25); }
   .iso-pieza.is-sel{ filter:drop-shadow(0 0 4px var(--accent)) brightness(1.2); }
   .iso-rotulo{ paint-order:stroke; stroke:var(--iso-suelo-t); stroke-width:3px; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; letter-spacing:0.08em; }
-  .iso-rotulo-ops{ fill:#c026d3; }
+  .iso-rotulo-ops{ fill:#a8487a; }
   .iso-fantasma{ fill:none; stroke:var(--line-faint); stroke-width:1.2; stroke-dasharray:4 4; }
   .iso-fantasma-txt{ font-size:10px; fill:var(--text-faint); }
   .iso-bandeja-t,.iso-bandeja-f,.iso-bandeja-r{ fill:var(--iso-bandeja); fill-opacity:0.35; stroke:var(--iso-bandeja); stroke-width:0.6; }
   .iso-cable{ fill:none; stroke-width:2; stroke-linecap:round; stroke-linejoin:round; }
-  .iso-cable-red{ stroke:#3b82f6; }
-  .iso-cable-alm{ stroke:#06b6d4; stroke-dasharray:7 3; }
+  .iso-cable-red{ stroke:#3f76c9; }
+  .iso-cable-alm{ stroke:#1f8a9c; stroke-dasharray:7 3; }
   .iso-cable-ext{ stroke:var(--accent); stroke-width:2.4; }
-  .iso-cable-nube{ stroke:#38bdf8; stroke-dasharray:9 5; stroke-width:2.2; }
-  .iso-cable-ops{ stroke:#c026d3; stroke-dasharray:2 5; stroke-width:1.8; }
+  .iso-cable-nube{ stroke:#3a93bf; stroke-dasharray:9 5; stroke-width:2.2; }
+  .iso-cable-ops{ stroke:#a8487a; stroke-dasharray:2 5; stroke-width:1.8; }
   .iso-globo{ fill:var(--panel); stroke:var(--accent); stroke-width:2; }
   .iso-meridiano{ fill:none; stroke:var(--accent); stroke-width:1.2; opacity:0.6; }
   .iso-etq{ font-size:12px; font-weight:700; fill:var(--text-muted); }
@@ -162,7 +162,8 @@
     .lab-header{ flex-wrap:wrap !important; }
   }
   @media (max-width:1180px){ .home-cards{ grid-template-columns:repeat(2, minmax(0,1fr)) !important; } }
-  @media (max-width:640px){ .home-cards{ grid-template-columns:minmax(0,1fr) !important; } }
+  @media (max-width:900px){ .home-hero{ grid-template-columns:minmax(0,1fr) !important; } .home-sala{ height:280px !important; } }
+  @media (max-width:640px){ .home-cards, .home-jobs{ grid-template-columns:minmax(0,1fr) !important; } }
   @keyframes kidBob { 0%,100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-6px) rotate(2deg); } }
   @keyframes kidPop { 0% { transform: scale(0.72); opacity: 0; } 60% { transform: scale(1.06); opacity: 1; } 100% { transform: scale(1); opacity: 1; } }
   @keyframes kidShake { 0%,100% { transform: translateX(0); } 20% { transform: translateX(-7px); } 40% { transform: translateX(7px); } 60% { transform: translateX(-4px); } 80% { transform: translateX(4px); } }
@@ -174,14 +175,72 @@
     .kids-tower{ position:static !important; }
   }
   @media (max-width:620px){ .kids-opts{ grid-template-columns:minmax(0,1fr) !important; } }
-  @keyframes suggestPulse { 0%,100% { box-shadow:0 0 0 0 rgba(56,189,248,0); } 50% { box-shadow:0 0 0 3px rgba(56,189,248,0.22); } }
-  @keyframes flowLayerGlow { 0%,100% { box-shadow:0 0 0 0 rgba(99,102,241,0); } 50% { box-shadow:0 0 18px -2px rgba(99,102,241,0.55); } }
+  .kids-solo{ grid-template-columns:minmax(0,1fr) !important; }
+  .sr-only{ position:absolute; width:1px !important; height:1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; }
+  .skip{ position:absolute; left:-9999px; top:8px; z-index:60; border:none; border-radius:10px; padding:10px 14px; background:var(--accent-solid); color:#fff; font:600 13px 'Inter',sans-serif; cursor:pointer; }
+  .skip:focus{ left:12px; }
+  input:focus-visible, textarea:focus-visible{ outline:2px solid var(--accent) !important; outline-offset:1px; }
+  .pane-term input:focus-visible, .desk-terms input:focus-visible{ outline-color:#9db8f5 !important; }
+  .lab-grid > main:focus, #vista-titulo:focus{ outline:none !important; }
+  .subnav-chips{ scrollbar-width:none; }
+  .subnav-chips::-webkit-scrollbar{ display:none; }
+  .to-palette{ display:none; }
+  /* ---- bajo 1101 px las vistas van en flujo: el top fijo sólo vale con la columna de altura fija ---- */
+  @media (max-width:1100px){
+    .lab-grid{ display:flex !important; flex-direction:column; }
+    .lab-grid > main{ order:1; display:flex; flex-direction:column; padding:12px 14px 28px !important; }
+    .lab-grid > main > *{ min-width:0; max-width:100%; width:100%; }
+    .lab-grid > main > .pane{ width:auto; max-width:none; }
+    .lab-grid > aside.rail-left{ order:2; }
+    .lab-grid > aside.rail-right{ order:3; }
+    .subnav-row{ order:-1; margin:0 0 10px !important; padding:0 !important; }
+    .subnav-label{ display:none; }
+    .pane{ position:relative !important; top:auto !important; right:auto !important; bottom:auto !important; left:auto !important; flex:0 0 auto; margin:0 -14px; padding-left:14px !important; padding-right:14px !important; overflow-y:visible !important; }
+    .pane-map{ height:calc(100vh - 150px); min-height:520px; overflow:hidden !important; padding:0 !important; }
+    .pane-term{ height:72vh; min-height:440px; }
+    .lab-nav{ order:3; flex:1 1 100% !important; }
+    .lab-nav button{ flex:1 1 0; justify-content:center; min-height:44px; padding:8px 6px !important; }
+    .lab-grid main button, .lab-grid aside button{ min-height:44px; }
+    .to-palette{ display:block; position:fixed; right:14px; bottom:14px; z-index:30; border:none; border-radius:10px; padding:12px 16px; min-height:44px; background:var(--accent-solid); color:#fff; font:600 13px 'Inter',sans-serif; box-shadow:var(--card-shadow); cursor:pointer; }
+  }
+  @media (max-width:900px){
+    .kids-tower{ order:-1; max-height:none !important; padding:8px 10px !important; border-width:2px !important; }
+    .kids-tower > div:first-child{ font-size:11px !important; margin-bottom:6px !important; }
+    .kids-stack{ flex-direction:row !important; overflow-x:auto; gap:6px !important; }
+    .kids-stack > div{ flex:0 0 auto; padding:5px 7px !important; }
+    .kids-tower .kids-txt{ display:none; }
+    .kids-empty{ display:none; }
+    .kids-wrap{ min-height:0 !important; gap:12px !important; padding-top:4px !important; }
+  }
+  @media (max-width:760px){
+    .ev-row{ flex-wrap:wrap; margin-left:0 !important; }
+    .ev-title{ order:-1; flex:1 1 100% !important; white-space:normal !important; font-size:13px !important; }
+    .map-tools{ max-width:calc(100% - 32px) !important; }
+    .map-hint{ display:none; }
+    .map-flow{ top:auto !important; bottom:118px; right:auto !important; left:16px; }
+    .map-chaos{ top:auto !important; bottom:118px; }
+    #sala-iso{ top:96px !important; bottom:166px !important; left:4px !important; right:4px !important; }
+    .ev-row > span{ width:auto !important; }
+  }
+  @media (max-width:620px){
+    .kids-opts{ gap:8px !important; }
+    .kids-opts button{ flex-direction:row !important; justify-content:flex-start; padding:8px 12px !important; gap:12px !important; border-width:3px !important; }
+    .kids-art{ width:72px !important; height:58px !important; }
+    .kids-art svg{ width:64px; height:52px; }
+    .kids-name{ text-align:left !important; font-size:15px !important; }
+    .kids-guide{ gap:8px !important; margin-bottom:10px !important; align-items:center !important; }
+    .kids-robot svg{ width:52px; height:52px; }
+    .kids-guide > div{ padding:10px 13px !important; border-width:2px !important; }
+    .kids-guide > div > div:last-child{ font-size:15px !important; line-height:1.45 !important; }
+  }
+  @keyframes suggestPulse { 0%,100% { box-shadow:0 0 0 0 rgba(58,147,191,0); } 50% { box-shadow:0 0 0 3px rgba(58,147,191,0.22); } }
+  @keyframes flowLayerGlow { 0%,100% { box-shadow:0 0 0 0 color-mix(in srgb, var(--accent) 0%, transparent); } 50% { box-shadow:0 0 0 0 3px color-mix(in srgb, var(--accent) 55%, transparent); } }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; height: 100%; }
   body { background: var(--bg); color: var(--text); font-family: 'Inter', system-ui, sans-serif; -webkit-font-smoothing: antialiased; }
-  a { color: #38bdf8; text-decoration: none; }
-  a:hover { color: #7dd3fc; }
-  ::selection { background: rgba(99,102,241,0.3); }
+  a { color: var(--accent); text-decoration: none; }
+  a:hover { text-decoration: underline; }
+  ::selection { background: color-mix(in srgb, var(--accent) 30%, transparent); }
   ::-webkit-scrollbar { width: 10px; height: 10px; }
   ::-webkit-scrollbar-track { background: transparent; }
   ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 6px; border: 2px solid var(--bg); }
@@ -189,10 +248,10 @@
   @keyframes flowDot { 0% { bottom: -2%; opacity: 0; } 8% { opacity: 1; } 92% { opacity: 1; } 100% { bottom: 100%; opacity: 0; } }
   @keyframes scanSweep { 0% { transform: translateY(0); opacity: 0; } 10% { opacity: 0.9; } 90% { opacity: 0.9; } 100% { transform: translateY(-100%); opacity: 0; } }
   @keyframes chipIn { from { transform: scale(0.6) translateY(6px); opacity: 0; } to { transform: none; opacity: 1; } }
-  @keyframes pulseNode { 0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); } 50% { box-shadow: 0 0 14px -2px currentColor; } }
+  @keyframes pulseNode { 0%,100% { box-shadow: 0 0 0 0 rgba(255,255,255,0); } 50% { box-shadow: 0 0 0 3px currentColor; } }
   @keyframes blink { 0%,50% { opacity: 1; } 50.01%,100% { opacity: 0; } }
   @keyframes fadeUp { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-  @keyframes armGlow { 0%,100% { box-shadow: 0 0 0 1px rgba(99,102,241,0.5), 0 0 12px -2px rgba(99,102,241,0.5); } 50% { box-shadow: 0 0 0 1px rgba(99,102,241,0.9), 0 0 22px -2px rgba(99,102,241,0.8); } }
+  @keyframes armGlow { 0%,100% { box-shadow: 0 0 0 0 3px color-mix(in srgb, var(--accent) 50%, transparent), 0 0 0 0 3px color-mix(in srgb, var(--accent) 50%, transparent); } 50% { box-shadow: 0 0 0 0 3px color-mix(in srgb, var(--accent) 90%, transparent), 0 0 0 0 3px color-mix(in srgb, var(--accent) 80%, transparent); } }
   @keyframes flowDash { from { stroke-dashoffset: 0; } to { stroke-dashoffset: -13.1; } }
   .print-sheet { display: none; }
   @media print {
@@ -200,7 +259,7 @@
     .print-sheet { display: block !important; padding: 28px 32px; color: #0f172a; font-family: 'Inter', sans-serif; }
     .print-sheet h1 { font-size: 20px; margin: 0 0 6px; }
     .print-sheet .print-meta { font-size: 12.5px; color: #475569; margin-bottom: 18px; }
-    .print-sheet h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: #64748b; margin: 14px 0 8px; }
+    .print-sheet h2 { font-size: 13px; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7078; margin: 14px 0 8px; }
     .print-sheet .print-layer { font-size: 13px; padding: 6px 0; border-bottom: 1px solid #e5e9f0; }
     .print-sheet .print-dot { display: inline-block; width: 9px; height: 9px; border-radius: 2px; margin-right: 8px; vertical-align: middle; }
   }
@@ -229,9 +288,10 @@
       <span style="font-family:'Inter',sans-serif; font-weight:700; font-size:17px; letter-spacing:-0.01em; line-height:1.15; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">{{ t.title }}</span>
     </button>
 
-    <nav aria-label="{{ t.navModes }}" style="display:flex; flex:0 1 auto; min-width:0; border:1px solid var(--border-strong); border-radius:10px; overflow:hidden; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; white-space:nowrap;">
+    <button class="skip" onClick="{{ skipMain }}">{{ t.skipMain }}</button>
+    <nav class="lab-nav" aria-label="{{ t.navModes }}" style="display:flex; flex:0 1 auto; min-width:0; border:1px solid var(--border-strong); border-radius:10px; overflow:hidden; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; white-space:nowrap;">
       <sc-for list="{{ navGroups }}" as="g" hint-placeholder-count="3">
-        <button onClick="{{ g.onClick }}" aria-current="{{ g.current }}" title="{{ g.hint }}" style="display:flex; align-items:center; gap:7px; border:none; border-left:{{ g.sep }}; padding:8px 15px; cursor:pointer; background:{{ g.bg }}; color:color-mix(in srgb, {{ g.color }} 45%, var(--text)); font-family:inherit; font-size:inherit; font-weight:inherit;" style-hover="{{ g.hoverStyle }}"><span style="font-size:13px; line-height:1;">{{ g.icon }}</span>{{ g.label }}</button>
+        <button onClick="{{ g.onClick }}" aria-current="{{ g.current }}" title="{{ g.hint }}" style="display:flex; align-items:center; gap:7px; border:none; border-left:{{ g.sep }}; padding:8px 15px; cursor:pointer; background:{{ g.bg }}; color:color-mix(in srgb, {{ g.color }} 45%, var(--text)); font-family:inherit; font-size:inherit; font-weight:inherit;" style-hover="{{ g.hoverStyle }}">{{ g.label }}</button>
       </sc-for>
     </nav>
 
@@ -246,21 +306,21 @@
       <button onClick="{{ toggleTools }}" title="{{ t.moreBtn }}" aria-label="{{ t.moreBtn }}" aria-expanded="{{ showTools }}" style="display:flex; align-items:center; gap:7px; border:1px solid var(--border-strong); background:{{ moreBg }}; color:{{ moreColor }}; padding:8px 13px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:500;" style-hover="border-color:var(--accent-b); background:var(--panel-2);"><span style="font-size:15px; line-height:1;">⋯</span>{{ t.moreBtn }}</button>
       <sc-if value="{{ showTools }}" hint-placeholder-val="{{ false }}">
         <div onClick="{{ closeTools }}" style="position:fixed; inset:0; z-index:40;"></div>
-        <div role="menu" style="position:absolute; top:calc(100% + 6px); right:0; z-index:41; min-width:256px; background:var(--panel); border:1px solid var(--border-strong); border-radius:10px; box-shadow:var(--card-shadow); padding:6px; display:flex; flex-direction:column; gap:2px; animation:fadeUp .15s ease both;">
-          <button onClick="{{ toolTheme }}" style="display:flex; align-items:center; gap:11px; text-align:left; border:none; background:transparent; color:var(--text); padding:9px 11px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; white-space:nowrap;" style-hover="background:var(--panel-2);"><span style="font-size:15px; width:17px; text-align:center;">{{ themeIcon }}</span>{{ themeLabel }}</button>
+        <div id="tools-menu" style="position:absolute; top:calc(100% + 6px); right:0; z-index:41; min-width:256px; background:var(--panel); border:1px solid var(--border-strong); border-radius:10px; box-shadow:var(--card-shadow); padding:6px; display:flex; flex-direction:column; gap:2px; animation:fadeUp .15s ease both;">
+          <button onClick="{{ toolTheme }}" style="display:flex; align-items:center; gap:11px; text-align:left; border:none; background:transparent; color:var(--text); padding:9px 11px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; white-space:nowrap;" style-hover="background:var(--panel-2);">{{ themeLabel }}</button>
           <div style="height:1px; background:var(--border); margin:4px 6px;"></div>
-          <button onClick="{{ toolPaths }}" style="display:flex; align-items:center; gap:11px; text-align:left; border:none; background:transparent; color:var(--text); padding:9px 11px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; white-space:nowrap;" style-hover="background:var(--panel-2);"><span style="font-size:15px; width:17px; text-align:center;">🎓</span>{{ t.pathTitle }}<span style="flex:1 1 auto;"></span><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint);">{{ pathLabel }}</span></button>
-          <button onClick="{{ toolGlossary }}" style="display:flex; align-items:center; gap:11px; text-align:left; border:none; background:transparent; color:var(--text); padding:9px 11px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; white-space:nowrap;" style-hover="background:var(--panel-2);"><span style="font-size:15px; width:17px; text-align:center;">📖</span>{{ t.glTitle }}</button>
-          <button onClick="{{ toolTour }}" style="display:flex; align-items:center; gap:11px; text-align:left; border:none; background:transparent; color:var(--text); padding:9px 11px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; white-space:nowrap;" style-hover="background:var(--panel-2);"><span style="font-size:15px; width:17px; text-align:center;">🎬</span>{{ t.tour }}</button>
-          <button onClick="{{ toolAch }}" style="display:flex; align-items:center; gap:11px; text-align:left; border:none; background:transparent; color:var(--text); padding:9px 11px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; white-space:nowrap;" style-hover="background:var(--panel-2);"><span style="font-size:15px; width:17px; text-align:center;">🏆</span>{{ t.achTitle }}<span style="flex:1 1 auto;"></span><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint);">{{ achLabel }}</span></button>
+          <button onClick="{{ toolPaths }}" style="display:flex; align-items:center; gap:11px; text-align:left; border:none; background:transparent; color:var(--text); padding:9px 11px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; white-space:nowrap;" style-hover="background:var(--panel-2);">{{ t.pathTitle }}<span style="flex:1 1 auto;"></span><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint);">{{ pathLabel }}</span></button>
+          <button onClick="{{ toolGlossary }}" style="display:flex; align-items:center; gap:11px; text-align:left; border:none; background:transparent; color:var(--text); padding:9px 11px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; white-space:nowrap;" style-hover="background:var(--panel-2);">{{ t.glTitle }}</button>
+          <button onClick="{{ toolTour }}" style="display:flex; align-items:center; gap:11px; text-align:left; border:none; background:transparent; color:var(--text); padding:9px 11px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; white-space:nowrap;" style-hover="background:var(--panel-2);">{{ t.tour }}</button>
+          <button onClick="{{ toolAch }}" style="display:flex; align-items:center; gap:11px; text-align:left; border:none; background:transparent; color:var(--text); padding:9px 11px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; white-space:nowrap;" style-hover="background:var(--panel-2);">{{ t.achTitle }}<span style="flex:1 1 auto;"></span><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint);">{{ achLabel }}</span></button>
           <div style="height:1px; background:var(--border); margin:4px 6px;"></div>
-          <button onClick="{{ toolShare }}" style="display:flex; align-items:center; gap:11px; text-align:left; border:none; background:transparent; color:{{ shareColor }}; padding:9px 11px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; white-space:nowrap;" style-hover="background:var(--panel-2);"><span style="font-size:15px; width:17px; text-align:center;">🔗</span>{{ shareLabel }}</button>
-          <button onClick="{{ toolExport }}" style="display:flex; align-items:center; gap:11px; text-align:left; border:none; background:transparent; color:var(--text); padding:9px 11px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; white-space:nowrap;" style-hover="background:var(--panel-2);"><span style="font-size:15px; width:17px; text-align:center;">🖨</span>{{ t.exportLabel }}</button>
-          <button onClick="{{ toolExportStack }}" style="display:flex; align-items:center; gap:11px; text-align:left; border:none; background:transparent; color:var(--text); padding:9px 11px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; white-space:nowrap;" style-hover="background:var(--panel-2);"><span style="font-size:15px; width:17px; text-align:center;">💾</span>{{ t.stackExport }}</button>
-          <label style="display:flex; align-items:center; gap:11px; text-align:left; color:var(--text); padding:9px 11px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; white-space:nowrap;" style-hover="background:var(--panel-2);"><span style="font-size:15px; width:17px; text-align:center;">📂</span>{{ t.stackImport }}<input type="file" accept=".json,application/json" onChange="{{ importStackFile }}" style="display:none;" /></label>
+          <button onClick="{{ toolShare }}" style="display:flex; align-items:center; gap:11px; text-align:left; border:none; background:transparent; color:{{ shareColor }}; padding:9px 11px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; white-space:nowrap;" style-hover="background:var(--panel-2);">{{ shareLabel }}</button>
+          <button onClick="{{ toolExport }}" style="display:flex; align-items:center; gap:11px; text-align:left; border:none; background:transparent; color:var(--text); padding:9px 11px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; white-space:nowrap;" style-hover="background:var(--panel-2);">{{ t.exportLabel }}</button>
+          <button onClick="{{ toolExportStack }}" style="display:flex; align-items:center; gap:11px; text-align:left; border:none; background:transparent; color:var(--text); padding:9px 11px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; white-space:nowrap;" style-hover="background:var(--panel-2);">{{ t.stackExport }}</button>
+          <label style="display:flex; align-items:center; gap:11px; text-align:left; color:var(--text); padding:9px 11px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; white-space:nowrap;" style-hover="background:var(--panel-2);">{{ t.stackImport }}<input type="file" accept=".json,application/json" onChange="{{ importStackFile }}" style="display:none;" /></label>
           <div style="height:1px; background:var(--border); margin:4px 6px;"></div>
-          <button onClick="{{ toolContent }}" style="display:flex; align-items:center; gap:11px; text-align:left; border:none; background:transparent; color:var(--text); padding:9px 11px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; white-space:nowrap;" style-hover="background:var(--panel-2);"><span style="font-size:15px; width:17px; text-align:center;">📦</span>{{ t.contentTitle }}</button>
-          <button onClick="{{ toolReset }}" style="display:flex; align-items:center; gap:11px; text-align:left; border:none; background:transparent; color:var(--text-muted); padding:9px 11px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; white-space:nowrap;" style-hover="background:var(--panel-2); color:var(--text);"><span style="font-size:15px; width:17px; text-align:center;">↺</span>{{ t.reset }}</button>
+          <button onClick="{{ toolContent }}" style="display:flex; align-items:center; gap:11px; text-align:left; border:none; background:transparent; color:var(--text); padding:9px 11px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; white-space:nowrap;" style-hover="background:var(--panel-2);">{{ t.contentTitle }}</button>
+          <button onClick="{{ toolReset }}" style="display:flex; align-items:center; gap:11px; text-align:left; border:none; background:transparent; color:var(--text-muted); padding:9px 11px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; white-space:nowrap;" style-hover="background:var(--panel-2); color:var(--text);">{{ t.reset }}</button>
         </div>
       </sc-if>
     </div>
@@ -280,7 +340,7 @@
         </div>
         <div style="font-size:12px; color:var(--text-muted); margin:0 1px 11px; line-height:1.45;">{{ t.paletteHint }}</div>
         <div style="position:relative;">
-          <input value="{{ searchVal }}" onInput="{{ onSearch }}" placeholder="{{ t.searchPh }}"
+          <input value="{{ searchVal }}" aria-label="{{ t.searchPh }}" onInput="{{ onSearch }}" placeholder="{{ t.searchPh }}"
             style="width:100%; box-sizing:border-box; padding:8px 30px 8px 12px; border-radius:10px; border:1px solid var(--border-strong); background:var(--panel); color:var(--text); font-family:'Inter',sans-serif; font-size:12px; outline:none;" />
           <sc-if value="{{ showSearchClear }}" hint-placeholder-val="{{ false }}">
             <button onClick="{{ clearSearch }}" title="Limpiar" style="position:absolute; right:6px; top:50%; transform:translateY(-50%); width:20px; height:20px; border:none; background:transparent; color:var(--text-faint); cursor:pointer; font-size:13px; line-height:1;">✕</button>
@@ -325,85 +385,61 @@
     </aside>
     </sc-if>
 
+    <sc-if value="{{ showPalette }}" hint-placeholder-val="{{ false }}">
+      <button class="to-palette" onClick="{{ toPalette }}">{{ t.pickPiece }} ↓</button>
+    </sc-if>
     <!-- CANVAS -->
-    <main style="position:relative; overflow-y:auto; padding:16px 22px 60px;">
+    <main tabindex="-1" style="position:relative; overflow-y:auto; padding:16px 22px 60px;">
+      <sc-if value="{{ pageH1Show }}" hint-placeholder-val="{{ false }}"><h1 id="vista-titulo" class="sr-only" tabindex="-1">{{ pageTitle }}</h1></sc-if>
       <!-- HOME -->
       <sc-if value="{{ showHome }}" hint-placeholder-val="{{ false }}">
-        <div style="max-width:940px; margin:0 auto; padding:28px 4px 24px; min-height:calc(100vh - 210px); display:flex; flex-direction:column; justify-content:center; animation:fadeUp .3s ease both;">
-          <div style="text-align:center; margin-bottom:38px;">
-            <h1 style="font-family:'Inter',sans-serif; font-size:44px; font-weight:800; letter-spacing:-0.03em; margin:0 0 6px; line-height:1.05;">{{ home.brand }}</h1>
-            <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.16em; text-transform:uppercase; color:var(--text-faint);">{{ home.by }}</div>
-          </div>
+        <div style="max-width:1080px; margin:0 auto; padding:18px 4px 20px; animation:fadeUp .3s ease both;">
+          <section class="home-hero" style="display:grid; grid-template-columns:minmax(0,5fr) minmax(0,7fr); gap:24px; align-items:center;">
+            <div style="min-width:0;">
+              <h1 style="font-family:'Inter',sans-serif; font-size:58px; font-weight:800; letter-spacing:-0.03em; margin:0; line-height:1;">{{ home.brand }}</h1>
+              <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.14em; text-transform:uppercase; color:var(--text-faint); margin:8px 0 22px;">{{ home.by }}</div>
+              <p style="font-size:20px; font-weight:600; line-height:1.3; letter-spacing:-0.01em; margin:0 0 10px;">{{ home.tagline }}</p>
+              <p style="font-size:15px; line-height:1.55; color:var(--text-muted); margin:0 0 22px; text-wrap:pretty;">{{ home.sub }}</p>
+              <div style="display:flex; flex-wrap:wrap; gap:10px;">
+                <button onClick="{{ home.onStart }}" style="border:1px solid var(--accent-solid); background:var(--accent-solid); color:#fff; padding:12px 20px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:15px; font-weight:600;">{{ home.start }}</button>
+                <sc-if value="{{ home.hasProgress }}" hint-placeholder-val="{{ false }}">
+                  <button onClick="{{ home.onContinue }}" title="{{ home.continueDesc }}" style="border:1px solid var(--border-strong); background:transparent; color:var(--text); padding:12px 18px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:15px; font-weight:600;">{{ home.continueTitle }}</button>
+                </sc-if>
+                <button onClick="{{ home.onSala }}" style="border:1px solid var(--border-strong); background:transparent; color:var(--text); padding:12px 18px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:15px; font-weight:600;">{{ home.salaCta }}</button>
+              </div>
+            </div>
+            <div id="sala-home" class="home-sala" aria-hidden="true" onClick="{{ home.onSala }}" style="position:relative; height:400px; cursor:pointer; min-width:0;"></div>
+          </section>
 
-          <sc-if value="{{ home.hasProgress }}" hint-placeholder-val="{{ false }}">
-            <button onClick="{{ home.onContinue }}" style="display:flex; align-items:center; gap:13px; width:100%; box-sizing:border-box; text-align:left; margin:0 0 20px; padding:13px 16px; border-radius:10px; border:1px solid rgba(99,102,241,0.4); background:var(--accent-tint); color:var(--text); cursor:pointer; font-family:'Inter',sans-serif;" style-hover="border-color:var(--accent);">
-              <span style="width:34px; height:34px; flex:0 0 auto; border-radius:10px; display:grid; place-items:center; font-size:15px; background:var(--panel); border:1px solid rgba(99,102,241,0.35);">↩</span>
-              <span style="min-width:0; flex:1 1 auto;">
-                <span style="display:block; font-size:13px; font-weight:700;">{{ home.continueTitle }}</span>
-                <span style="display:block; font-size:12px; color:var(--text-muted); margin-top:2px;">{{ home.continueDesc }}</span>
-              </span>
-              <span style="flex:0 0 auto; color:var(--accent); font-size:17px;">→</span>
-            </button>
-          </sc-if>
-
-          <div class="home-cards" style="display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:13px;">
-            <sc-for list="{{ home.cards }}" as="hc" hint-placeholder-count="3">
-              <button onClick="{{ hc.onClick }}" style="display:flex; flex-direction:column; align-items:flex-start; text-align:left; gap:0; padding:22px 20px 20px; border-radius:14px; border:1px solid {{ hc.border }}; background:{{ hc.bg }}; color:var(--text); cursor:pointer; font-family:'Inter',sans-serif; transition:transform .16s, border-color .16s, box-shadow .16s; box-shadow:var(--card-shadow);" style-hover="{{ hc.hoverStyle }}">
-                <span style="width:44px; height:44px; border-radius:14px; display:grid; place-items:center; font-size:20px; background:{{ hc.iconBg }}; border:1px solid {{ hc.iconBorder }}; margin-bottom:14px;">{{ hc.icon }}</span>
-                <span style="font-size:17px; font-weight:700; letter-spacing:-0.01em; margin-bottom:6px;">{{ hc.title }}</span>
-                <span style="font-size:13px; color:var(--text-muted); line-height:1.55; margin-bottom:14px;">{{ hc.desc }}</span>
-                <span style="margin-top:auto; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.05em; text-transform:uppercase; color:color-mix(in srgb, {{ hc.metaColor }} 45%, var(--text));">{{ hc.meta }}</span>
+          <div class="home-cards" style="display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:0 22px; margin-top:22px;">
+            <sc-for list="{{ home.cards }}" as="hc" hint-placeholder-count="4">
+              <button onClick="{{ hc.onClick }}" style="display:flex; flex-direction:column; align-items:flex-start; text-align:left; padding:12px 0 16px; border:none; border-top:3px solid {{ hc.rule }}; background:transparent; color:var(--text); cursor:pointer;" style-hover="background:var(--panel-2);">
+                <span style="font-size:17px; font-weight:700; letter-spacing:-0.01em; margin-bottom:5px;">{{ hc.title }}</span>
+                <span style="font-size:13px; color:var(--text-muted); line-height:1.5; margin-bottom:10px;">{{ hc.desc }}</span>
+                <span style="margin-top:auto; font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.03em; color:color-mix(in srgb, {{ hc.metaColor }} 45%, var(--text));">{{ hc.meta }}</span>
               </button>
             </sc-for>
           </div>
 
-          <a href="{{ home.jobHref }}" style="display:flex; align-items:center; gap:14px; margin-top:13px; padding:14px 18px; border-radius:14px; border:1px dashed var(--border-strong); background:var(--panel); color:var(--text); text-decoration:none; font-family:'Inter',sans-serif;" style-hover="border-color:var(--accent); border-style:solid;">
-            <span style="width:40px; height:40px; flex:0 0 auto; border-radius:10px; display:grid; place-items:center; font-size:17px; background:var(--accent-tint);">💼</span>
-            <span style="min-width:0; flex:1 1 auto;">
-              <span style="display:block; font-size:15px; font-weight:700;">{{ home.jobTitle }}</span>
-              <span style="display:block; font-size:12px; color:var(--text-muted); margin-top:2px;">{{ home.jobDesc }}</span>
-            </span>
-            <span style="flex:0 0 auto; font-size:12px; font-weight:600; color:var(--accent); white-space:nowrap;">{{ home.jobCta }} →</span>
-          </a>
-          <a href="{{ home.cloudHref }}" style="display:flex; align-items:center; gap:14px; margin-top:10px; padding:14px 18px; border-radius:14px; border:1px dashed var(--border-strong); background:var(--panel); color:var(--text); text-decoration:none; font-family:'Inter',sans-serif;" style-hover="border-color:var(--accent); border-style:solid;">
-            <span style="width:40px; height:40px; flex:0 0 auto; border-radius:10px; display:grid; place-items:center; font-size:17px; background:var(--accent-tint);">☁️</span>
-            <span style="min-width:0; flex:1 1 auto;">
-              <span style="display:block; font-size:15px; font-weight:700;">{{ home.cloudTitle }}</span>
-              <span style="display:block; font-size:12px; color:var(--text-muted); margin-top:2px;">{{ home.cloudDesc }}</span>
-            </span>
-            <span style="flex:0 0 auto; font-size:12px; font-weight:600; color:var(--accent); white-space:nowrap;">{{ home.cloudCta }} →</span>
-          </a>
-          <a href="{{ home.devopsHref }}" style="display:flex; align-items:center; gap:14px; margin-top:10px; padding:14px 18px; border-radius:14px; border:1px dashed var(--border-strong); background:var(--panel); color:var(--text); text-decoration:none; font-family:'Inter',sans-serif;" style-hover="border-color:var(--accent); border-style:solid;">
-            <span style="width:40px; height:40px; flex:0 0 auto; border-radius:10px; display:grid; place-items:center; font-size:17px; background:var(--accent-tint);">📦</span>
-            <span style="min-width:0; flex:1 1 auto;">
-              <span style="display:block; font-size:15px; font-weight:700;">{{ home.devopsTitle }}</span>
-              <span style="display:block; font-size:12px; color:var(--text-muted); margin-top:2px;">{{ home.devopsDesc }}</span>
-            </span>
-            <span style="flex:0 0 auto; font-size:12px; font-weight:600; color:var(--accent); white-space:nowrap;">{{ home.devopsCta }} →</span>
-          </a>
-          <a href="{{ home.cpdHref }}" style="display:flex; align-items:center; gap:14px; margin-top:10px; padding:14px 18px; border-radius:14px; border:1px dashed var(--border-strong); background:var(--panel); color:var(--text); text-decoration:none; font-family:'Inter',sans-serif;" style-hover="border-color:var(--accent); border-style:solid;">
-            <span style="width:40px; height:40px; flex:0 0 auto; border-radius:10px; display:grid; place-items:center; font-size:17px; background:var(--accent-tint);">🗄️</span>
-            <span style="min-width:0; flex:1 1 auto;">
-              <span style="display:block; font-size:15px; font-weight:700;">{{ home.cpdTitle }}</span>
-              <span style="display:block; font-size:12px; color:var(--text-muted); margin-top:2px;">{{ home.cpdDesc }}</span>
-            </span>
-            <span style="flex:0 0 auto; font-size:12px; font-weight:600; color:var(--accent); white-space:nowrap;">{{ home.cpdCta }} →</span>
-          </a>
+          <section style="margin-top:20px;">
+            <h2 style="font-size:13px; font-weight:700; margin:0 0 8px;">{{ home.jobsTitle }}</h2>
+            <div class="home-jobs" style="display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:0 22px;">
+              <sc-for list="{{ home.jobs }}" as="hj" hint-placeholder-count="4">
+                <a href="{{ hj.href }}" style="display:block; padding:10px 0; border-top:1px solid var(--border-strong); color:var(--text);" style-hover="background:var(--panel-2); text-decoration:none;">
+                  <span style="display:flex; justify-content:space-between; gap:12px; font-size:13px; font-weight:700;">{{ hj.title }}<span style="color:var(--accent); font-weight:600;">→</span></span>
+                  <span style="display:block; font-size:12px; line-height:1.45; color:var(--text-muted); margin-top:2px;">{{ hj.desc }}</span>
+                </a>
+              </sc-for>
+            </div>
+          </section>
 
-          <div style="display:flex; align-items:center; justify-content:center; gap:22px; flex-wrap:wrap; margin-top:30px; padding-top:20px; border-top:1px solid var(--border);">
-            <sc-for list="{{ home.stats }}" as="hs" hint-placeholder-count="4">
-              <div style="text-align:center;">
-                <div style="font-family:'Inter',sans-serif; font-size:20px; font-weight:800; letter-spacing:-0.02em; color:var(--text);">{{ hs.value }}</div>
-                <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.07em; text-transform:uppercase; color:var(--text-faint); margin-top:2px;">{{ hs.label }}</div>
-              </div>
-            </sc-for>
-          </div>
+          <div style="margin-top:14px; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint);">{{ home.statsLine }}</div>
         </div>
       </sc-if>
 
       <!-- CONSOLA DE EVENTOS -->
       <sc-if value="{{ showEvents }}" hint-placeholder-val="{{ false }}">
-        <div role="region" aria-label="{{ events.a11yRegion }}" style="position:absolute; top:56px; right:0; bottom:0; left:0; overflow-y:auto; padding:16px 22px 28px;">
+        <div class="pane" role="region" aria-label="{{ events.a11yRegion }}" style="position:absolute; top:56px; right:0; bottom:0; left:0; overflow-y:auto; padding:16px 22px 28px;">
           <div class="ev-grid" style="display:grid; grid-template-columns:minmax(0,1fr) 380px; gap:18px; align-items:start; max-width:1560px; margin:0 auto;">
 
             <div style="min-width:0;">
@@ -416,7 +452,7 @@
 
               <div style="display:flex; flex-wrap:wrap; gap:7px; margin-bottom:11px;">
                 <sc-for list="{{ events.counts }}" as="ec" hint-placeholder-count="4">
-                  <span style="display:flex; align-items:center; gap:7px; border:1px solid {{ ec.color }}; background:{{ ec.bg }}; border-radius:6px; padding:5px 11px; font-size:11px; color:var(--text);"><b style="font-family:'JetBrains Mono',monospace; font-size:13px; color:color-mix(in srgb, {{ ec.color }} 45%, var(--text));">{{ ec.count }}</b>{{ ec.label }}</span>
+                  <span style="display:flex; align-items:center; gap:6px; padding:2px 8px 2px 0; font-size:12px; color:var(--text-muted);"><b style="font-family:'JetBrains Mono',monospace; font-size:13px; color:color-mix(in srgb, {{ ec.color }} 45%, var(--text));">{{ ec.count }}</b>{{ ec.label }}</span>
                 </sc-for>
               </div>
 
@@ -432,10 +468,10 @@
 
               <div style="display:flex; flex-direction:column; gap:4px;">
                 <sc-for list="{{ events.rows }}" as="er" hint-placeholder-count="8">
-                  <button onClick="{{ er.onClick }}" aria-label="{{ er.aria }}" aria-pressed="{{ er.selected }}" style="display:flex; align-items:center; gap:10px; text-align:left; margin-left:{{ er.indent }}; border:1px solid {{ er.selBorder }}; background:{{ er.selBg }}; border-left:4px solid {{ er.bar }}; color:var(--text); padding:9px 12px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; opacity:{{ er.op }}; transition:all .13s;" style-hover="border-color:var(--accent-b);">
+                  <button class="ev-row" onClick="{{ er.onClick }}" aria-label="{{ er.aria }}" aria-pressed="{{ er.selected }}" style="display:flex; align-items:center; gap:10px; text-align:left; margin-left:{{ er.indent }}; border:1px solid {{ er.selBorder }}; background:{{ er.selBg }}; border-left:4px solid {{ er.bar }}; color:var(--text); padding:9px 12px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; opacity:{{ er.op }}; transition:all .13s;" style-hover="border-color:var(--accent-b);">
                     <span style="flex:0 0 auto; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.04em; color:color-mix(in srgb, {{ er.sevColor }} 45%, var(--text)); background:{{ er.sevBg }}; border-radius:6px; padding:3px 7px; width:58px; text-align:center;">{{ er.sev }}</span>
                     <span style="flex:0 0 auto; display:flex; align-items:center; gap:5px; width:96px;"><span style="width:7px; height:7px; border-radius:50%; background:{{ er.nodeColor }};"></span><span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ er.node }}</span></span>
-                    <span style="min-width:0; flex:1 1 auto; font-size:12px; line-height:1.35; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ er.title }}</span>
+                    <span class="ev-title" style="min-width:0; flex:1 1 auto; font-size:12px; line-height:1.35; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ er.title }}</span>
                     <span style="flex:0 0 auto; font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:color-mix(in srgb, {{ er.tagColor }} 45%, var(--text));">{{ er.tag }}</span>
                     <span style="flex:0 0 auto; font-size:11px; color:color-mix(in srgb, {{ er.stateColor }} 45%, var(--text)); width:82px; text-align:right;">{{ er.state }}</span>
                     <span style="flex:0 0 auto; font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint); width:78px; text-align:right; white-space:nowrap;">{{ er.ago }}</span>
@@ -491,7 +527,7 @@
 
                   <div style="display:flex; flex-direction:column; gap:7px;">
                     <sc-if value="{{ events.det.canRaise }}" hint-placeholder-val="{{ false }}">
-                      <button onClick="{{ events.det.onRaise }}" style="border:1px solid rgba(99,102,241,0.5); background:rgba(99,102,241,0.14); color:var(--accent); padding:11px 14px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:700;" style-hover="background:rgba(99,102,241,0.24); border-color:var(--accent);">{{ events.det.raiseLabel }}</button>
+                      <button onClick="{{ events.det.onRaise }}" style="border:1px solid color-mix(in srgb, var(--accent) 50%, transparent); background:color-mix(in srgb, var(--accent) 14%, transparent); color:var(--accent); padding:11px 14px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:700;" style-hover="background:color-mix(in srgb, var(--accent) 24%, transparent); border-color:var(--accent);">{{ events.det.raiseLabel }}</button>
                     </sc-if>
                     <button onClick="{{ events.det.onAck }}" disabled="{{ events.det.ackDone }}" style="border:1px solid var(--border-strong); background:var(--panel-alt); color:var(--text); padding:10px 14px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;" style-hover="border-color:var(--accent-b);">{{ events.det.ackLabel }}</button>
                     <button onClick="{{ events.det.onClose }}" style="border:1px solid var(--border-strong); background:var(--panel-alt); color:var(--text-muted); padding:10px 14px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;" style-hover="border-color:var(--accent-b); color:var(--text);">{{ events.det.closeLabel }}</button>
@@ -508,7 +544,7 @@
 
       <!-- PUESTO: cola de tickets + cuatro sesiones a la vez -->
       <sc-if value="{{ showDesk }}" hint-placeholder-val="{{ false }}">
-        <div role="region" aria-label="{{ desk.a11yRegion }}" style="position:absolute; top:56px; right:0; bottom:0; left:0; overflow-y:auto; padding:16px 22px 28px;">
+        <div class="pane" role="region" aria-label="{{ desk.a11yRegion }}" style="position:absolute; top:56px; right:0; bottom:0; left:0; overflow-y:auto; padding:16px 22px 28px;">
 
           <sc-if value="{{ desk.open }}" hint-placeholder-val="{{ false }}">
             <div class="desk-grid" style="display:grid; grid-template-columns:352px minmax(0,1fr); gap:18px; align-items:start; max-width:1500px; margin:0 auto;">
@@ -567,11 +603,11 @@
                 </sc-if>
 
                 <sc-if value="{{ desk.phaseWork }}" hint-placeholder-val="{{ true }}">
-                  <button onClick="{{ desk.onDiagnose }}" style="border:1px solid rgba(99,102,241,0.5); background:rgba(99,102,241,0.14); color:var(--accent); padding:11px 16px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:700;" style-hover="background:rgba(99,102,241,0.24); border-color:var(--accent);">{{ desk.diagnoseLabel }}</button>
+                  <button onClick="{{ desk.onDiagnose }}" style="border:1px solid color-mix(in srgb, var(--accent) 50%, transparent); background:color-mix(in srgb, var(--accent) 14%, transparent); color:var(--accent); padding:11px 16px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:700;" style-hover="background:color-mix(in srgb, var(--accent) 24%, transparent); border-color:var(--accent);">{{ desk.diagnoseLabel }}</button>
                 </sc-if>
 
                 <sc-if value="{{ desk.showCauses }}" hint-placeholder-val="{{ false }}">
-                  <div style="border-radius:14px; border:1px solid rgba(99,102,241,0.4); background:var(--accent-tint); padding:14px 15px;">
+                  <div style="border-radius:14px; border:1px solid color-mix(in srgb, var(--accent) 40%, transparent); background:var(--accent-tint); padding:14px 15px;">
                     <div style="font-family:'Inter',sans-serif; font-size:13px; font-weight:700; margin-bottom:10px;">{{ desk.causeTitle }}</div>
                     <div style="display:flex; flex-direction:column; gap:7px;">
                       <sc-for list="{{ desk.causes }}" as="dc" hint-placeholder-count="4">
@@ -586,7 +622,7 @@
                     <div style="font-family:'Inter',sans-serif; font-size:13px; font-weight:700; margin-bottom:10px;">{{ desk.fixTitle }}</div>
                     <div style="display:flex; flex-direction:column; gap:7px;">
                       <sc-for list="{{ desk.fixes }}" as="df" hint-placeholder-count="3">
-                        <button onClick="{{ df.onClick }}" aria-label="{{ df.aria }}" style="text-align:left; border:1px solid {{ df.border }}; background:{{ df.bg }}; color:var(--text); padding:10px 12px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; line-height:1.45; animation:{{ df.anim }};" style-hover="border-color:#22c55e;">{{ df.text }}</button>
+                        <button onClick="{{ df.onClick }}" aria-label="{{ df.aria }}" style="text-align:left; border:1px solid {{ df.border }}; background:{{ df.bg }}; color:var(--text); padding:10px 12px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; line-height:1.45; animation:{{ df.anim }};" style-hover="border-color:#2f9e5e;">{{ df.text }}</button>
                       </sc-for>
                     </div>
                   </div>
@@ -630,7 +666,7 @@
                 <sc-for list="{{ desk.terms }}" as="dt" hint-placeholder-count="4">
                   <div onClick="{{ dt.onFocus }}" role="group" aria-label="{{ dt.a11yPane }}" style="display:flex; flex-direction:column; height:302px; border-radius:14px; border:2px solid {{ dt.border }}; box-shadow:{{ dt.glow }}; background:#0b1020; overflow:hidden; transition:border-color .15s, box-shadow .15s;">
                     <div title="{{ dt.mineTitle }}" style="flex:0 0 auto; display:flex; align-items:center; gap:8px; padding:8px 12px; background:rgba(255,255,255,0.05); border-bottom:1px solid rgba(255,255,255,0.08);">
-                      <span style="width:9px; height:9px; border-radius:50%; background:{{ dt.color }}; box-shadow:0 0 8px {{ dt.color }};"></span>
+                      <span style="width:9px; height:9px; border-radius:50%; background:{{ dt.color }};"></span>
                       <span style="font-family:'JetBrains Mono',monospace; font-size:12px; font-weight:700; color:#e6edf7;">{{ dt.host }}</span>
                       <span style="font-size:11px; color:#8a97ad; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">{{ dt.role }}</span>
                     </div>
@@ -688,7 +724,7 @@
 
       <!-- KIDS -->
       <sc-if value="{{ showKids }}" hint-placeholder-val="{{ false }}">
-        <div role="region" aria-label="{{ kids.a11yRegion }}" class="kids-wrap" style="max-width:1080px; margin:0 auto; padding:14px 4px 24px; min-height:calc(100vh - 230px); display:grid; grid-template-columns:minmax(0,1fr) 258px; gap:24px; align-items:center;">
+        <div role="region" aria-label="{{ kids.a11yRegion }}" class="kids-wrap {{ kids.soloClass }}" style="max-width:1080px; margin:0 auto; padding:14px 4px 24px; min-height:calc(100vh - 230px); display:grid; grid-template-columns:minmax(0,1fr) 258px; gap:24px; align-items:center;">
 
           <div style="min-width:0;">
             <!-- estrellas de progreso: siempre se ve cuánto llevas y cuánto falta -->
@@ -722,7 +758,7 @@
                 <p style="font-size:17px; line-height:1.6; color:var(--text-muted); max-width:520px; margin:0 auto 24px;">{{ kids.endBody }}</p>
                 <div style="display:flex; gap:12px; justify-content:center; flex-wrap:wrap;">
                   <sc-if value="{{ kids.contShow }}" hint-placeholder-val="{{ false }}">
-                    <button onClick="{{ kids.onCont }}" style="border:none; background:#9333ea; color:#fff; padding:15px 28px; border-radius:99px; cursor:pointer; font-family:'Inter',sans-serif; font-size:17px; font-weight:800; box-shadow:0 5px 0 0 rgba(0,0,0,0.16);" style-hover="filter:brightness(1.08);">🧰 {{ kids.contLabel }}</button>
+                    <button onClick="{{ kids.onCont }}" style="border:none; background:#75508f; color:#fff; padding:15px 28px; border-radius:99px; cursor:pointer; font-family:'Inter',sans-serif; font-size:17px; font-weight:800; box-shadow:0 5px 0 0 rgba(0,0,0,0.16);" style-hover="filter:brightness(1.08);">🧰 {{ kids.contLabel }}</button>
                   </sc-if>
                   <button onClick="{{ kids.onAgain }}" style="border:none; background:var(--accent-solid); color:#fff; padding:15px 28px; border-radius:99px; cursor:pointer; font-family:'Inter',sans-serif; font-size:17px; font-weight:800; box-shadow:0 5px 0 0 rgba(0,0,0,0.16);" style-hover="filter:brightness(1.08);">🔁 {{ kids.again }}</button>
                   <button onClick="{{ kids.onMap }}" style="border:3px solid var(--border-strong); background:var(--panel); color:var(--text); padding:13px 24px; border-radius:99px; cursor:pointer; font-family:'Inter',sans-serif; font-size:15px; font-weight:700;" style-hover="border-color:var(--accent);">🗺 {{ kids.toMap }}</button>
@@ -737,8 +773,8 @@
             </sc-if>
             <sc-if value="{{ kids.guideShow }}" hint-placeholder-val="{{ true }}">
               <!-- el guía: pone voz y contexto, y se queda toda la partida -->
-              <div style="display:flex; align-items:flex-start; gap:14px; margin-bottom:20px;">
-                <span style="flex:0 0 auto; animation:kidBob 2.6s ease-in-out infinite;">
+              <div class="kids-guide" style="display:flex; align-items:flex-start; gap:14px; margin-bottom:20px;">
+                <span class="kids-robot" style="flex:0 0 auto; animation:kidBob 2.6s ease-in-out infinite;">
                   <svg width="84" height="84" viewBox="0 0 62 62" style="display:block;">
                     <path d="M31 6v7" stroke="{{ kids.color }}" stroke-width="3" stroke-linecap="round" fill="none"></path>
                     <circle cx="31" cy="5" r="4" fill="{{ kids.color }}"></circle>
@@ -768,14 +804,14 @@
               <div class="kids-opts" style="display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:14px;">
                 <sc-for list="{{ kids.options }}" as="ko" hint-placeholder-count="3">
                   <button onClick="{{ ko.onClick }}" aria-label="{{ ko.aria }}" style="position:relative; display:flex; flex-direction:column; align-items:center; gap:11px; padding:20px 12px 20px; border-radius:20px; border:4px solid {{ ko.border }}; background:{{ ko.bg }}; box-shadow:{{ ko.lift }}; opacity:{{ ko.op }}; cursor:{{ ko.cursor }}; font-family:'Inter',sans-serif; transition:transform .16s, box-shadow .16s, opacity .3s; animation:{{ ko.anim }};" style-hover="{{ ko.hoverStyle }}">
-                    <span style="width:126px; height:104px; border-radius:20px; background:{{ ko.halo }}; display:grid; place-items:center;">
+                    <span class="kids-art" style="flex:0 0 auto; width:126px; height:104px; border-radius:20px; background:{{ ko.halo }}; display:grid; place-items:center;">
                       <svg width="112" height="92" viewBox="0 0 56 46" style="display:block;">
                         <sc-for list="{{ ko.art }}" as="kp" hint-placeholder-count="0">
                           <path d="{{ kp.d }}" fill="{{ kp.fill }}" stroke="{{ kp.stroke }}" stroke-width="{{ kp.sw }}" stroke-linecap="round" stroke-linejoin="round"></path>
                         </sc-for>
                       </svg>
                     </span>
-                    <span style="font-size:17px; font-weight:800; color:var(--text); text-align:center; line-height:1.2;">{{ ko.name }}</span>
+                    <span class="kids-name" style="font-size:17px; font-weight:800; color:var(--text); text-align:center; line-height:1.2;">{{ ko.name }}</span>
                     <sc-if value="{{ ko.layerShow }}" hint-placeholder-val="{{ false }}">
                       <span style="font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:color-mix(in srgb, {{ ko.color }} 45%, var(--text)); animation:fadeUp .25s ease both;">{{ ko.layer }}</span>
                     </sc-if>
@@ -796,7 +832,7 @@
             </sc-if>
 
             <sc-if value="{{ kids.whyShow }}" hint-placeholder-val="{{ false }}">
-              <div role="status" aria-live="polite" style="margin-top:18px; padding:18px 20px; border-radius:20px; border:3px solid #22c55e; background:rgba(34,197,94,0.10); animation:fadeUp .25s ease both;">
+              <div role="status" aria-live="polite" style="margin-top:18px; padding:18px 20px; border-radius:20px; border:3px solid #2f9e5e; background:rgba(34,197,94,0.10); animation:fadeUp .25s ease both;">
                 <div style="display:flex; align-items:center; gap:10px; margin-bottom:7px;">
                   <span style="font-size:26px; line-height:1;">🌟</span>
                   <span style="font-family:'Inter',sans-serif; font-size:20px; font-weight:800; color:#16a34a;">{{ kids.okTitle }}</span>
@@ -812,9 +848,9 @@
           <div class="kids-tower" style="position:sticky; top:8px; max-height:calc(100vh - 210px); overflow-y:auto; border-radius:20px; border:3px dashed var(--border-strong); background:var(--panel-alt); padding:14px 12px 16px;">
             <div style="text-align:center; font-family:'Inter',sans-serif; font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:0.07em; color:var(--text-muted); margin-bottom:12px;">{{ kids.towerTitle }}</div>
             <sc-if value="{{ kids.towerEmpty }}" hint-placeholder-val="{{ true }}">
-              <div style="text-align:center; font-size:13px; line-height:1.5; color:var(--text-faint); padding:14px 6px;">{{ kids.towerEmptyMsg }}</div>
+              <div class="kids-empty" style="text-align:center; font-size:13px; line-height:1.5; color:var(--text-faint); padding:14px 6px;">{{ kids.towerEmptyMsg }}</div>
             </sc-if>
-            <div style="display:flex; flex-direction:column; gap:3px;">
+            <div class="kids-stack" style="display:flex; flex-direction:column; gap:3px;">
               <sc-for list="{{ kids.tower }}" as="kt" hint-placeholder-count="0">
                 <div style="position:relative; display:flex; align-items:center; gap:9px; padding:9px 11px; border-radius:10px; border:2px {{ kt.dash }} {{ kt.border }}; background:{{ kt.bg }}; opacity:{{ kt.op }}; animation:kidPop .4s ease both;">
                   <span style="position:absolute; top:-4px; left:16px; width:24px; height:7px; border-radius:0 0 7px 7px; background:{{ kt.color }}; opacity:{{ kt.nubOp }};"></span>
@@ -823,7 +859,7 @@
                       <path d="{{ kq.d }}" fill="{{ kq.fill }}" stroke="{{ kq.stroke }}" stroke-width="{{ kq.sw }}" stroke-linecap="round" stroke-linejoin="round"></path>
                     </sc-for>
                   </svg>
-                  <span style="min-width:0;">
+                  <span class="kids-txt" style="min-width:0;">
                     <span style="display:block; font-size:13px; font-weight:700; color:var(--text); line-height:1.2;">{{ kt.name }}</span>
                     <span style="display:block; font-size:11px; color:color-mix(in srgb, {{ kt.color }} 45%, var(--text)); font-weight:600; margin-top:1px;">{{ kt.layer }}</span>
                   </span>
@@ -841,7 +877,7 @@
                           <path d="{{ kr.d }}" fill="{{ kr.fill }}" stroke="{{ kr.stroke }}" stroke-width="{{ kr.sw }}" stroke-linecap="round" stroke-linejoin="round"></path>
                         </sc-for>
                       </svg>
-                      <span style="min-width:0;">
+                      <span class="kids-txt" style="min-width:0;">
                         <span style="display:block; font-size:12px; font-weight:700; color:var(--text); line-height:1.2;">{{ kg.name }}</span>
                         <span style="display:block; font-size:11px; color:color-mix(in srgb, {{ kg.color }} 45%, var(--text)); font-weight:600; margin-top:1px;">{{ kg.layer }}</span>
                       </span>
@@ -857,11 +893,11 @@
 
       <!-- SUB-NAV (vistas dentro de un grupo) -->
       <sc-if value="{{ subnavShow }}" hint-placeholder-val="{{ false }}">
-        <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:-4px -4px 16px; padding-left:4px;">
-          <span style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-faint); margin-right:2px;">{{ subnavLabel }}</span>
-          <div style="display:flex; flex-wrap:wrap; gap:6px;">
+        <div class="subnav-row" style="display:flex; align-items:center; gap:10px; margin:-4px -4px 16px; padding-left:4px; min-width:0;">
+          <span class="subnav-label" style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-faint); margin-right:2px; flex:0 0 auto;">{{ subnavLabel }}</span>
+          <div class="subnav-chips" style="display:flex; gap:6px; min-width:0; overflow-x:auto;">
             <sc-for list="{{ subnav }}" as="sv" hint-placeholder-count="6">
-              <button onClick="{{ sv.onClick }}" aria-current="{{ sv.current }}" style="display:flex; align-items:center; gap:6px; border:1px solid {{ sv.border }}; background:{{ sv.bg }}; color:color-mix(in srgb, {{ sv.color }} 45%, var(--text)); padding:6px 12px; border-radius:99px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600; white-space:nowrap; transition:all .14s;" style-hover="{{ sv.hoverStyle }}"><span style="font-size:13px; line-height:1;">{{ sv.icon }}</span>{{ sv.label }}</button>
+              <button onClick="{{ sv.onClick }}" aria-current="{{ sv.current }}" style="margin-left:{{ sv.gap }}; flex:0 0 auto; white-space:nowrap; display:flex; align-items:center; gap:6px; border:1px solid {{ sv.border }}; background:{{ sv.bg }}; color:color-mix(in srgb, {{ sv.color }} 45%, var(--text)); padding:6px 12px; border-radius:99px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600; white-space:nowrap; transition:all .14s;" style-hover="{{ sv.hoverStyle }}">{{ sv.label }}</button>
             </sc-for>
           </div>
         </div>
@@ -889,8 +925,8 @@
 
       <!-- MISSION GOALS (active) -->
       <sc-if value="{{ showMissionGoals }}" hint-placeholder-val="{{ false }}">
-        <div style="max-width:880px; margin:2px auto 18px; border-radius:14px; border:1px solid rgba(99,102,241,0.35); background:linear-gradient(160deg,var(--accent-tint),transparent); padding:15px 17px;">
-          <div style="display:flex; align-items:flex-start; gap:12px; flex-wrap:wrap; margin-bottom:12px;">
+        <div style="max-width:880px; margin:0 auto 10px; border-radius:10px; border:1px solid var(--border-strong); background:var(--panel); padding:10px 14px;">
+          <div style="display:flex; align-items:flex-start; gap:12px; flex-wrap:wrap; margin-bottom:8px;">
             <div style="min-width:0; flex:1 1 240px;">
               <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                 <span style="font-family:'Inter',sans-serif; font-size:15px; font-weight:700; letter-spacing:-0.01em;">{{ mission.name }}</span>
@@ -901,13 +937,12 @@
             <div style="display:flex; align-items:center; gap:8px; flex:0 0 auto;">
               <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-muted);">{{ mission.metLabel }}</span>
               <button onClick="{{ mission.onExit }}" style="border:1px solid var(--border-strong); background:var(--panel-alt); color:var(--text-muted); padding:7px 12px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:500;" style-hover="background:var(--panel-2);">{{ t.missionExit }}</button>
-              <button onClick="{{ mission.onCheck }}" style="border:1px solid rgba(99,102,241,0.5); background:rgba(99,102,241,0.14); color:var(--accent); padding:7px 15px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;" style-hover="background:rgba(99,102,241,0.24); border-color:var(--accent);">{{ t.missionCheck }}</button>
+              <button onClick="{{ mission.onCheck }}" style="border:1px solid color-mix(in srgb, var(--accent) 50%, transparent); background:color-mix(in srgb, var(--accent) 14%, transparent); color:var(--accent); padding:7px 15px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;" style-hover="background:color-mix(in srgb, var(--accent) 24%, transparent); border-color:var(--accent);">{{ t.missionCheck }}</button>
             </div>
           </div>
-          <div style="font-family:'JetBrains Mono',monospace; font-size:11px; letter-spacing:0.08em; text-transform:uppercase; color:var(--text-faint); margin:0 0 8px;">{{ t.missionGoals }}</div>
           <div style="display:flex; flex-wrap:wrap; gap:7px;">
             <sc-for list="{{ mission.goals }}" as="g" hint-placeholder-count="6">
-              <div title="{{ g.hint }}" style="display:flex; align-items:center; gap:7px; padding:6px 11px 6px 8px; border-radius:99px; border:1px solid {{ g.chipBorder }}; background:{{ g.chipBg }}; opacity:{{ g.chipOpacity }};">
+              <div title="{{ g.hint }}" style="display:flex; align-items:center; gap:7px; padding:6px 11px 6px 8px; border-radius:99px; border:1px solid {{ g.chipBorder }}; background:{{ g.chipBg }}; ">
                 <span style="width:16px; height:16px; border-radius:50%; display:grid; place-items:center; font-size:11px; font-weight:700; color:#05080f; background:{{ g.dotBg }}; border:1px solid {{ g.dotBorder }};">{{ g.mark }}</span>
                 <span style="font-size:12px; font-weight:500; color:color-mix(in srgb, {{ g.nameColor }} 45%, var(--text));">{{ g.name }}</span>
               </div>
@@ -941,18 +976,18 @@
               <div style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--text-muted); margin-bottom:18px;">{{ quiz.pct }}</div>
               <sc-if value="{{ quiz.hasMastered }}" hint-placeholder-val="{{ false }}">
                 <div style="display:flex; gap:8px; align-items:flex-start; text-align:left; border-radius:10px; border:1px solid rgba(34,197,94,0.35); background:rgba(34,197,94,0.08); padding:9px 12px; margin-bottom:8px;">
-                  <span style="color:color-mix(in srgb, #22c55e 45%, var(--text)); font-weight:700; font-size:12px;">✓ {{ t.quizMastered }}:</span>
+                  <span style="color:color-mix(in srgb, #2f9e5e 45%, var(--text)); font-weight:700; font-size:12px;">✓ {{ t.quizMastered }}:</span>
                   <span style="font-size:12px; color:var(--text-muted); line-height:1.4;">{{ quiz.masteredLabel }}</span>
                 </div>
               </sc-if>
               <sc-if value="{{ quiz.hasWeak }}" hint-placeholder-val="{{ false }}">
                 <div style="display:flex; gap:8px; align-items:flex-start; text-align:left; border-radius:10px; border:1px solid var(--warm-border); background:var(--warm); padding:9px 12px; margin-bottom:8px;">
-                  <span style="color:color-mix(in srgb, #f97316 45%, var(--text)); font-weight:700; font-size:12px;">↻ {{ t.quizWeak }}:</span>
+                  <span style="color:color-mix(in srgb, #d96a1e 45%, var(--text)); font-weight:700; font-size:12px;">↻ {{ t.quizWeak }}:</span>
                   <span style="font-size:12px; color:var(--text-muted); line-height:1.4;">{{ quiz.weakLabel }}</span>
                 </div>
               </sc-if>
               <div style="font-size:11px; color:var(--text-faint); line-height:1.45; margin:6px 2px 18px;">{{ t.quizAdaptive }}</div>
-              <button onClick="{{ quiz.onRestart }}" style="border:1px solid rgba(99,102,241,0.5); background:rgba(99,102,241,0.14); color:var(--accent); padding:10px 20px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:600;" style-hover="background:rgba(99,102,241,0.24);">{{ t.quizRestart }}</button>
+              <button onClick="{{ quiz.onRestart }}" style="border:1px solid color-mix(in srgb, var(--accent) 50%, transparent); background:color-mix(in srgb, var(--accent) 14%, transparent); color:var(--accent); padding:10px 20px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:600;" style-hover="background:color-mix(in srgb, var(--accent) 24%, transparent);">{{ t.quizRestart }}</button>
             </div>
           </sc-if>
           <sc-if value="{{ quiz.num }}" hint-placeholder-val="{{ true }}">
@@ -976,7 +1011,7 @@
                 </sc-for>
               </div>
               <sc-if value="{{ quiz.explainShow }}" hint-placeholder-val="{{ false }}">
-                <div style="margin-top:16px; border-radius:10px; border:1px solid {{ quiz.explainBorder }}; background:{{ quiz.explainBg }}; padding:12px 14px; animation:fadeUp .2s ease both;">
+                <div role="status" style="margin-top:16px; border-radius:10px; border:1px solid {{ quiz.explainBorder }}; background:{{ quiz.explainBg }}; padding:12px 14px; animation:fadeUp .2s ease both;">
                   <div style="font-family:'Inter',sans-serif; font-weight:600; font-size:13px; color:color-mix(in srgb, {{ quiz.explainColor }} 45%, var(--text)); margin-bottom:4px;">{{ quiz.explainTitle }}</div>
                   <div style="font-size:12px; color:var(--text-muted); line-height:1.55;">{{ quiz.explain }}</div>
                   <button onClick="{{ quiz.onNext }}" style="margin-top:12px; border:1px solid var(--border-strong); background:var(--panel-alt); color:var(--text); padding:8px 18px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:600;" style-hover="border-color:var(--accent-b); background:var(--panel-2);">{{ quiz.nextLabel }} →</button>
@@ -989,10 +1024,10 @@
 
       <!-- PHYSICAL MAP -->
       <sc-if value="{{ showMap }}" hint-placeholder-val="{{ false }}">
-        <div style="position:absolute; top:56px; right:0; bottom:0; left:0; overflow:hidden;">
+        <div class="pane pane-map" style="position:absolute; top:56px; right:0; bottom:0; left:0; overflow:hidden;">
           <sc-if value="{{ map.isPlano }}" hint-placeholder-val="{{ false }}">
           <div onWheel="{{ map.onWheel }}" onMouseDown="{{ map.onDown }}" onMouseMove="{{ map.onMove }}" onMouseUp="{{ map.onUp }}" onMouseLeave="{{ map.onUp }}"
-               style="position:absolute; inset:0; overflow:hidden; cursor:{{ map.cursor }}; background:radial-gradient(circle at 50% 38%, rgba(99,102,241,0.05), transparent 62%);">
+               style="position:absolute; inset:0; overflow:hidden; cursor:{{ map.cursor }}; background:radial-gradient(circle at 50% 38%, color-mix(in srgb, var(--accent) 5%, transparent), transparent 62%);">
             <div style="position:absolute; left:0; top:0; transform:{{ map.transform }}; transform-origin:0 0; width:{{ map.world.w }}px; height:{{ map.world.h }}px; transition:{{ map.worldTransition }};">
               <sc-for list="{{ map.zones }}" as="z" hint-placeholder-count="4">
                 <div style="position:absolute; left:{{ z.x }}px; top:{{ z.y }}px; width:{{ z.w }}px; height:{{ z.h }}px; border-radius:20px; border:1.5px {{ z.dashStyle }} {{ z.border }}; background:{{ z.bg }}; pointer-events:none;">
@@ -1022,7 +1057,7 @@
                 </div>
               </sc-for>
               <sc-for list="{{ map.nodes }}" as="n" hint-placeholder-count="0">
-                <div onClick="{{ n.onClick }}" title="{{ n.title }}"
+                <div role="button" tabindex="0" aria-label="{{ n.title }}" onKeyDown="{{ n.onKey }}" onClick="{{ n.onClick }}" title="{{ n.title }}"
                   style="position:absolute; left:{{ n.left }}px; top:{{ n.top }}px; width:{{ n.w }}px; height:{{ n.h }}px; display:flex; align-items:center; gap:9px; padding:0 10px; border-radius:10px; background:{{ n.bgShown }}; border:1px solid {{ n.borderShown }}; opacity:{{ n.op }}; cursor:pointer; box-shadow:{{ n.glow }}; transition:box-shadow .3s ease, opacity .3s ease;"
                   style-hover="filter:brightness(1.12);">
                   <span style="width:56px; height:46px; flex:0 0 auto; display:block;">
@@ -1039,34 +1074,34 @@
                 </div>
               </sc-for>
               <sc-if value="{{ map.packet.show }}" hint-placeholder-val="{{ false }}">
-                <div style="position:absolute; left:0; top:0; z-index:6; pointer-events:none; offset-path:{{ map.packet.path }}; offset-rotate:0deg; offset-distance:{{ map.packet.dist }}; transition:offset-distance .85s cubic-bezier(.45,0,.3,1); display:flex; align-items:center; gap:6px; padding:5px 11px 5px 8px; border-radius:99px; background:var(--accent-solid); color:#fff; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; letter-spacing:0.04em; white-space:nowrap; box-shadow:0 0 0 5px rgba(99,102,241,0.18), 0 0 26px 5px var(--accent);">
-                  <span style="width:7px; height:7px; border-radius:50%; background:#fff; box-shadow:0 0 8px #fff;"></span>{{ map.packet.label }}
+                <div style="position:absolute; left:0; top:0; z-index:6; pointer-events:none; offset-path:{{ map.packet.path }}; offset-rotate:0deg; offset-distance:{{ map.packet.dist }}; transition:offset-distance .85s cubic-bezier(.45,0,.3,1); display:flex; align-items:center; gap:6px; padding:5px 11px 5px 8px; border-radius:99px; background:var(--accent-solid); color:#fff; font-family:'JetBrains Mono',monospace; font-size:10px; font-weight:700; letter-spacing:0.04em; white-space:nowrap; box-shadow:0 0 0 5px color-mix(in srgb, var(--accent) 18%, transparent), 0 0 26px 5px var(--accent);">
+                  <span style="width:7px; height:7px; border-radius:50%; background:#fff;"></span>{{ map.packet.label }}
                 </div>
               </sc-if>
             </div>
           </div>
           </sc-if>
           <sc-if value="{{ map.isSala }}" hint-placeholder-val="{{ false }}">
-            <div id="sala-iso" onClick="{{ map.salaClick }}" style="position:absolute; top:84px; right:16px; bottom:64px; left:16px;"></div>
+            <div id="sala-iso" role="group" aria-label="{{ t.mapViewSala }}" onKeyDown="{{ map.salaKey }}" onClick="{{ map.salaClick }}" style="position:absolute; top:84px; right:16px; bottom:64px; left:16px;"></div>
           </sc-if>
-          <div style="position:absolute; left:16px; top:14px; display:flex; flex-direction:column; align-items:flex-start; gap:6px; max-width:calc(100% - 360px); pointer-events:none;">
+          <div class="map-tools" style="position:absolute; left:16px; top:14px; display:flex; flex-direction:column; align-items:flex-start; gap:6px; max-width:calc(100% - 360px); pointer-events:none;">
             <div style="display:flex; align-items:center; gap:4px; padding:3px; border-radius:99px; background:var(--header-bg); border:1px solid var(--border); pointer-events:auto;">
               <span style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint); padding:0 6px 0 8px;">{{ map.viewLabel }}</span>
               <sc-for list="{{ map.viewTabs }}" as="vt" hint-placeholder-count="2">
                 <button onClick="{{ vt.onClick }}" style="border:none; border-radius:99px; padding:4px 12px; font-size:12px; font-weight:{{ vt.weight }}; background:{{ vt.bg }}; color:color-mix(in srgb, {{ vt.color }} 45%, var(--text)); cursor:pointer;">{{ vt.label }}</button>
               </sc-for>
             </div>
-            <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-muted); background:var(--header-bg); padding:5px 11px; border-radius:99px; border:1px solid var(--border); max-width:100%;">{{ map.hint }}</span>
+            <span class="map-hint" style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-muted); background:var(--header-bg); padding:5px 11px; border-radius:99px; border:1px solid var(--border); max-width:100%;">{{ map.hint }}</span>
             <sc-if value="{{ map.isDemo }}" hint-placeholder-val="{{ false }}">
-              <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:color-mix(in srgb, #f97316 45%, var(--text)); background:var(--warm); padding:5px 11px; border-radius:99px; border:1px solid var(--warm-border); max-width:100%;">{{ t.mapDemo }}</span>
+              <span style="font-family:'JetBrains Mono',monospace; font-size:11px; color:color-mix(in srgb, #d96a1e 45%, var(--text)); background:var(--warm); padding:5px 11px; border-radius:99px; border:1px solid var(--warm-border); max-width:100%;">{{ t.mapDemo }}</span>
             </sc-if>
           </div>
-          <button onClick="{{ map.runFlow }}" disabled="{{ map.flowDisabled }}"
+          <button class="map-flow" onClick="{{ map.runFlow }}" disabled="{{ map.flowDisabled }}"
             style="position:absolute; right:16px; top:14px; display:flex; align-items:center; gap:8px; border:1px solid {{ map.flowBorder }}; background:{{ map.flowBg }}; color:{{ map.flowColor }}; padding:9px 16px; border-radius:10px; cursor:{{ map.flowCursor }}; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; box-shadow:var(--card-shadow);">
-            <span style="width:8px; height:8px; border-radius:50%; background:currentColor; box-shadow:0 0 8px currentColor;"></span>{{ map.flowLabel }}
+            <span style="width:8px; height:8px; border-radius:50%; background:currentColor;"></span>{{ map.flowLabel }}
           </button>
           <sc-if value="{{ map.isPlano }}" hint-placeholder-val="{{ false }}">
-          <button onClick="{{ map.toggleChaos }}"
+          <button class="map-chaos" onClick="{{ map.toggleChaos }}"
             style="position:absolute; right:16px; top:62px; display:flex; align-items:center; gap:8px; border:1px solid {{ map.chaosBorder }}; background:{{ map.chaosBg }}; color:{{ map.chaosColor }}; padding:9px 16px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; box-shadow:var(--card-shadow);">
             <span style="font-size:13px; line-height:1;">⚠</span>{{ map.chaosLabel }}
           </button>
@@ -1079,8 +1114,8 @@
           </sc-if>
           <sc-if value="{{ map.captionShow }}" hint-placeholder-val="{{ false }}">
             <div style="position:absolute; left:16px; right:70px; bottom:78px; display:flex; justify-content:center; pointer-events:none;">
-              <div style="max-width:700px; display:flex; align-items:center; gap:10px; padding:11px 16px; border-radius:10px; border:1px solid rgba(99,102,241,0.45); background:var(--panel); box-shadow:var(--card-shadow); animation:fadeUp .25s ease both;">
-              <span style="flex:0 0 auto; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:var(--accent); background:var(--panel); border:1px solid rgba(99,102,241,0.45); border-radius:99px; padding:3px 9px;">{{ map.stepLabel }}</span>
+              <div style="max-width:700px; display:flex; align-items:center; gap:10px; padding:11px 16px; border-radius:10px; border:1px solid color-mix(in srgb, var(--accent) 45%, transparent); background:var(--panel); box-shadow:var(--card-shadow); animation:fadeUp .25s ease both;">
+              <span style="flex:0 0 auto; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:var(--accent); background:var(--panel); border:1px solid color-mix(in srgb, var(--accent) 45%, transparent); border-radius:99px; padding:3px 9px;">{{ map.stepLabel }}</span>
               <span style="font-size:13px; color:var(--text); line-height:1.45;"><b>{{ map.stepName }}</b> — {{ map.caption }}</span>
               </div>
             </div>
@@ -1094,16 +1129,22 @@
             </div>
           </sc-if>
           <sc-if value="{{ map.isPlano }}" hint-placeholder-val="{{ false }}">
+          <sc-if value="{{ map.legendOpen }}" hint-placeholder-val="{{ true }}">
           <div style="position:absolute; left:16px; bottom:16px; max-width:calc(100% - 230px); display:flex; flex-wrap:wrap; align-items:center; gap:5px 11px; padding:8px 13px; border-radius:10px; background:var(--header-bg); border:1px solid var(--border); pointer-events:none;">
             <span style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-faint); margin-right:1px;">{{ t.mapLegend }}</span>
+            <button onClick="{{ map.legendToggle }}" aria-label="{{ t.mapLegendHide }}" title="{{ t.mapLegendHide }}" style="order:9; margin-left:auto; border:none; background:transparent; color:var(--text-muted); cursor:pointer; font-size:13px; line-height:1; padding:2px 4px; pointer-events:auto;">✕</button>
             <span style="display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-muted);"><svg width="26" height="9" style="display:block; overflow:visible;"><path d="M1 4.5h17" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" fill="none"></path><path d="M25 4.5 18 1.5 18 7.5Z" fill="var(--accent)"></path></svg>{{ t.legFlow }}</span>
             <span style="display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-muted);"><svg width="26" height="9" style="display:block;"><path d="M1 4.5h24" stroke="var(--text-faint)" stroke-width="1.6" stroke-dasharray="5 5" stroke-linecap="round" fill="none"></path></svg>{{ t.legDep }}</span>
-            <span style="display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-muted);"><svg width="26" height="9" style="display:block;"><path d="M1 4.5h24" stroke="#9333ea" stroke-width="1.6" stroke-dasharray="2 6" stroke-linecap="round" fill="none"></path></svg>{{ t.legOps }}</span>
+            <span style="display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text-muted);"><svg width="26" height="9" style="display:block;"><path d="M1 4.5h24" stroke="#75508f" stroke-width="1.6" stroke-dasharray="2 6" stroke-linecap="round" fill="none"></path></svg>{{ t.legOps }}</span>
             <span style="width:1px; height:12px; background:var(--border-strong); margin:0 2px;"></span>
             <sc-for list="{{ map.legend }}" as="lg" hint-placeholder-count="0">
-              <span style="display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text-muted);"><span style="width:8px; height:8px; border-radius:6px; background:{{ lg.color }}; box-shadow:0 0 6px {{ lg.color }};"></span>{{ lg.name }}</span>
+              <span style="display:flex; align-items:center; gap:5px; font-size:11px; color:var(--text-muted);"><span style="width:8px; height:8px; border-radius:6px; background:{{ lg.color }};"></span>{{ lg.name }}</span>
             </sc-for>
           </div>
+          </sc-if>
+          <sc-if value="{{ map.legendClosed }}" hint-placeholder-val="{{ false }}">
+            <button onClick="{{ map.legendToggle }}" style="position:absolute; left:16px; bottom:16px; border:1px solid var(--border); background:var(--header-bg); color:var(--text-muted); border-radius:10px; padding:8px 13px; font-size:12px; cursor:pointer;">{{ t.mapLegendShow }}</button>
+          </sc-if>
           </sc-if>
           <sc-if value="{{ map.isSala }}" hint-placeholder-val="{{ false }}">
             <div style="position:absolute; left:16px; bottom:16px; max-width:calc(100% - 32px); display:flex; flex-wrap:wrap; align-items:center; gap:5px 13px; padding:8px 13px; border-radius:10px; background:var(--header-bg); border:1px solid var(--border); pointer-events:none;">
@@ -1115,8 +1156,8 @@
           </sc-if>
           <sc-if value="{{ map.isPlano }}" hint-placeholder-val="{{ false }}">
           <div style="position:absolute; right:16px; bottom:16px; display:flex; flex-direction:column; gap:7px;">
-            <button onClick="{{ map.zoomIn }}" style="width:38px; height:38px; border-radius:10px; border:1px solid var(--border-strong); background:var(--panel); color:var(--text); cursor:pointer; font-size:20px; font-weight:600; box-shadow:var(--card-shadow);" style-hover="border-color:var(--accent-b); background:var(--panel-2);">+</button>
-            <button onClick="{{ map.zoomOut }}" style="width:38px; height:38px; border-radius:10px; border:1px solid var(--border-strong); background:var(--panel); color:var(--text); cursor:pointer; font-size:20px; font-weight:600; box-shadow:var(--card-shadow);" style-hover="border-color:var(--accent-b); background:var(--panel-2);">−</button>
+            <button aria-label="{{ t.mapZoomIn }}" onClick="{{ map.zoomIn }}" style="width:38px; height:38px; border-radius:10px; border:1px solid var(--border-strong); background:var(--panel); color:var(--text); cursor:pointer; font-size:20px; font-weight:600; box-shadow:var(--card-shadow);" style-hover="border-color:var(--accent-b); background:var(--panel-2);">+</button>
+            <button aria-label="{{ t.mapZoomOut }}" onClick="{{ map.zoomOut }}" style="width:38px; height:38px; border-radius:10px; border:1px solid var(--border-strong); background:var(--panel); color:var(--text); cursor:pointer; font-size:20px; font-weight:600; box-shadow:var(--card-shadow);" style-hover="border-color:var(--accent-b); background:var(--panel-2);">−</button>
             <button onClick="{{ map.fit }}" title="Ajustar" style="width:38px; height:38px; border-radius:10px; border:1px solid var(--border-strong); background:var(--panel); color:var(--text); cursor:pointer; font-size:15px; box-shadow:var(--card-shadow);" style-hover="border-color:var(--accent-b); background:var(--panel-2);">⤢</button>
           </div>
           </sc-if>
@@ -1125,7 +1166,7 @@
 
       <!-- INTERACTIVE TERMINAL -->
       <sc-if value="{{ showTerminal }}" hint-placeholder-val="{{ false }}">
-        <div style="position:absolute; top:56px; right:0; bottom:0; left:0; padding:16px 22px; display:flex; flex-direction:column;">
+        <div class="pane pane-term" style="position:absolute; top:56px; right:0; bottom:0; left:0; padding:16px 22px; display:flex; flex-direction:column;">
           <div style="flex:1 1 auto; display:flex; flex-direction:column; min-height:0; border-radius:10px; overflow:hidden; border:1px solid #24344f; background:#060911; box-shadow:var(--card-shadow);">
             <div style="display:flex; align-items:center; gap:6px; padding:9px 13px; background:#0c1320; border-bottom:1px solid #24344f; flex:0 0 auto;">
               <span style="width:11px; height:11px; border-radius:50%; background:#ff5f56;"></span>
@@ -1151,7 +1192,7 @@
 
       <!-- LIVE METRICS DASHBOARD -->
       <sc-if value="{{ showMetrics }}" hint-placeholder-val="{{ false }}">
-        <div style="position:absolute; top:56px; right:0; bottom:0; left:0; overflow-y:auto; padding:18px 24px;">
+        <div class="pane" style="position:absolute; top:56px; right:0; bottom:0; left:0; overflow-y:auto; padding:18px 24px;">
           <div style="max-width:920px; margin:0 auto;">
             <div style="font-family:'Inter',sans-serif; font-weight:700; font-size:17px; margin-bottom:4px;">{{ t.metTitle }}</div>
             <div style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">{{ t.metLoadHint }}</div>
@@ -1160,7 +1201,7 @@
                 <span style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted);">{{ t.metLoad }}</span>
                 <span style="font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; color:var(--accent);">{{ metricsLoad }}%</span>
               </div>
-              <input type="range" min="0" max="100" value="{{ metricsLoad }}" onInput="{{ onMetricsLoad }}" style="width:100%; accent-color:var(--accent); cursor:pointer;" />
+              <input aria-label="{{ t.metLoad }}" type="range" min="0" max="100" value="{{ metricsLoad }}" onInput="{{ onMetricsLoad }}" style="width:100%; accent-color:var(--accent); cursor:pointer;" />
             </div>
             <div style="display:grid; grid-template-columns:repeat(auto-fit,minmax(190px,1fr)); gap:12px; margin-bottom:16px;">
               <sc-for list="{{ metricsTiles }}" as="ti" hint-placeholder-count="4">
@@ -1169,17 +1210,20 @@
                     <span style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted);">{{ ti.label }}</span>
                     <span style="font-family:'Inter',sans-serif; font-weight:800; font-size:20px; letter-spacing:-0.02em; color:color-mix(in srgb, {{ ti.valColor }} 45%, var(--text));">{{ ti.val }}</span>
                   </div>
-                  <svg viewBox="0 0 100 30" preserveAspectRatio="none" style="width:100%; height:46px; margin-top:10px; overflow:visible;">
+                  <div style="position:relative; margin-top:10px;">
+                  <svg viewBox="0 0 100 30" preserveAspectRatio="none" style="width:100%; height:46px; overflow:visible;">
                     <path d="{{ ti.path }}" fill="none" stroke="{{ ti.stroke }}" stroke-width="1.6" vector-effect="non-scaling-stroke" stroke-linecap="round" stroke-linejoin="round"></path>
                   </svg>
+                  <sc-if value="{{ ti.limitShow }}" hint-placeholder-val="{{ false }}"><div title="{{ ti.limitLabel }}" style="position:absolute; left:0; right:0; top:{{ ti.limitTop }}; border-top:1px dashed var(--line-faint);"></div></sc-if>
+                  </div>
                 </div>
               </sc-for>
             </div>
             <sc-if value="{{ metHasAlerts }}" hint-placeholder-val="{{ false }}">
               <div style="border-radius:14px; border:1px solid var(--warm-border); background:var(--warm); padding:12px 14px;">
-                <div style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:color-mix(in srgb, #f97316 45%, var(--text)); margin-bottom:7px;">{{ t.metAlertsLabel }}</div>
+                <div style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:color-mix(in srgb, #d96a1e 45%, var(--text)); margin-bottom:7px;">{{ t.metAlertsLabel }}</div>
                 <sc-for list="{{ metAlerts }}" as="al" hint-placeholder-count="1">
-                  <div style="display:flex; gap:8px; align-items:flex-start; font-size:12px; color:var(--text-muted); line-height:1.5; margin-bottom:4px;"><span style="color:color-mix(in srgb, #f97316 45%, var(--text)); flex:0 0 auto; font-weight:700;">!</span><span>{{ al.t }}</span></div>
+                  <div style="display:flex; gap:8px; align-items:flex-start; font-size:12px; color:var(--text-muted); line-height:1.5; margin-bottom:4px;"><span style="color:color-mix(in srgb, #d96a1e 45%, var(--text)); flex:0 0 auto; font-weight:700;">!</span><span>{{ al.t }}</span></div>
                 </sc-for>
               </div>
             </sc-if>
@@ -1188,7 +1232,7 @@
       </sc-if>
 
       <sc-if value="{{ showHttp }}" hint-placeholder-val="{{ false }}">
-        <div style="position:absolute; top:56px; right:0; bottom:0; left:0; overflow-y:auto; padding:18px 24px;">
+        <div class="pane" style="position:absolute; top:56px; right:0; bottom:0; left:0; overflow-y:auto; padding:18px 24px;">
           <div style="max-width:860px; margin:0 auto;">
             <div style="font-family:'Inter',sans-serif; font-weight:700; font-size:17px; margin-bottom:4px;">{{ t.httpTitle }}</div>
             <div style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">{{ t.httpHint }}</div>
@@ -1232,9 +1276,9 @@
             </div>
             <sc-if value="{{ waterfall.hasNotes }}" hint-placeholder-val="{{ false }}">
               <div style="border-radius:14px; border:1px solid var(--warm-border); background:var(--warm); padding:12px 14px;">
-                <div style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:color-mix(in srgb, #f97316 45%, var(--text)); margin-bottom:7px;">{{ t.httpNotesLabel }}</div>
+                <div style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:color-mix(in srgb, #d96a1e 45%, var(--text)); margin-bottom:7px;">{{ t.httpNotesLabel }}</div>
                 <sc-for list="{{ waterfall.notes }}" as="nt" hint-placeholder-count="1">
-                  <div style="display:flex; gap:8px; align-items:flex-start; font-size:12px; color:var(--text-muted); line-height:1.5; margin-bottom:4px;"><span style="color:color-mix(in srgb, #f97316 45%, var(--text)); flex:0 0 auto; font-weight:700;">!</span><span>{{ nt }}</span></div>
+                  <div style="display:flex; gap:8px; align-items:flex-start; font-size:12px; color:var(--text-muted); line-height:1.5; margin-bottom:4px;"><span style="color:color-mix(in srgb, #d96a1e 45%, var(--text)); flex:0 0 auto; font-weight:700;">!</span><span>{{ nt }}</span></div>
                 </sc-for>
               </div>
             </sc-if>
@@ -1243,7 +1287,7 @@
       </sc-if>
 
       <sc-if value="{{ showDeploy }}" hint-placeholder-val="{{ false }}">
-        <div style="position:absolute; top:56px; right:0; bottom:0; left:0; overflow-y:auto; padding:18px 24px;">
+        <div class="pane" style="position:absolute; top:56px; right:0; bottom:0; left:0; overflow-y:auto; padding:18px 24px;">
           <div style="max-width:860px; margin:0 auto;">
             <div style="font-family:'Inter',sans-serif; font-weight:700; font-size:17px; margin-bottom:4px;">{{ t.depTitle }}</div>
             <div style="font-size:12px; color:var(--text-muted); margin-bottom:14px;">{{ t.depHint }}</div>
@@ -1256,9 +1300,9 @@
             <div style="border-radius:14px; border:1px solid var(--border); background:var(--panel-alt); padding:16px;">
               <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-bottom:14px;">
                 <span style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted);">{{ t.depStep }} {{ deploy.stepLabel }}</span>
-                <span style="display:inline-flex; align-items:baseline; gap:5px; font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted);">{{ t.depDowntime }}<span style="color:color-mix(in srgb, #22c55e 45%, var(--text)); font-weight:700;">{{ deploy.downtime }}</span></span>
+                <span style="display:inline-flex; align-items:baseline; gap:5px; font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-muted);">{{ t.depDowntime }}<span style="color:color-mix(in srgb, #2f9e5e 45%, var(--text)); font-weight:700;">{{ deploy.downtime }}</span></span>
                 <sc-if value="{{ deploy.done }}" hint-placeholder-val="{{ false }}">
-                  <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; padding:2px 9px; border-radius:99px; color:color-mix(in srgb, #22c55e 45%, var(--text)); background:rgba(34,197,94,0.14); border:1px solid rgba(34,197,94,0.5);">✓ {{ t.depDoneTag }}</span>
+                  <span style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; padding:2px 9px; border-radius:99px; color:color-mix(in srgb, #2f9e5e 45%, var(--text)); background:rgba(34,197,94,0.14); border:1px solid rgba(34,197,94,0.5);">✓ {{ t.depDoneTag }}</span>
                 </sc-if>
               </div>
               <div style="display:flex; flex-direction:column; gap:12px; margin-bottom:16px;">
@@ -1287,7 +1331,7 @@
                 <button onClick="{{ deploy.onPlay }}" style="border:1px solid var(--accent); background:var(--accent-tint); color:var(--accent); border-radius:10px; padding:7px 16px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:700;">{{ deploy.playIcon }} {{ deploy.playLabel }}</button>
                 <button onClick="{{ deploy.onNext }}" style="border:1px solid var(--border-strong); background:var(--panel-2); color:var(--text-muted); border-radius:10px; padding:7px 12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;">{{ t.depNext }} ›</button>
                 <span style="flex:1 1 auto;"></span>
-                <button onClick="{{ deploy.onRollback }}" style="border:1px solid rgba(239,68,68,0.5); background:rgba(239,68,68,0.10); color:color-mix(in srgb, #ef4444 45%, var(--text)); border-radius:10px; padding:7px 14px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;">⤺ {{ t.depRollback }}</button>
+                <button onClick="{{ deploy.onRollback }}" style="border:1px solid rgba(239,68,68,0.5); background:rgba(239,68,68,0.10); color:color-mix(in srgb, #d0453b 45%, var(--text)); border-radius:10px; padding:7px 14px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;">⤺ {{ t.depRollback }}</button>
               </div>
             </div>
             <div style="display:flex; gap:16px; flex-wrap:wrap; margin-top:14px; font-size:11px; color:var(--text-muted);">
@@ -1301,7 +1345,7 @@
       </sc-if>
 
       <sc-if value="{{ showIncident }}" hint-placeholder-val="{{ false }}">
-        <div style="position:absolute; top:56px; right:0; bottom:0; left:0; overflow-y:auto; padding:18px 24px;">
+        <div class="pane" style="position:absolute; top:56px; right:0; bottom:0; left:0; overflow-y:auto; padding:18px 24px;">
           <div style="max-width:820px; margin:0 auto;">
             <div style="font-family:'Inter',sans-serif; font-weight:700; font-size:17px; margin-bottom:4px;">{{ t.incTitle }}</div>
             <div style="font-size:12px; color:var(--text-muted); margin-bottom:16px;">{{ t.incHint }}</div>
@@ -1329,7 +1373,7 @@
                 <button onClick="{{ incident.onExit }}" style="border:1px solid var(--border-strong); background:var(--panel-2); color:var(--text-muted); border-radius:6px; padding:5px 12px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;">✕ {{ t.incExit }}</button>
               </div>
               <div style="border-radius:10px; border:1px solid var(--warm-border); background:var(--warm); padding:12px 14px; margin-bottom:16px;">
-                <div style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:color-mix(in srgb, #f97316 45%, var(--text)); margin-bottom:5px;">{{ t.incSymptom }}</div>
+                <div style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:color-mix(in srgb, #d96a1e 45%, var(--text)); margin-bottom:5px;">{{ t.incSymptom }}</div>
                 <div style="font-size:13px; color:var(--text); line-height:1.5;">{{ incident.symptom }}</div>
               </div>
 
@@ -1361,7 +1405,7 @@
                   </sc-for>
                 </div>
                 <sc-if value="{{ incident.causeMsgShow }}" hint-placeholder-val="{{ false }}">
-                  <div style="font-size:12px; color:color-mix(in srgb, #ef4444 45%, var(--text)); margin-bottom:12px;">{{ incident.causeMsg }}</div>
+                  <div style="font-size:12px; color:color-mix(in srgb, #d0453b 45%, var(--text)); margin-bottom:12px;">{{ incident.causeMsg }}</div>
                 </sc-if>
                 <div style="display:flex; gap:8px; flex-wrap:wrap;">
                   <button onClick="{{ incident.onConfirmCause }}" style="border:1px solid var(--accent); background:var(--accent-tint); color:var(--accent); border-radius:10px; padding:9px 16px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:700;">{{ t.incConfirmCause }}</button>
@@ -1377,14 +1421,14 @@
                   </sc-for>
                 </div>
                 <sc-if value="{{ incident.fixMsgShow }}" hint-placeholder-val="{{ false }}">
-                  <div style="font-size:12px; color:color-mix(in srgb, #ef4444 45%, var(--text)); margin-bottom:12px;">{{ incident.fixMsg }}</div>
+                  <div style="font-size:12px; color:color-mix(in srgb, #d0453b 45%, var(--text)); margin-bottom:12px;">{{ incident.fixMsg }}</div>
                 </sc-if>
                 <button onClick="{{ incident.onApplyFix }}" style="border:1px solid var(--accent); background:var(--accent-tint); color:var(--accent); border-radius:10px; padding:9px 16px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:700;">🔧 {{ t.incApplyFix }}</button>
               </sc-if>
 
               <sc-if value="{{ incident.showDone }}" hint-placeholder-val="{{ false }}">
                 <div style="border-radius:14px; border:1px solid rgba(34,197,94,0.5); background:rgba(34,197,94,0.10); padding:14px 16px; margin-bottom:14px;">
-                  <div style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:color-mix(in srgb, #22c55e 45%, var(--text)); margin-bottom:6px;">✓ {{ t.incResolvedTag }}</div>
+                  <div style="font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:700; color:color-mix(in srgb, #2f9e5e 45%, var(--text)); margin-bottom:6px;">✓ {{ t.incResolvedTag }}</div>
                   <div style="font-size:13px; color:var(--text); line-height:1.55;">{{ incident.resolvedMsg }}</div>
                 </div>
                 <div style="border-radius:14px; border:1px solid var(--border); background:var(--panel); padding:13px 15px; margin-bottom:16px;">
@@ -1415,7 +1459,7 @@
         <button onClick="{{ runFlow }}" disabled="{{ flowDisabled }}"
           style="display:flex; align-items:center; gap:8px; border:1px solid {{ flowBorder }}; background:{{ flowBg }}; color:{{ flowColor }}; padding:8px 16px; border-radius:10px; cursor:{{ flowCursor }}; font-family:'Inter',sans-serif; font-size:13px; font-weight:600; transition:all .15s;"
           style-hover="{{ flowHover }}">
-          <span style="width:8px; height:8px; border-radius:50%; background:currentColor; box-shadow:0 0 8px currentColor;"></span>{{ flowLabel }}
+          <span style="width:8px; height:8px; border-radius:50%; background:currentColor;"></span>{{ flowLabel }}
         </button>
       </div>
 
@@ -1442,8 +1486,8 @@
       </div>
       </sc-if>
       <sc-if value="{{ flowCaptionShow }}" hint-placeholder-val="{{ false }}">
-        <div style="max-width:880px; margin:0 auto 12px; display:flex; align-items:center; gap:10px; padding:11px 14px; border-radius:10px; border:1px solid rgba(99,102,241,0.4); background:var(--accent-tint); animation:fadeUp .25s ease both;">
-          <span style="width:9px; height:9px; border-radius:50%; background:var(--accent); box-shadow:0 0 10px var(--accent); flex:0 0 auto;"></span>
+        <div style="max-width:880px; margin:0 auto 12px; display:flex; align-items:center; gap:10px; padding:11px 14px; border-radius:10px; border:1px solid color-mix(in srgb, var(--accent) 40%, transparent); background:var(--accent-tint); animation:fadeUp .25s ease both;">
+          <span style="width:9px; height:9px; border-radius:50%; background:var(--accent); flex:0 0 auto;"></span>
           <span style="font-size:13px; color:var(--text); line-height:1.45;">{{ flowCaption }}</span>
         </div>
       </sc-if>
@@ -1451,8 +1495,8 @@
         <div style="position:relative; display:flex; flex-direction:column; gap:{{ planeGap }};">
           <sc-if value="{{ flowing }}" hint-placeholder-val="{{ false }}">
             <div style="position:absolute; left:0; right:0; top:0; bottom:0; z-index:6; pointer-events:none; overflow:hidden; border-radius:14px;">
-              <div style="position:absolute; left:0; right:0; height:64px; background:linear-gradient(0deg, transparent, rgba(99,102,241,0.16), transparent); border-top:1px solid rgba(99,102,241,0.6); animation:scanSweep 3.2s cubic-bezier(.4,0,.5,1) forwards; top:100%;"></div>
-              <div style="position:absolute; left:22px; width:12px; height:12px; border-radius:50%; background:var(--accent); box-shadow:0 0 16px 3px var(--accent); animation:flowDot 3.2s cubic-bezier(.4,0,.5,1) forwards;"></div>
+              <div style="position:absolute; left:0; right:0; height:64px; background:linear-gradient(0deg, transparent, color-mix(in srgb, var(--accent) 16%, transparent), transparent); border-top:1px solid color-mix(in srgb, var(--accent) 60%, transparent); animation:scanSweep 3.2s cubic-bezier(.4,0,.5,1) forwards; top:100%;"></div>
+              <div style="position:absolute; left:22px; width:12px; height:12px; border-radius:50%; background:var(--accent); animation:flowDot 3.2s cubic-bezier(.4,0,.5,1) forwards;"></div>
             </div>
           </sc-if>
 
@@ -1477,7 +1521,7 @@
                       <div style="min-width:0; flex:1 1 auto;">
                         <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
                           <span style="font-family:'Inter',sans-serif; font-weight:600; font-size:13px; color:var(--text); letter-spacing:-0.01em;">{{ layer.name }}</span>
-                          <sc-if value="{{ layer.done }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px; color:color-mix(in srgb, #22c55e 45%, var(--text)); line-height:1;">✓</span></sc-if>
+                          <sc-if value="{{ layer.done }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px; color:color-mix(in srgb, #2f9e5e 45%, var(--text)); line-height:1;">✓</span></sc-if>
                           <sc-if value="{{ layer.hintTagShow }}" hint-placeholder-val="{{ false }}"><span style="font-size:11px; font-family:'JetBrains Mono',monospace; color:color-mix(in srgb, {{ layer.hintTagColor }} 45%, var(--text)); border:1px solid {{ layer.hintTagColor }}; border-radius:99px; padding:2px 8px; text-transform:uppercase; letter-spacing:0.05em; font-weight:600;">{{ layer.hintTag }}</span></sc-if>
                         </div>
                         <sc-if value="{{ layer.showHint }}" hint-placeholder-val="{{ false }}">
@@ -1672,7 +1716,7 @@
             <div style="border-radius:14px; border:1px solid var(--border); background:var(--panel-alt); padding:14px; margin-bottom:16px; animation:fadeUp .25s ease both;">
               <div style="display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-bottom:9px;">
                 <div style="font-family:'Inter',sans-serif; font-weight:700; font-size:13px;">{{ t.analysisTitle }}</div>
-                <div style="display:flex; align-items:center; gap:7px;"><span style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-faint);">{{ t.analysisRobust }}</span><span style="font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; color:color-mix(in srgb, {{ analysis.scoreColor }} 45%, var(--text));">{{ analysis.scorePct }}</span></div>
+                <div style="display:flex; align-items:center; gap:7px;"><span style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-faint);">{{ t.analysisRobust }}</span><span style="font-family:'JetBrains Mono',monospace; font-size:13px; font-weight:700; color:color-mix(in srgb, {{ analysis.scoreColor }} 45%, var(--text));">{{ analysis.scoreText }}</span></div>
               </div>
               <div style="height:6px; border-radius:99px; background:var(--panel-2); overflow:hidden; margin-bottom:12px;">
                 <div style="height:100%; width:{{ analysis.scorePct }}; background:{{ analysis.scoreColor }}; border-radius:99px; transition:width .4s;"></div>
@@ -1710,7 +1754,7 @@
             <div style="display:flex; flex-direction:column; gap:11px;">
               <sc-for list="{{ t.howto }}" as="h" hint-placeholder-count="3">
                 <div style="display:flex; gap:10px; align-items:flex-start;">
-                  <div style="flex:0 0 auto; width:23px; height:23px; border-radius:6px; display:grid; place-items:center; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; color:var(--accent); background:rgba(99,102,241,0.1); border:1px solid rgba(99,102,241,0.3);">{{ h.n }}</div>
+                  <div style="flex:0 0 auto; width:23px; height:23px; border-radius:6px; display:grid; place-items:center; font-family:'JetBrains Mono',monospace; font-size:11px; font-weight:600; color:var(--accent); background:color-mix(in srgb, var(--accent) 10%, transparent); border:1px solid color-mix(in srgb, var(--accent) 30%, transparent);">{{ h.n }}</div>
                   <div style="font-size:12px; color:var(--text-muted); line-height:1.5;">{{ h.text }}</div>
                 </div>
               </sc-for>
@@ -1747,7 +1791,7 @@
     </sc-if>
   </div>
 
-  <footer class="theme-dark" style="flex:0 0 auto; display:flex; align-items:center; justify-content:center; gap:8px 16px; flex-wrap:wrap; padding:9px 22px; background:#0f172a; color:var(--text); border-top:1px solid var(--border); font-family:'Inter',sans-serif; font-size:11px; text-align:center;">
+  <footer class="theme-dark" style="flex:0 0 auto; display:flex; align-items:center; justify-content:center; gap:8px 16px; flex-wrap:wrap; padding:9px 22px; background:#15181c; color:var(--text); border-top:1px solid var(--border); font-family:'Inter',sans-serif; font-size:11px; text-align:center;">
     <span style="display:flex; align-items:center; gap:7px; color:var(--text-muted);">
       <img src="./fokosoft.png" alt="FOKO SOFT" style="width:18px; height:18px; border-radius:6px; object-fit:cover; flex:0 0 auto;">
       Powered by <b style="color:var(--text); font-weight:700; letter-spacing:0.02em;">FOKO SOFT</b> · v1.0
@@ -1796,7 +1840,7 @@
           <button onClick="{{ closeCmdRef }}" style="border:1px solid var(--border-strong); background:var(--panel-alt); color:var(--text-muted); width:30px; height:30px; border-radius:6px; cursor:pointer; font-size:15px;" aria-label="{{ t.closeLbl }}">✕</button>
         </div>
         <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px; flex:0 0 auto;">{{ t.cmdRefSubtitle }}</div>
-        <input value="{{ cmdRefSearch }}" onInput="{{ onCmdRefSearch }}" placeholder="{{ t.cmdRefSearch }}"
+        <input value="{{ cmdRefSearch }}" aria-label="{{ t.cmdRefSearch }}" onInput="{{ onCmdRefSearch }}" placeholder="{{ t.cmdRefSearch }}"
           style="width:100%; box-sizing:border-box; padding:9px 13px; border-radius:10px; border:1px solid var(--border-strong); background:var(--panel-2); color:var(--text); font-family:'Inter',sans-serif; font-size:13px; outline:none; margin-bottom:12px; flex:0 0 auto;" />
         <div style="flex:1 1 auto; overflow-y:auto; min-height:0;">
           <sc-if value="{{ cmdRef.empty }}" hint-placeholder-val="{{ false }}"><div style="text-align:center; color:var(--text-faint); font-size:13px; padding:24px;">{{ t.cmdRefEmpty }}</div></sc-if>
@@ -1826,7 +1870,7 @@
           <button onClick="{{ closeGlossary }}" style="border:1px solid var(--border-strong); background:var(--panel-alt); color:var(--text-muted); width:30px; height:30px; border-radius:6px; cursor:pointer; font-size:15px;" aria-label="{{ t.closeLbl }}">✕</button>
         </div>
         <div style="font-size:12px; color:var(--text-muted); margin-bottom:12px; flex:0 0 auto;">{{ t.glSubtitle }}</div>
-        <input value="{{ glossarySearch }}" onInput="{{ onGlossarySearch }}" placeholder="{{ t.glSearch }}"
+        <input value="{{ glossarySearch }}" aria-label="{{ t.glSearch }}" onInput="{{ onGlossarySearch }}" placeholder="{{ t.glSearch }}"
           style="width:100%; box-sizing:border-box; padding:9px 13px; border-radius:10px; border:1px solid var(--border-strong); background:var(--panel-2); color:var(--text); font-family:'Inter',sans-serif; font-size:13px; outline:none; margin-bottom:12px; flex:0 0 auto;" />
         <div style="flex:1 1 auto; overflow-y:auto; min-height:0;">
           <sc-if value="{{ glossary.empty }}" hint-placeholder-val="{{ false }}"><div style="text-align:center; color:var(--text-faint); font-size:13px; padding:24px;">{{ t.glEmpty }}</div></sc-if>
@@ -1849,7 +1893,7 @@
                     <div style="margin-top:8px;"><span style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-faint);">{{ mr.l }}: </span><span style="font-size:12px; color:var(--text-muted);">{{ mr.v }}</span></div>
                   </sc-for>
                   <sc-if value="{{ g.hasView }}" hint-placeholder-val="{{ false }}">
-                    <button onClick="{{ g.onView }}" style="margin-top:11px; border:1px solid rgba(99,102,241,0.5); background:rgba(99,102,241,0.12); color:var(--accent); padding:6px 13px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;">{{ t.glView }} →</button>
+                    <button onClick="{{ g.onView }}" style="margin-top:11px; border:1px solid color-mix(in srgb, var(--accent) 50%, transparent); background:color-mix(in srgb, var(--accent) 12%, transparent); color:var(--accent); padding:6px 13px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;">{{ t.glView }} →</button>
                   </sc-if>
                 </div>
               </sc-if>
@@ -1884,7 +1928,7 @@
             <sc-if value="{{ st.bodyOpen }}" hint-placeholder-val="{{ false }}">
               <div style="margin-top:11px; padding:12px 13px; border-radius:10px; background:var(--panel-2); border:1px solid var(--border);">
                 <div style="font-size:13px; color:var(--text-muted); line-height:1.6;">{{ st.body }}</div>
-                <button onClick="{{ st.onMarkRead }}" style="margin-top:11px; border:1px solid rgba(34,197,94,0.5); background:rgba(34,197,94,0.12); color:color-mix(in srgb, #22c55e 45%, var(--text)); padding:7px 14px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;">✓ {{ t.pathMarkRead }}</button>
+                <button onClick="{{ st.onMarkRead }}" style="margin-top:11px; border:1px solid rgba(34,197,94,0.5); background:rgba(34,197,94,0.12); color:color-mix(in srgb, #2f9e5e 45%, var(--text)); padding:7px 14px; border-radius:6px; cursor:pointer; font-family:'Inter',sans-serif; font-size:12px; font-weight:600;">✓ {{ t.pathMarkRead }}</button>
               </div>
             </sc-if>
           </div>
@@ -1902,7 +1946,7 @@
         </div>
         <div style="font-size:12px; color:var(--text-muted); margin-bottom:6px;">{{ t.contentSubtitle }}</div>
         <div style="font-family:'JetBrains Mono',monospace; font-size:11px; color:var(--text-faint); margin-bottom:12px;">{{ t.contentActiveLbl }} {{ contentPieces }} {{ t.contentPiecesLbl }} · {{ contentMissions }} {{ t.contentMissionsLbl }}</div>
-        <textarea value="{{ contentDraft }}" onInput="{{ onContentDraft }}" placeholder="{{ t.contentPlaceholder }}" spellcheck="false"
+        <textarea value="{{ contentDraft }}" aria-label="{{ t.contentPlaceholder }}" onInput="{{ onContentDraft }}" placeholder="{{ t.contentPlaceholder }}" spellcheck="false"
           style="width:100%; box-sizing:border-box; height:300px; resize:vertical; padding:12px 14px; border-radius:10px; border:1px solid var(--border-strong); background:#060911; color:#c9d3e3; font-family:'JetBrains Mono',monospace; font-size:12px; line-height:1.6; outline:none;"></textarea>
         <sc-if value="{{ contentMsgShow }}" hint-placeholder-val="{{ false }}">
           <div style="margin-top:10px; padding:9px 13px; border-radius:10px; border:1px solid {{ contentMsgBorder }}; background:{{ contentMsgBg }}; color:color-mix(in srgb, {{ contentMsgColor }} 45%, var(--text)); font-size:12px; font-family:'JetBrains Mono',monospace;">{{ contentMsgText }}</div>
@@ -1912,8 +1956,8 @@
           <label style="border:1px solid var(--border-strong); background:var(--panel-alt); color:var(--text-muted); padding:9px 14px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:500;" style-hover="background:var(--panel-2);">{{ t.contentFile }}<input type="file" accept=".json,application/json" onChange="{{ importContentFile }}" style="display:none;" /></label>
           <button onClick="{{ exportContent }}" style="border:1px solid var(--border-strong); background:var(--panel-alt); color:var(--text-muted); padding:9px 14px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:500;" style-hover="background:var(--panel-2);">{{ t.contentExportBtn }}</button>
           <span style="flex:1 1 auto;"></span>
-          <button onClick="{{ clearContent }}" style="border:1px solid var(--warm-border); background:var(--warm); color:color-mix(in srgb, #f97316 45%, var(--text)); padding:9px 14px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:500;">{{ t.contentClearBtn }}</button>
-          <button onClick="{{ applyContent }}" style="border:1px solid rgba(99,102,241,0.5); background:rgba(99,102,241,0.16); color:var(--accent); padding:9px 20px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:700;" style-hover="background:rgba(99,102,241,0.26);">{{ t.contentApply }}</button>
+          <button onClick="{{ clearContent }}" style="border:1px solid var(--warm-border); background:var(--warm); color:color-mix(in srgb, #d96a1e 45%, var(--text)); padding:9px 14px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:500;">{{ t.contentClearBtn }}</button>
+          <button onClick="{{ applyContent }}" style="border:1px solid color-mix(in srgb, var(--accent) 50%, transparent); background:color-mix(in srgb, var(--accent) 16%, transparent); color:var(--accent); padding:9px 20px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:700;" style-hover="background:color-mix(in srgb, var(--accent) 26%, transparent);">{{ t.contentApply }}</button>
         </div>
       </div>
     </div>
@@ -1923,7 +1967,7 @@
     <div style="position:fixed; top:70px; left:50%; transform:translateX(-50%); z-index:60; display:flex; align-items:center; gap:12px; padding:12px 18px; border-radius:10px; background:var(--panel); border:1px solid rgba(245,158,11,0.5); box-shadow:0 10px 30px -8px rgba(0,0,0,0.4); animation:fadeUp .25s ease both;">
       <span style="font-size:26px; line-height:1;">{{ toastIcon }}</span>
       <div>
-        <div style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:color-mix(in srgb, #f59e0b 45%, var(--text)); font-weight:700;">{{ t.toastLabel }}</div>
+        <div style="font-family:'JetBrains Mono',monospace; font-size:11px; text-transform:uppercase; letter-spacing:0.06em; color:color-mix(in srgb, #d9930f 45%, var(--text)); font-weight:700;">{{ t.toastLabel }}</div>
         <div style="font-family:'Inter',sans-serif; font-weight:600; font-size:13px; color:var(--text);">{{ toastName }}</div>
       </div>
     </div>
@@ -1957,7 +2001,7 @@
           </div>
           <div style="display:flex; align-items:center; justify-content:space-between; gap:10px;">
             <button onClick="{{ tour.onPrev }}" disabled="{{ tour.isFirst }}" style="border:1px solid var(--border-strong); background:var(--panel-alt); color:var(--text-muted); padding:9px 16px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:600;">← {{ t.tourPrev }}</button>
-            <button onClick="{{ tour.onAdvance }}" style="border:1px solid rgba(99,102,241,0.5); background:rgba(99,102,241,0.14); color:var(--accent); padding:9px 18px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:600;">{{ tour.nextLabel }} →</button>
+            <button onClick="{{ tour.onAdvance }}" style="border:1px solid color-mix(in srgb, var(--accent) 50%, transparent); background:color-mix(in srgb, var(--accent) 14%, transparent); color:var(--accent); padding:9px 18px; border-radius:10px; cursor:pointer; font-family:'Inter',sans-serif; font-size:13px; font-weight:600;">{{ tour.nextLabel }} →</button>
           </div>
         </div>
       </div>
@@ -2228,7 +2272,7 @@ class Component extends DCLogic {
   contentPack(){ const p=this.state.contentPack; return (p&&typeof p==='object')? p : {}; }
   packPieces(){ const p=this.contentPack().pieces; return Array.isArray(p)? p.filter(x=>x&&x.id&&x.cat) : []; }
   packMissions(){ const p=this.contentPack().missions; return Array.isArray(p)? p.filter(x=>x&&x.id) : []; }
-  packCats(){ const c=this.contentPack().categories; return Array.isArray(c)? c.filter(x=>x&&x.id).map(x=>({ id:x.id, color:x.color||'#a855f7', fam:x.fam||'ops', name:x.name||{es:x.id,en:x.id} })) : []; }
+  packCats(){ const c=this.contentPack().categories; return Array.isArray(c)? c.filter(x=>x&&x.id).map(x=>({ id:x.id, color:x.color||'#8b6aa8', fam:x.fam||'ops', name:x.name||{es:x.id,en:x.id} })) : []; }
   cats(){ return this.catsBase().concat(this.packCats()); }
   blocks(){ return this.blocksBase().concat(this.packPieces().map(p=>({ id:p.id, cat:p.cat, code:p.code||String(p.id).slice(0,4).toUpperCase(), name:p.name||{es:p.id,en:p.id}, why:p.why||{es:'',en:''}, desc:p.desc||p.why||{es:'',en:''}, facts:Array.isArray(p.facts)?p.facts:[], term:p.term, steps:p.steps }))); }
   missionsBaseMerged(){ return this.missionsBase().concat(this.packMissions()); }
@@ -2267,12 +2311,12 @@ class Component extends DCLogic {
   families(){
     const F=(es,en)=>({es,en});
     return [
-      { id:'phys', color:'#3b82f6', name:F('Física','Physical') },
-      { id:'plat', color:'#10b981', name:F('Plataforma','Platform') },
-      { id:'app', color:'#f59e0b', name:F('Aplicación','App') },
-      { id:'data', color:'#ec4899', name:F('Datos','Data') },
-      { id:'cloud', color:'#38bdf8', name:F('Nube','Cloud') },
-      { id:'ops', color:'#9333ea', name:F('Operación','Ops') },
+      { id:'phys', color:'#3f76c9', name:F('Física','Physical') },
+      { id:'plat', color:'#2f9e80', name:F('Plataforma','Platform') },
+      { id:'app', color:'#d9930f', name:F('Aplicación','App') },
+      { id:'data', color:'#c9487e', name:F('Datos','Data') },
+      { id:'cloud', color:'#3a93bf', name:F('Nube','Cloud') },
+      { id:'ops', color:'#75508f', name:F('Operación','Ops') },
     ];
   }
   onSearch(e){ this.setState({ search: (e && e.target) ? e.target.value : '' }); }
@@ -2294,7 +2338,7 @@ class Component extends DCLogic {
       this.setState({ selected:blockId, selectedLayer:null, armed:null, over:null, feedback:{type:'err', title:t.errTitle, msg} });
     }
   }
-  onBlockClick(id){ if(this.isPlaced(id)){ this.setState({selected:id, selectedLayer:null, feedback:null}); return; } this.setState({ selected:id, selectedLayer:null, armed:id, feedback:null }); }
+  onBlockClick(id){ if(this.isPlaced(id)){ this.setState({selected:id, selectedLayer:null, feedback:null}); return; } this.setState({ selected:id, selectedLayer:null, armed:id, feedback:null }); this.toCanvas(); }
   onLayerClick(layerId){ if(this.state.armed){ this.place(this.state.armed, layerId); } else { this.setState({ selectedLayer:layerId, selected:null, feedback:null }); } }
   removePlaced(layerId, blockId){ this.setState(s=>{ const placed={...s.placed}; placed[layerId]=(placed[layerId]||[]).filter(x=>x!==blockId); return {placed, selected:null, feedback:null}; }); }
   flowScript(){
@@ -2384,10 +2428,10 @@ class Component extends DCLogic {
     const S=this.state;
     const eff=this.effectivePlaced(); const isDemo=eff.isDemo;
     const r = S.request || this.buildRequest(eff.placed, S.reqFail);
-    const scale=Math.max(1, r.total), colFail='#ef4444', colWarn='#f59e0b';
+    const scale=Math.max(1, r.total), colFail='#d0453b', colWarn='#d9930f';
     const round1=(n)=>Math.round(n*10)/10;
     const hops=r.hops.map(h=>{
-      const c=this.catById(h.cat); const base=c?c.color:'#64748b';
+      const c=this.catById(h.cat); const base=c?c.color:'#6b7078';
       const skip=h.state==='skip', fail=h.state==='fail', warn=h.state==='warn';
       const color=fail?colFail:(warn?colWarn:base);
       return {
@@ -2405,7 +2449,7 @@ class Component extends DCLogic {
     return {
       isDemo, hops, hopCount:hops.length,
       statusCode:st.code+'', statusLabel:st.label, statusOk:st.ok,
-      statusColor: st.ok?'#22c55e':colFail, statusBg: st.ok?this.hexA('#22c55e',0.14):this.hexA(colFail,0.14), statusBorder: st.ok?'rgba(34,197,94,0.5)':this.hexA(colFail,0.5),
+      statusColor: st.ok?'#2f9e5e':colFail, statusBg: st.ok?this.hexA('#2f9e5e',0.14):this.hexA(colFail,0.14), statusBorder: st.ok?'rgba(34,197,94,0.5)':this.hexA(colFail,0.5),
       totalLabel:r.total+' ms', okCount:r.okCount,
       hasNotes:!!(r.notes&&r.notes.length), notes:r.notes||[],
       hasFail:!!r.failKey, method:'GET /api/pedido',
@@ -2467,7 +2511,7 @@ class Component extends DCLogic {
     const rolledFrame={ caption:T('Rollback ejecutado: v1 restaurado al instante, 0 downtime.','Rollback done: v1 restored instantly, 0 downtime.'), groups:[{label:T('Réplicas','Replicas'),boxes:Array.from({length:6},()=>({ver:'v1',state:'ready'}))}], split:{v1:100,v2:0}, downtime:'0 s', done:true };
     const total=frames.length, idx=Math.min(d.step, total-1);
     const fr = d.rolled ? rolledFrame : frames[idx];
-    const colV1='#0ea5e9', colV2='#22c55e', colUpd='#f59e0b';
+    const colV1='#2f86b0', colV2='#2f9e5e', colUpd='#d9930f';
     const groups=fr.groups.map(g=>({ label:g.label, boxes:g.boxes.map(b=>{
       const empty=b.state==='empty', upd=b.state==='updating';
       const color = (b.ver==='v2')?(upd?colUpd:colV2):(upd?colUpd:colV1);
@@ -2492,7 +2536,7 @@ class Component extends DCLogic {
   incidents(){ return this.content('incidentes', []); }
   incidentById(id){ return this.incidents().find(x=>x.id===id); }
   incLevelLabel(l){ const es=this.state.lang==='es'; return l===1?(es?'Básico':'Basic'):(l===2?(es?'Intermedio':'Intermediate'):(es?'Avanzado':'Advanced')); }
-  incLevelColor(l){ return l===1?'#22c55e':(l===2?'#f59e0b':'#ef4444'); }
+  incLevelColor(l){ return l===1?'#2f9e5e':(l===2?'#d9930f':'#d0453b'); }
   startIncident(id){ this.setState({ incident:{ id, phase:'brief', revealed:[], guessCause:null, guessFix:null, causeState:null, fixState:null, solved:false } }); }
   exitIncident(){ this.setState({ incident:null }); }
   incidentSetPhase(p){ this.setState(s=>({ incident:{ ...s.incident, phase:p } })); }
@@ -2557,7 +2601,12 @@ class Component extends DCLogic {
   }
   loadConfetti(){ try{ if(window.confetti || this._confettiTried) return; this._confettiTried=true; const s=document.createElement('script'); s.src='./vendor/confetti.browser.js'; s.async=true; document.head.appendChild(s); }catch(e){} }
   fireConfetti(){ try{ if(window.confetti) window.confetti({ particleCount:95, spread:72, startVelocity:38, origin:{ y:0.35 } }); }catch(e){} }
+  narrow(){ try{ return !!(window.matchMedia && window.matchMedia('(max-width:1100px)').matches); }catch(e){ return false; } }
+  toPalette(){ try{ const el=document.querySelector('.rail-left'); if(el) el.scrollIntoView({ behavior:'smooth', block:'start' }); }catch(e){} }
+  toCanvas(){ try{ const el=document.querySelector('.lab-grid > main'); if(!el) return; el.focus({ preventScroll:true }); if(this.narrow()) el.scrollIntoView({ behavior:'smooth', block:'start' }); }catch(e){} }
   componentDidMount(){
+    try{ document.documentElement.lang=this.state.lang; }catch(e){}
+    if(this.narrow() && !Object.keys(this.state.collapsed||{}).length){ const c={}; this.cats().forEach((x,i)=>{ if(i>0) c[x.id]=true; }); this.setState({ collapsed:c }); }
     this.loadConfetti();
     this.loadContentPack();
     try{ this._onKey=(e)=>this.onKeyDownGlobal(e); document.addEventListener('keydown', this._onKey); }catch(e){}
@@ -2582,6 +2631,7 @@ class Component extends DCLogic {
     this.evalAchievements();
     this.manageDialogFocus();
     this.salaSync();
+    try{ if(document.documentElement.lang!==this.state.lang) document.documentElement.lang=this.state.lang; }catch(e){}
   }
   // ---- achievements ----
   achievements(){
@@ -2714,7 +2764,7 @@ class Component extends DCLogic {
   toggleGlossaryTerm(key){ this.setState(s=>({ glossaryOpen: s.glossaryOpen===key? null : key })); }
   glossaryView(id){ this.setState({ showGlossary:false }); this.setMode('sandbox'); this.setState({ selected:id, selectedLayer:null, armed:null }); }
   // ---- tools menu (agrupa utilidades para descongestionar la cabecera) ----
-  toggleTools(){ this.setState(s=>({ showTools:!s.showTools })); }
+  toggleTools(){ this.setState(s=>({ showTools:!s.showTools })); setTimeout(()=>{ try{ const b=document.querySelector('#tools-menu button'); if(b) b.focus(); }catch(e){} }, 40); }
   closeTools(){ this.setState({ showTools:false }); }
   toggleSims(){ this.setState(s=>({ showSims:!s.showSims })); }
   closeSims(){ this.setState({ showSims:false }); }
@@ -2791,6 +2841,7 @@ class Component extends DCLogic {
       dotBg: done?color:'transparent', dotBorder: done?color:'var(--border-strong)', nameColor: done?'var(--text)':'var(--text-muted)' };
   }
   setMode(m){
+    if(m!=='terminal') setTimeout(()=>{ try{ const h=document.getElementById('vista-titulo'); if(h) h.focus({ preventScroll:true }); }catch(e){} }, 80);
     const patch={ mode:m, selected:null, selectedLayer:null, armed:null, over:null, feedback:null };
     if(m==='quiz' && !this.state.quiz) patch.quiz=this.newQuiz();
     if(m==='map'){ this.unlock('cartographer'); this.mapAutoFit(); }
@@ -3294,7 +3345,7 @@ class Component extends DCLogic {
     if(r.cwd) patch.cwd=r.cwd;
     this.setState({ term:patch });
   }
-  termColor(c){ return c==='in'?'#8f99fa': c==='ok'?'#4ade80': c==='err'?'#fb7185': c==='dim'?'#8b98ad': c==='sys'?'#9aa7bd':'#c9d3e3'; }
+  termColor(c){ return c==='in'?'#8fb0f5': c==='ok'?'#4ade80': c==='err'?'#fb7185': c==='dim'?'#8b98ad': c==='sys'?'#9aa7bd':'#c9d3e3'; }
 
   // ================= CONSOLA DE EVENTOS (estilo OBM) =================
   // Un evento no es una incidencia. Llegan a montones, casi todos son ruido o
@@ -3327,8 +3378,8 @@ class Component extends DCLogic {
   }
   evSevs(){
     const es=this.state.lang==='es';
-    return { critical:{ n:es?'Crítico':'Critical', c:'#fb7185', w:4 }, major:{ n:es?'Mayor':'Major', c:'#f97316', w:3 },
-      minor:{ n:es?'Menor':'Minor', c:'#eab308', w:2 }, warning:{ n:es?'Aviso':'Warning', c:'#38bdf8', w:1 } };
+    return { critical:{ n:es?'Crítico':'Critical', c:'#fb7185', w:4 }, major:{ n:es?'Mayor':'Major', c:'#d96a1e', w:3 },
+      minor:{ n:es?'Menor':'Minor', c:'#c9a20a', w:2 }, warning:{ n:es?'Aviso':'Warning', c:'#3a93bf', w:1 } };
   }
   eventsViewFull(){ const v=this.eventsView(); v.noSel=!v.hasSel; return v; }
   eventsView(){
@@ -3435,7 +3486,7 @@ class Component extends DCLogic {
     const niv=n=>n>=3? T('Alto','High') : (n===2? T('Medio','Medium') : T('Bajo','Low'));
     const score=m.imp*m.urg;
     const p = score>=9? 1 : (score>=6? 2 : (score>=4? 3 : 4));
-    const col=['#fb7185','#f97316','#eab308','#38bdf8'][p-1];
+    const col=['#fb7185','#d96a1e','#c9a20a','#3a93bf'][p-1];
     const sla=[60,240,480,1440][p-1];
     const horas=sla>=60? (sla/60)+' h' : sla+' min';
     return { p:'P'+p, color:col, bg:this.hexA(col,0.14), impacto:niv(m.imp), urgencia:niv(m.urg),
@@ -3457,14 +3508,14 @@ class Component extends DCLogic {
     const iAct=estados.findIndex(x=>x.k===activo);
     // el SLA no corre de verdad: se muestra consumido según lo avanzada que está
     const usado = fase==='done'? 0.55 : (fase==='fix'? 0.42 : (fase==='cause'? 0.28 : 0.14));
-    const slaColor = usado>0.8? '#fb7185' : (usado>0.6? '#f97316' : '#22c55e');
+    const slaColor = usado>0.8? '#fb7185' : (usado>0.6? '#d96a1e' : '#2f9e5e');
     return {
       prio:pr.p, prioColor:pr.color, prioBg:pr.bg,
       impacto:pr.impacto, urgencia:pr.urgencia, sla:pr.sla,
       impactoLabel:T('Impacto','Impact'), urgenciaLabel:T('Urgencia','Urgency'), slaLabel:T('SLA','SLA'),
       matrixNote:T('La prioridad sale de impacto × urgencia, no se elige a mano.','Priority comes from impact × urgency, it is not picked by hand.'),
       states:estados.map((x,i)=>({ name:x.n, done:i<iAct, active:i===iAct,
-        color: i<iAct? '#22c55e' : (i===iAct? pr.color : 'var(--border-strong)'),
+        color: i<iAct? '#2f9e5e' : (i===iAct? pr.color : 'var(--border-strong)'),
         text: i<=iAct? 'var(--text)' : 'var(--text-faint)' })),
       slaPct:Math.round(usado*100)+'%', slaColor,
       slaText:T('Consumido ','Used ')+Math.round(usado*100)+T('% del objetivo de ','% of the ')+pr.sla,
@@ -3624,13 +3675,13 @@ class Component extends DCLogic {
   deskView(){
     const d=this.deskState(), es=this.state.lang==='es', T=(a,b)=>es?a:b, t0=this.strings();
     const all=this.tickets(), hosts=this.deskHosts();
-    const prioOf=p=>({ critica:{ c:'#fb7185', n:T('Crítica','Critical') }, alta:{ c:'#f97316', n:T('Alta','High') },
-      media:{ c:'#eab308', n:T('Media','Medium') }, baja:{ c:'#38bdf8', n:T('Baja','Low') } })[p] || { c:'var(--text-faint)', n:p };
+    const prioOf=p=>({ critica:{ c:'#fb7185', n:T('Crítica','Critical') }, alta:{ c:'#d96a1e', n:T('Alta','High') },
+      media:{ c:'#c9a20a', n:T('Media','Medium') }, baja:{ c:'#3a93bf', n:T('Baja','Low') } })[p] || { c:'var(--text-faint)', n:p };
     const nSolved=Object.keys(d.solved||{}).length;
     const queue=all.map(tk=>{ const p=prioOf(tk.prio), done=!!(d.solved||{})[tk.id];
       return { id:tk.id, subject:this.loc(tk.subject), from:this.loc(tk.from),
         prio:p.n, prioColor:p.c, prioBg:this.hexA(p.c,0.14),
-        done, mark:done?'✓':'', markColor:done?'#22c55e':'var(--text-faint)',
+        done, mark:done?'✓':'', markColor:done?'#2f9e5e':'var(--text-faint)',
         aria: tk.id+'. '+this.loc(tk.subject)+'. '+(es?'Prioridad ':'Priority ')+p.n+'. '+(done? (es?'Resuelto':'Solved') : (es?'Sin resolver':'Open')),
         op:done?'0.55':'1', onClick:()=>this.deskOpen(tk.id) };});
 
@@ -3671,7 +3722,7 @@ class Component extends DCLogic {
     const opt=(x,kind)=>({ text:this.loc(x.text),
       aria:(kind==='cause'? (es?'Causa: ':'Cause: ') : (es?'Arreglo: ':'Fix: '))+this.loc(x.text),
       onClick:()=> kind==='cause'? this.deskPickCause(x.id) : this.deskPickFix(x.id),
-      border: d.wrong===x.id? '#f97316' : 'var(--border-strong)', bg: d.wrong===x.id? 'var(--warm)' : 'var(--panel)',
+      border: d.wrong===x.id? '#d96a1e' : 'var(--border-strong)', bg: d.wrong===x.id? 'var(--warm)' : 'var(--panel)',
       anim: d.wrong===x.id? 'kidShake .4s ease' : 'none' });
 
     return { show:true, open:true, closed:false, phaseWork:(d.phase==='work'), itsm:this.itsmView(tk,d),
@@ -3801,6 +3852,7 @@ class Component extends DCLogic {
     this.setState({ selected:n.getAttribute('data-pieza'), selectedLayer:null, armed:null, feedback:null });
   }
   salaSync(){
+    if(this.state.mode==='home' && window.LABSTACK_SALA){ let h=null; try{ h=document.getElementById('sala-home'); }catch(e){} if(h){ window.LABSTACK_SALA.sync(h, this.salaEscena(), { flujo:false, paso:-1, sel:null }); h.querySelectorAll('[tabindex]').forEach(n=>n.removeAttribute('tabindex')); } return; }
     if(this.state.mode!=='map' || this.state.mapView==='plano' || !window.LABSTACK_SALA) return;
     let el=null; try{ el=document.getElementById('sala-iso'); }catch(e){}
     if(el) window.LABSTACK_SALA.sync(el, this.salaEscena(), { flujo:this.state.flowing, paso:this.state.flowStep, sel:this.state.selected });
@@ -3821,10 +3873,10 @@ class Component extends DCLogic {
     const es=this.state.lang==='es', T=(a,b)=>es?a:b;
     const n1=this.kidsPartSteps(1).length, n2=this.kidsPartSteps(2).length;
     return [
-      { id:1, icon:'🏗', color:'#3b82f6', title:T('La torre','The tower'),
+      { id:1, icon:'🏗', color:'#3f76c9', title:T('La torre','The tower'),
         desc:T('Construye los '+n1+' pisos, desde los cables de abajo hasta la nube de arriba.','Build all '+n1+' floors, from the cables at the bottom to the cloud at the top.'),
         meta:T(n1+' pasos','1 steps').replace('1 steps',n1+' steps') },
-      { id:2, icon:'🧰', color:'#9333ea', title:T('Los ayudantes','The helpers'),
+      { id:2, icon:'🧰', color:'#75508f', title:T('Los ayudantes','The helpers'),
         desc:T('Los '+n2+' que hacen que la torre funcione bien: el buzón, el portero, el vigilante, la copia, las instrucciones y la cadena de montaje.','The '+n2+' that keep the tower running well: the message box, the doorkeeper, the watcher, the backup, the instructions and the assembly line.'),
         meta:T(n2+' pasos · mejor después de la torre',n2+' steps · better after the tower') },
     ];
@@ -3846,7 +3898,7 @@ class Component extends DCLogic {
   kidsView(){
     const S=this.state.kids||{ part:null, step:0, phase:'ask', wrong:null };
     const es=this.state.lang==='es', T=(a,b)=>es?a:b;
-    const shot=(bid,cat)=>{ const c=this.catById(cat); return this.paintArt(this.artKeyFor(bid,cat), c? c.color : '#6366f1'); };
+    const shot=(bid,cat)=>{ const c=this.catById(cat); return this.paintArt(this.artKeyFor(bid,cat), c? c.color : '#1f4fbf'); };
     const blockCard=(st,opts)=>{ const c=this.catById(st.cat), b=this.blockById(st.block); return {
       name:b? this.loc(b.name) : st.block, layer:this.loc(c.name), color:c.color,
       bg:this.hexA(c.color,0.16), border:this.hexA(c.color,0.5),
@@ -3855,7 +3907,7 @@ class Component extends DCLogic {
     const empty={ show:true, pick:false, done:false, dots:[], tower:[], guards:[], guardsShow:false,
       towerTitle:'', guardsTitle:'', towerEmpty:false, towerEmptyMsg:'', towerShow:false,
       stepLabel:'', title:'', say:'', ask:'', hint:'', hintShow:false, why:'', whyShow:false, okTitle:'',
-      color:'var(--accent)', layerName:'', options:[], optionsShow:false, nextLabel:'', onNext:()=>{},
+      color:'#c8553d', layerName:'', options:[], optionsShow:false, nextLabel:'', onNext:()=>{},
       askShow:false, guideShow:false, chapterShow:false, chapterTitle:'',
       endTitle:'', endBody:'', again:'', toMap:'', onAgain:()=>{}, onMap:()=>{},
       pickTitle:'', pickLead:'', parts:[], contShow:false, contLabel:'', onCont:()=>{} };
@@ -3885,7 +3937,7 @@ class Component extends DCLogic {
     const guards = part2 ? done.map(st=>blockCard(st,{dash:'dashed'})) : [];
     const dots=steps.map((st,i)=>{ const dc=this.catById(st.cat).color, got=i<placedN;
       return { bg:got?dc:'var(--panel-2)', border:got?dc:'var(--border-strong)',
-        size:i===S.step?'26px':'20px', ring:i===S.step?('0 0 0 5px '+this.hexA(dc,0.22)):'none', mark:got?'★':'' };});
+        size:i===S.step?'26px':'20px', ring:i===S.step?('0 0 0 5px '+this.hexA('#c8553d',0.28)):'none', mark:got?'★':'' };});
     const base={ ...empty, dots, tower, guards, guardsShow:guards.length>0, towerShow:true,
       a11yRegion:(part2? T('Modo Kids. Los ayudantes','Kids mode. The helpers') : T('Modo Kids. La torre','Kids mode. The tower')),
       a11yDots:T('Llevas ','You have completed ')+placedN+T(' de ',' of ')+total+T(' pasos',' steps'),
@@ -3914,13 +3966,13 @@ class Component extends DCLogic {
         layer:this.loc(bc.name), layerShow:(ok&&isOk)||isWrong, color:bc.color,
         bg: isWrong? 'var(--warm)' : 'var(--panel)',
         halo: this.hexA(bc.color, isOk&&ok? 0.30 : 0.14),
-        border: isWrong? '#f97316' : bc.color,
+        border: isWrong? '#d96a1e' : bc.color,
         lift: (ok&&isOk)? ('0 6px 0 0 '+this.hexA(bc.color,0.55)+', 0 0 0 6px '+this.hexA(bc.color,0.22)) : ('0 6px 0 0 '+this.hexA(bc.color,0.38)),
         anim: isWrong? 'kidShake .45s ease' : ((ok&&isOk)? 'kidPop .45s ease both' : 'none'),
         op: dim? '0.4' : '1', mark:(ok&&isOk)?'★':'', markShow:(ok&&isOk),
         cursor: ok? 'default' : 'pointer',
         hoverStyle: ok? '' : 'transform:translateY(-5px); box-shadow:0 11px 0 0 '+this.hexA(bc.color,0.45)+';',
-        aria:(b? this.loc(b.name) : bid)+', '+this.loc(bc.name),
+        aria:(b? this.loc(b.name) : bid)+(((ok&&isOk)||isWrong)? ', '+this.loc(bc.name) : ''),
         onClick:()=>this.kidsPick(bid) };
     });
     const wb=S.wrong? this.blockById(S.wrong) : null, wc=wb? this.catById(wb.cat) : null;
@@ -3928,7 +3980,7 @@ class Component extends DCLogic {
       stepLabel:T('Paso ','Step ')+(S.step+1)+' / '+total,
       title:this.loc(st.title), say:this.loc(st.say), ask:this.loc(st.ask), askShow:!ok, guideShow:true,
       chapterShow:(S.step===0), chapterTitle: part2? T('Los ayudantes','The helpers') : T('La torre','The tower'),
-      color:c.color, layerName:this.loc(c.name),
+      color:'#c8553d', layerName:this.loc(c.name),
       hintShow: !!S.wrong && !ok,
       hint: wb ? (T('Eso es ','That is ')+this.loc(wb.name)+T(', de la parte de ','; it belongs to ')+this.loc(wc.name)+T('. ¡Ya te tocará! Pista: ','. You will get there! Hint: ')+this.loc(st.hint)) : '',
       whyShow: ok, why:this.loc(st.why), okTitle:T('¡Muy bien!','Nice one!'),
@@ -4013,8 +4065,8 @@ class Component extends DCLogic {
         zc[z.id]={x, y, w:z._w, h:z._h, cx:x+z._w/2, cy:y+z._h/2};
         zones.push({ x, y, w:z._w, h:z._h, label:z.label, icon:z.icon,
           dashStyle: z.dashed?'dashed':'solid',
-          border: z.dashed?this.hexA('#38bdf8',0.55):'var(--border-strong)',
-          bg: z.dashed?this.hexA('#38bdf8',0.05):this.hexA('#64748b',0.04) });
+          border: z.dashed?this.hexA('#3a93bf',0.55):'var(--border-strong)',
+          bg: z.dashed?this.hexA('#3a93bf',0.05):this.hexA('#6b7078',0.04) });
         let gx=x+PAD;
         z._groups.forEach(g=>{
           const gy=y+HEAD;
@@ -4051,7 +4103,7 @@ class Component extends DCLogic {
       links.push({
         tip: head+' — '+catName(aCat)+' → '+catName(bCat)+(why? '. '+why : ''),
         d: this.orthoPath(rt.pts, 11),
-        stroke: flow? 'var(--accent)' : (ops? '#9333ea' : 'var(--line-faint)'),
+        stroke: flow? 'var(--accent)' : (ops? '#75508f' : 'var(--line-faint)'),
         w: flow? '2' : '1.5',
         dash: flow? 'none' : (ops? '2 6' : '5 5'),
         op: flow? '0.75' : (ops? '0.6' : '0.7'),
@@ -4149,7 +4201,7 @@ class Component extends DCLogic {
   mapAutoFit(){ if(this._mapFitted) return; this._mapFitted=true;
     setTimeout(()=>{ this.measureVp(); const w=this._world||{w:1000,h:700}, vp=this._vp||{w:900,h:760};
       const s=this._clampScale(Math.max(0.78, Math.min((vp.w-40)/w.w,(vp.h-96)/w.h)));
-      let ty=(vp.h-w.h*s)/2; if(ty<78) ty=78;
+      let ty=(vp.h-w.h*s)/2; if(ty<128) ty=128;
       this.setState({ map:{ tx:(vp.w-w.w*s)/2, ty, scale:s } }); }, 0); }
 
   // ---- architecture rigor: dependency + linter engine ----
@@ -4201,7 +4253,7 @@ class Component extends DCLogic {
     }); };
     a.errors.forEach(e=>add(e.cats,'error',e.msg));
     a.warns.forEach(w=>add(w.cats,'warn',w.msg));
-    Object.keys(out).forEach(c=>{ const o=out[c]; o.color=o.level==='error'?'#fb7185':'#f97316'; o.icon=o.level==='error'?'✕':'!'; o.msg=o.msgs.join(' · '); });
+    Object.keys(out).forEach(c=>{ const o=out[c]; o.color=o.level==='error'?'#fb7185':'#d96a1e'; o.icon=o.level==='error'?'✕':'!'; o.msg=o.msgs.join(' · '); });
     return out;
   }
 
@@ -4212,7 +4264,7 @@ class Component extends DCLogic {
     const stackIds = ['nube','datos','orquestacion','contenedores','so','hci','virtualizacion','almacenamiento','computo','red'];
     const compactDens = (S.density !== 'detail');
     const armedBlock = S.armed ? this.blockById(S.armed) : null;
-    const _ac = armedBlock ? this.catById(armedBlock.cat).color : '#6366f1';
+    const _ac = armedBlock ? this.catById(armedBlock.cat).color : '#1f4fbf';
     const placing = armedBlock
       ? { active:true, code:armedBlock.code, name:this.loc(armedBlock.name), color:_ac,
           border:this.hexA(_ac,0.5), bg:this.hexA(_ac,0.08), badgeBg:this.hexA(_ac,0.16), badgeBorder:this.hexA(_ac,0.4),
@@ -4289,8 +4341,8 @@ class Component extends DCLogic {
         anim: isFlow? 'flowLayerGlow 1s ease-in-out' : (isSuggested? 'suggestPulse 1.9s ease-in-out infinite' : 'none'),
         hintTagShow: isTarget||isSuggested,
         hintTag: isTarget? t.targetTag : (isSuggested? t.suggestedTag : ''),
-        hintTagColor: isTarget? c.color : '#38bdf8',
-        borderColor: (over||isTarget||isFlow)? c.color : (isSuggested? this.hexA('#38bdf8',0.55) : (has? 'var(--border-strong)' : 'var(--border)')),
+        hintTagColor: isTarget? c.color : '#3a93bf',
+        borderColor: (over||isTarget||isFlow)? c.color : (isSuggested? this.hexA('#3a93bf',0.55) : (has? 'var(--border-strong)' : 'var(--border)')),
         bg: (over||isTarget)? this.hexA(c.color,0.08) : (isFlow? this.hexA(c.color,0.12) : (has? 'linear-gradient(100deg, '+this.hexA(c.color,0.10)+' 0%, var(--panel) 55%)' : 'var(--panel)')),
         numBg: this.hexA(c.color,0.12), numBorder: this.hexA(c.color,0.35),
         hoverStyle: S.armed? 'border-color:'+c.color+'; background:'+this.hexA(c.color,0.08)+';' : 'border-color:var(--border-strong); background:var(--panel-2);',
@@ -4374,9 +4426,9 @@ class Component extends DCLogic {
     // feedback
     let feedback={show:false};
     if(S.feedback){ const f=S.feedback;
-      const map={ ok:{border:'rgba(34,197,94,0.4)',bg:'rgba(34,197,94,0.10)',iconBg:'#22c55e',icon:'✓',titleColor:'#22c55e'},
-                  err:{border:'var(--warm-border)',bg:'var(--warm)',iconBg:'#f97316',icon:'!',titleColor:'#f97316'},
-                  info:{border:'rgba(99,102,241,0.4)',bg:'rgba(99,102,241,0.10)',iconBg:'var(--accent)',icon:'i',titleColor:'var(--accent)'} };
+      const map={ ok:{border:'rgba(34,197,94,0.4)',bg:'rgba(34,197,94,0.10)',iconBg:'#2f9e5e',icon:'✓',titleColor:'#2f9e5e'},
+                  err:{border:'var(--warm-border)',bg:'var(--warm)',iconBg:'#d96a1e',icon:'!',titleColor:'#d96a1e'},
+                  info:{border:'color-mix(in srgb, var(--accent) 40%, transparent)',bg:'color-mix(in srgb, var(--accent) 10%, transparent)',iconBg:'var(--accent)',icon:'i',titleColor:'var(--accent)'} };
       const m=map[f.type]||map.info;
       feedback={ show:true, title:f.title, msg:f.msg, ...m };
     }
@@ -4408,16 +4460,16 @@ class Component extends DCLogic {
         ];
         const met=goals.filter(g=>g.done).length;
         const szM=this.sizing(S.placed); const meters=[];
-        if(m.budget!=null){ const ok=szM.cost<=m.budget; meters.push({ label:t.szBudget, txt:szM.cost+' / '+m.budget+' '+t.szMonth, pct:Math.min(100,(m.budget?szM.cost/m.budget:0)*100)+'%', barColor:ok?'#22c55e':'#fb7185', mark:ok?'✓':'✕', markColor:ok?'#22c55e':'#fb7185', ok }); }
+        if(m.budget!=null){ const ok=szM.cost<=m.budget; meters.push({ label:t.szBudget, txt:szM.cost+' / '+m.budget+' '+t.szMonth, pct:Math.min(100,(m.budget?szM.cost/m.budget:0)*100)+'%', barColor:ok?'#2f9e5e':'#fb7185', mark:ok?'✓':'✕', markColor:ok?'#2f9e5e':'#fb7185', ok }); }
         const metersOk = meters.every(x=>x.ok);
-        const lv=m.level||1, lvC=lv===1?'#22c55e':lv===2?'#f59e0b':'#fb7185';
+        const lv=m.level||1, lvC=lv===1?'#2f9e5e':lv===2?'#d9930f':'#fb7185';
         mission={ active:true, hasActive:true, name:this.loc(m.name), brief:this.loc(m.brief),
           goals, met, total:goals.length, complete:met===goals.length && metersOk,
           metLabel: met+'/'+goals.length+' '+t.missionMet, meters, hasMeters:meters.length>0,
           levelLabel:(lv===1?t.lvlBasic:lv===2?t.lvlInter:t.lvlAdv), levelColor:lvC, levelBg:this.hexA(lvC,0.16),
           onCheck:()=>this.checkMission(), onExit:()=>this.exitMission() };
       } else {
-        const lvC=lv=> lv===1?'#22c55e':lv===2?'#f59e0b':'#fb7185';
+        const lvC=lv=> lv===1?'#2f9e5e':lv===2?'#d9930f':'#fb7185';
         const lvN=lv=> lv===1?t.lvlBasic:lv===2?t.lvlInter:t.lvlAdv;
         mission={ active:true, hasActive:false,
           list:this.missions().slice().sort((a,b)=>(a.level||1)-(b.level||1)).map(m=>{ const lv=m.level||1; return { name:this.loc(m.name), brief:this.loc(m.brief), levelLabel:lvN(lv), levelColor:lvC(lv), levelBg:this.hexA(lvC(lv),0.16), onClick:()=>this.startMission(m.id) }; }) };
@@ -4441,12 +4493,12 @@ class Component extends DCLogic {
         const last=q.idx===q.questions.length-1;
         quiz={ show:true, done:false, num:q.idx+1, total:q.questions.length, revealed:q.revealed,
           countLabel:t.quizQuestion+' '+(q.idx+1)+'/'+q.questions.length, scoreLabel:t.quizScore+': '+q.score,
-          code:b.code, blockName:this.loc(b.name), blockColor:bc.color, badgeBg:this.hexA(bc.color,0.14), badgeBorder:this.hexA(bc.color,0.4),
+          code:b.code, blockName:this.loc(b.name), blockColor:'var(--text-muted)', badgeBg:'var(--panel-2)', badgeBorder:'var(--border-strong)',
           options: cur.options.map(cid=>{ const c=this.catById(cid); const isCorrect=cid===cur.correct; const chosen=q.answer===cid;
             let bg='var(--panel-alt)', border='var(--border-strong)', color='var(--text)', mark='';
             if(q.revealed){
-              if(isCorrect){ bg=this.hexA('#22c55e',0.12); border=this.hexA('#22c55e',0.55); mark='✓'; }
-              else if(chosen){ bg=this.hexA('#f97316',0.12); border=this.hexA('#f97316',0.5); mark='✕'; }
+              if(isCorrect){ bg=this.hexA('#2f9e5e',0.12); border=this.hexA('#2f9e5e',0.55); mark='✓'; }
+              else if(chosen){ bg=this.hexA('#d96a1e',0.12); border=this.hexA('#d96a1e',0.5); mark='✕'; }
               else { color='var(--text-faint)'; }
             }
             return { label:this.loc(c.name), dot:c.color, bg, border, color, mark, cursor:q.revealed?'default':'pointer',
@@ -4454,9 +4506,9 @@ class Component extends DCLogic {
               onClick: q.revealed?null:()=>this.answerQuiz(cid) };
           }),
           explainShow:q.revealed,
-          explainBorder: q.answer===cur.correct? this.hexA('#22c55e',0.4):this.hexA('#f97316',0.4),
-          explainBg: q.answer===cur.correct? this.hexA('#22c55e',0.10):this.hexA('#f97316',0.10),
-          explainColor: q.answer===cur.correct? '#22c55e':'#f97316',
+          explainBorder: q.answer===cur.correct? this.hexA('#2f9e5e',0.4):this.hexA('#d96a1e',0.4),
+          explainBg: q.answer===cur.correct? this.hexA('#2f9e5e',0.10):this.hexA('#d96a1e',0.10),
+          explainColor: q.answer===cur.correct? '#2f9e5e':'#d96a1e',
           explainTitle: q.revealed ? (q.answer===cur.correct? t.quizRight : t.quizWrong) : '',
           explain: q.revealed ? (this.state.lang==='es'
               ? 'Va en «'+this.loc(bc.name)+'». '+this.loc(b.why)
@@ -4479,7 +4531,7 @@ class Component extends DCLogic {
       const chaos=S.chaos||{active:false}; const fallenSet={}; (chaos.fallenCats||[]).forEach(cc=>fallenSet[cc]=1);
       const res=this.resilience(anP);
       M.nodes.forEach(n=>{ const al=alerts[n.cat];
-        n.borderShown=al?al.color:n.border; n.title=al?al.msg:n.name; n.bgShown=n.bg; n.op=1;
+        n.onKey=(e)=>{ if(e&&(e.key==='Enter'||e.key===' ')){ e.preventDefault(); if(n.onClick) n.onClick(); } }; n.borderShown=al?al.color:n.border; n.title=al?al.msg:n.name; n.bgShown=n.bg; n.op=1;
         if(chaos.active){ const nid=n.id; n.onClick=()=>this.simulateFailure(nid);
           if(chaos.downId===nid){ n.borderShown='#fb7185'; n.bgShown=this.hexA('#fb7185',0.22); n.title=this.loc(this.catById(n.cat).name); }
           else if(fallenSet[n.cat]){ n.borderShown=this.hexA('#fb7185',0.5); n.bgShown=this.hexA('#fb7185',0.08); n.op=0.4; }
@@ -4514,8 +4566,8 @@ class Component extends DCLogic {
         zoomIn:()=>this.mapZoom(1.25), zoomOut:()=>this.mapZoom(1/1.25), fit:()=>this.mapFit(),
         packet, trail, stepName, stepLabel, flowing:S.flowing, runFlow:()=>this.runMapFlow(), legend,
         flowLabel: S.flowing? t.flowRunning : t.flowLabel, flowDisabled: flowOff,
-        flowBorder: flowOff?'var(--border-strong)':'rgba(99,102,241,0.5)',
-        flowBg: flowOff?'var(--panel-alt)':'rgba(99,102,241,0.14)',
+        flowBorder: flowOff?'var(--border-strong)':'color-mix(in srgb, var(--accent) 50%, transparent)',
+        flowBg: flowOff?'var(--panel-alt)':'color-mix(in srgb, var(--accent) 14%, transparent)',
         flowColor: flowOff?'var(--text-faint)':'var(--accent)',
         flowCursor: flowOff?'not-allowed':'pointer',
         caption:fcap, captionShow: S.flowing && !!fcap,
@@ -4524,25 +4576,26 @@ class Component extends DCLogic {
         chaosBorder: chaos.active? 'rgba(251,113,133,0.6)' : 'var(--border-strong)',
         chaosBg: chaos.active? 'rgba(251,113,133,0.14)' : 'var(--panel-alt)',
         chaosColor: chaos.active? '#fb7185' : 'var(--text-muted)',
-        resLabel: t.chaosResil+' '+res.score+'% · '+res.spofs.length+' '+t.chaosSpof, resColor: res.score>=66?'#22c55e':(res.score>=33?'#f97316':'#fb7185'),
+        resLabel: t.chaosResil+' '+res.score+'% · '+res.spofs.length+' '+t.chaosSpof, resColor: res.score>=66?'#2f9e5e':(res.score>=33?'#d96a1e':'#fb7185'),
         chaosHint: t.chaosHint,
         chaosMsgShow: chaos.active && !!chaos.msg, chaosMsg: chaos.msg||'',
-        chaosMsgIcon: chaos.survived? '✓':'✕', chaosMsgColor: chaos.survived? '#22c55e':'#fb7185',
-        chaosMsgBg: chaos.survived? this.hexA('#22c55e',0.10):this.hexA('#fb7185',0.10), chaosMsgBorder: chaos.survived? this.hexA('#22c55e',0.4):this.hexA('#fb7185',0.45) };
+        chaosMsgIcon: chaos.survived? '✓':'✕', chaosMsgColor: chaos.survived? '#2f9e5e':'#fb7185',
+        chaosMsgBg: chaos.survived? this.hexA('#2f9e5e',0.10):this.hexA('#fb7185',0.10), chaosMsgBorder: chaos.survived? this.hexA('#2f9e5e',0.4):this.hexA('#fb7185',0.45) };
       // Sala: la misma petición, recorriendo racks y placas en vez de tarjetas.
       const isSala = S.mapView!=='plano' && !!window.LABSTACK_SALA;
       const vTab=(id,label)=>{ const on=(id==='sala')===isSala; return { label, onClick:()=>this.setMapView(id), bg:on?'var(--accent-tint)':'transparent', color:on?'var(--accent)':'var(--text-muted)', weight:on?700:500 }; };
       map.isSala=isSala; map.isPlano=!isSala; map.viewLabel=t.mapViewLabel;
       map.viewTabs=[ vTab('sala',t.mapViewSala), vTab('plano',t.mapViewPlano) ];
-      map.salaLegend=[ { label:t.legSalaRed, stroke:'#3b82f6', dash:'10 4' }, { label:t.legSalaAlm, stroke:'#06b6d4', dash:'7 3' }, { label:t.legSalaNube, stroke:'#38bdf8', dash:'9 5' }, { label:t.legSalaPilar, stroke:'var(--line-faint)', dash:'3 4' }, { label:t.legSalaOps, stroke:'#c026d3', dash:'2 5' } ];
+      map.legendOpen=S.legendOpen==null ? !this.narrow() : !!S.legendOpen; map.legendClosed=!map.legendOpen; map.legendToggle=()=>this.setState({ legendOpen:!map.legendOpen });
+      map.salaLegend=[ { label:t.legSalaRed, stroke:'#3f76c9', dash:'10 4' }, { label:t.legSalaAlm, stroke:'#1f8a9c', dash:'7 3' }, { label:t.legSalaNube, stroke:'#3a93bf', dash:'9 5' }, { label:t.legSalaPilar, stroke:'var(--line-faint)', dash:'3 4' }, { label:t.legSalaOps, stroke:'#a8487a', dash:'2 5' } ];
       if(isSala){
         const e=this.salaEscena(), par=e?e.paradas:[], st=(S.flowing && S.flowStep>=0) ? par[S.flowStep] : null, sc=st?st.cat:null;
         const off=S.flowing || par.length<2;
         Object.assign(map, {
-          hint:t.salaHint+' · '+M.count+' '+t.mapPieces, salaClick:(ev)=>this.onSalaClick(ev), runFlow:()=>this.runSalaFlow(),
+          hint:t.salaHint+' · '+M.count+' '+t.mapPieces, salaClick:(ev)=>this.onSalaClick(ev), salaKey:(ev)=>{ if(ev&&(ev.key==='Enter'||ev.key===' ')){ ev.preventDefault(); this.onSalaClick(ev); } }, runFlow:()=>this.runSalaFlow(),
           caption: sc ? (sc==='entrada' ? t.salaEntradaCap : this.loc((meta[sc]||{}).flow||'')) : '', captionShow: !!sc,
           stepName: sc ? (sc==='entrada' ? t.salaEntrada : this.loc(this.catById(sc).name)) : '', stepLabel: sc ? (S.flowStep+1)+' / '+par.length : '',
-          flowDisabled: off, flowBorder: off?'var(--border-strong)':'rgba(99,102,241,0.5)', flowBg: off?'var(--panel-alt)':'rgba(99,102,241,0.14)',
+          flowDisabled: off, flowBorder: off?'var(--border-strong)':'color-mix(in srgb, var(--accent) 50%, transparent)', flowBg: off?'var(--panel-alt)':'color-mix(in srgb, var(--accent) 14%, transparent)',
           flowColor: off?'var(--text-faint)':'var(--accent)', flowCursor: off?'not-allowed':'pointer',
           chaosActive:false, chaosMsgShow:false });
       }
@@ -4557,12 +4610,12 @@ class Component extends DCLogic {
       ...an.oks.map(x=>({ ...x, kind:'ok' })),
     ].map(x=>{
       const st = x.kind==='error' ? { icon:'✕', color:'#fb7185', bg:this.hexA('#fb7185',0.10), border:this.hexA('#fb7185',0.4) }
-        : x.kind==='warn' ? { icon:'!', color:'#f97316', bg:'var(--warm)', border:'var(--warm-border)' }
-        : { icon:'✓', color:'#22c55e', bg:this.hexA('#22c55e',0.10), border:this.hexA('#22c55e',0.4) };
+        : x.kind==='warn' ? { icon:'!', color:'#d96a1e', bg:'var(--warm)', border:'var(--warm-border)' }
+        : { icon:'✓', color:'#2f9e5e', bg:this.hexA('#2f9e5e',0.10), border:this.hexA('#2f9e5e',0.4) };
       return { title:x.title, msg:x.msg, ...st };
     });
-    const scoreColor = an.score>=80?'#22c55e' : (an.score>=50?'#f97316':'#fb7185');
-    const analysis = { empty:an.empty, score:an.score, scorePct:an.score+'%', scoreColor, items:anItems };
+    const scoreColor = an.score>=80?'#2f9e5e' : (an.score>=50?'#d96a1e':'#fb7185');
+    const analysis = { empty:an.empty, score:an.score, scorePct:an.score+'%', scoreText:(mode==='map' && !Object.values(S.placed||{}).some(a=>a&&a.length))? t.analysisDemo : an.score+'%', scoreColor, items:anItems };
     const guideOpen = !hasDetail && !hasLayerDetail;
 
     // ---- navegación por grupos: aprender · practicar · explorar ----
@@ -4586,7 +4639,7 @@ class Component extends DCLogic {
     if(navGroup==='practice') subDef = [ {m:'mission',icon:'🎯',label:t.modeMission}, {m:'quiz',icon:'❓',label:t.modeQuiz} ];
     if(navGroup==='explore') subDef = [ {m:'map',icon:'🗺',label:t.modeMap}, {m:'http',icon:'🚦',label:t.modeHttp}, {m:'deploy',icon:'🚀',label:t.modeDeploy}, {m:'metrics',icon:'📈',label:t.modeMetrics}, {m:'terminal',icon:'▚',label:t.modeTerminal}, {m:'incident',icon:'🚑',label:t.modeIncident}, {m:'events',icon:'🔔',label:t.modeEvents}, {m:'desk',icon:'🎧',label:t.modeDesk} ];
     const subnav = subDef.map(x=>{ const on = mode===x.m; return {
-      icon:x.icon, label:x.label, current: on?'page':'false',
+      icon:x.icon, label:x.label, current: on?'page':'false', gap:x.m==='terminal'?'14px':'0',
       bg: on?'var(--accent-tint)':'var(--panel)', border: on?'var(--accent)':'var(--border-strong)',
       color: on?'var(--accent)':'var(--text-muted)',
       hoverStyle: on?'':'border-color:var(--accent-b); color:var(--text);',
@@ -4626,7 +4679,7 @@ class Component extends DCLogic {
     if(nextEmptyId){ const nc=this.catById(nextEmptyId);
       nextStep = { text: t.nextStepLbl+' '+this.loc(nc.name), color:nc.color, border:this.hexA(nc.color,0.35), bg:this.hexA(nc.color,0.07) };
     } else {
-      nextStep = { text: t.allDoneMsg, color:'#22c55e', border:'rgba(34,197,94,0.35)', bg:'rgba(34,197,94,0.08)' };
+      nextStep = { text: t.allDoneMsg, color:'#2f9e5e', border:'rgba(34,197,94,0.35)', bg:'rgba(34,197,94,0.08)' };
     }
 
     // ---- inicio: una sola puerta de entrada ----
@@ -4642,10 +4695,10 @@ class Component extends DCLogic {
       jobHref:'./puesto-linux/index.html?lang='+(S.lang==='en'?'en':'es'),
       cloudHref:'./puesto-cloud/index.html?lang='+(S.lang==='en'?'en':'es'), cloudTitle:t.homeCloudT, cloudDesc:t.homeCloudD, cloudCta:t.homeCloudCta, devopsHref:'./puesto-devops/index.html?lang='+(S.lang==='en'?'en':'es'), devopsTitle:t.homeDevopsT, devopsDesc:t.homeDevopsD, devopsCta:t.homeDevopsCta, cpdHref:'./puesto-cpd/index.html?lang='+(S.lang==='en'?'en':'es'), cpdTitle:t.homeCpdT, cpdDesc:t.homeCpdD, cpdCta:t.homeCpdCta, jobTitle:t.homeJobT, jobDesc:t.homeJobD, jobCta:t.homeJobCta,
       cards: [
-        { icon:'🧱', title:t.cardLearnT, desc:t.cardLearnD, meta:t.cardLearnM, color:'#6366f1', tag:'var(--meta-learn)', to:'sandbox' },
-        { icon:'🎯', title:t.cardPracticeT, desc:t.cardPracticeD, meta:t.cardPracticeM, color:'#f59e0b', tag:'var(--meta-practice)', to:'mission' },
-        { icon:'🔭', title:t.cardExploreT, desc:t.cardExploreD, meta:t.cardExploreM, color:'#38bdf8', tag:'var(--meta-explore)', to:'map' },
-        { icon:'🚀', title:t.cardKidsT, desc:t.cardKidsD, meta:t.cardKidsM, color:'#22c55e', tag:'var(--meta-kids)', to:'kids' },
+        { icon:'🧱', title:t.cardLearnT, desc:t.cardLearnD, meta:t.cardLearnM, color:'#1f4fbf', tag:'var(--meta-learn)', to:'sandbox' },
+        { icon:'🎯', title:t.cardPracticeT, desc:t.cardPracticeD, meta:t.cardPracticeM, color:'#d9930f', tag:'var(--meta-practice)', to:'mission' },
+        { icon:'🔭', title:t.cardExploreT, desc:t.cardExploreD, meta:t.cardExploreM, color:'#3a93bf', tag:'var(--meta-explore)', to:'map' },
+        { icon:'🚀', title:t.cardKidsT, desc:t.cardKidsD, meta:t.cardKidsM, color:'#2f9e5e', tag:'var(--meta-kids)', to:'kids' },
       ].map(c=>({ icon:c.icon, title:c.title, desc:c.desc, meta:c.meta,
         border:this.hexA(c.color,0.34), bg:'var(--panel)',
         iconBg:this.hexA(c.color,0.12), iconBorder:this.hexA(c.color,0.30), metaColor:c.tag,
@@ -4658,17 +4711,23 @@ class Component extends DCLogic {
         { value:'8', label:t.statModes },
       ],
     };
+    home.cards.forEach((c,i)=>{ c.rule=['#1f4fbf','#d9930f','#3a93bf','#2f9e5e'][i]; });
+    const limpio=x=>{ const r=String(x||'').replace(/^[^:]+:\s*/,''); return r.charAt(0).toUpperCase()+r.slice(1); };
+    home.jobs=[['job'],['cloud'],['devops'],['cpd']].map(([k])=>({ href:home[k+'Href'], title:limpio(home[k+'Title']), desc:home[k+'Desc'] }));
+    home.tagline=t.homeTagline; home.sub=t.homeSub; home.start=t.homeStart; home.salaCta=t.homeSalaCta; home.jobsTitle=t.homeJobs;
+    home.onStart=()=>this.setMode('sandbox'); home.onSala=()=>this.setMode('map');
+    home.statsLine=home.stats.map(x=>x.value+' '+x.label).join(' · ');
     const szTot = this.sizing(anPlaced);
     const sizing = { tiles:[
-      { label:t.szCost, value:szTot.cost, unit:t.szMonth, color:'#f59e0b' },
-      { label:t.szUnitCpu, value:szTot.cpu, unit:t.szUnitCpu, color:'#38bdf8' },
-      { label:t.szUnitRam, value:szTot.ram, unit:t.szUnitRam, color:'#a78bfa' },
+      { label:t.szCost, value:szTot.cost, unit:t.szMonth, color:'#d9930f' },
+      { label:t.szUnitCpu, value:szTot.cpu, unit:t.szUnitCpu, color:'#3a93bf' },
+      { label:t.szUnitRam, value:szTot.ram, unit:t.szUnitRam, color:'#8a6fa0' },
     ]};
     // achievements
     const achDefs=this.achievements(), unlocked=S.achievements||{};
     const achList=achDefs.map(a=>{ const on=!!unlocked[a.id]; return {
       icon: on?a.icon:'🔒', name:this.loc(a.name), desc:this.loc(a.desc),
-      bg: on? this.hexA('#f59e0b',0.10) : 'var(--panel-2)', border: on? this.hexA('#f59e0b',0.4) : 'var(--border)',
+      bg: on? this.hexA('#d9930f',0.10) : 'var(--panel-2)', border: on? this.hexA('#d9930f',0.4) : 'var(--border)',
       opacity: on?1:0.55, titleColor: on?'var(--text)':'var(--text-faint)' }; });
     const achCount=achDefs.filter(a=>unlocked[a.id]).length;
     // guided tour
@@ -4700,13 +4759,13 @@ class Component extends DCLogic {
       return { id:st.id, type:st.type, num:i+1, done, isLesson, title:this.loc(st.title), desc: st.desc?this.loc(st.desc):'',
         bodyOpen:open, body: isLesson? this.loc(st.body):'',
         statusIcon: done?'✓':(st.type==='lesson'?'📖':st.type==='mission'?'🎯':st.type==='quiz'?'🧠':st.ref==='events'?'🔔':st.ref==='desk'?'🎧':'🗺️'),
-        statusColor: done?'#05080f':'var(--text)', statusBg: done?'#22c55e':'var(--panel-2)', statusBorder: done?'#22c55e':'var(--border-strong)',
+        statusColor: done?'#05080f':'var(--text)', statusBg: done?'#2f9e5e':'var(--panel-2)', statusBorder: done?'#2f9e5e':'var(--border-strong)',
         actionLabel: isLesson? (open? t.pathHide : t.pathRead) : st.type==='mission'? t.pathStart : st.type==='quiz'? t.pathDoQuiz : t.pathGo,
         onAction: isLesson? (()=>this.toggleLesson(st.id)) : st.type==='mission'? (()=>this.goPathMission(st.ref)) : st.type==='quiz'? (()=>this.goPathMode('quiz')) : (()=>this.goPathMode(st.ref||'sandbox')),
         onMarkRead:()=>this.markLesson(st.id) };
     });
     const pathDone=pathSteps.filter(s=>s.done).length, curIdx=pathSteps.findIndex(s=>!s.done);
-    pathSteps.forEach((s,i)=>{ s.current=(i===curIdx); s.cardBorder= s.current? 'rgba(99,102,241,0.5)' : (s.done? this.hexA('#22c55e',0.35):'var(--border)'); s.cardBg= s.current? 'var(--accent-tint)' : 'var(--panel-alt)'; });
+    pathSteps.forEach((s,i)=>{ s.current=(i===curIdx); s.cardBorder= s.current? 'color-mix(in srgb, var(--accent) 50%, transparent)' : (s.done? this.hexA('#2f9e5e',0.35):'var(--border)'); s.cardBg= s.current? 'var(--accent-tint)' : 'var(--panel-alt)'; });
     const pathView={ name:this.loc(lp.name), steps:pathSteps, done:pathDone, total:pathSteps.length, pct:Math.round(pathDone/pathSteps.length*100)+'%', label:pathDone+'/'+pathSteps.length };
     // glossary
     let glossary={ show:false };
@@ -4731,12 +4790,12 @@ class Component extends DCLogic {
     const met=S.metrics||{load:55,cpu:[],ram:[],rps:[],lat:[]};
     const lastv=arr=>arr&&arr.length?arr[arr.length-1]:0;
     const cpuV=Math.round(lastv(met.cpu)), ramV=Math.round(lastv(met.ram)), rpsV=Math.round(lastv(met.rps)), latV=Math.round(lastv(met.lat));
-    const mtile=(label,val,color,arr,mx,warn)=>({ label, val, path:this.sparkPath(arr,mx), border: warn?this.hexA('#fb7185',0.5):'var(--border)', valColor: warn?'#fb7185':color, stroke:color });
+    const mtile=(label,val,color,arr,mx,warn,lim)=>({ label, val, limitShow:!!lim, limitLabel:lim?(S.lang==='es'?'Umbral de alerta: ':'Alert threshold: ')+lim:'', limitTop:lim?Math.max(0,(1-lim/(mx||Math.max.apply(null,(arr||[]).concat(lim*1.2))))*100).toFixed(1)+'%':'0', path:this.sparkPath(arr,mx), border: warn?this.hexA('#fb7185',0.5):'var(--border)', valColor: warn?'#fb7185':color, stroke:color });
     const metricsTiles=[
-      mtile('CPU', cpuV+'%', '#38bdf8', met.cpu, 100, cpuV>90),
-      mtile('RAM', ramV+'%', '#a78bfa', met.ram, 100, ramV>90),
-      mtile('req/s', ''+rpsV, '#22c55e', met.rps, 0, false),
-      mtile('p99', latV+' ms', '#f59e0b', met.lat, 0, latV>300),
+      mtile('CPU', cpuV+'%', '#3a93bf', met.cpu, 100, cpuV>90, 90),
+      mtile('RAM', ramV+'%', '#8a6fa0', met.ram, 100, ramV>90, 90),
+      mtile('req/s', ''+rpsV, '#2f9e5e', met.rps, 0, false),
+      mtile(S.lang==='es'?'Latencia p99':'p99 latency', latV+' ms', '#d9930f', met.lat, 0, latV>300, 300),
     ];
     const hasMon=(S.placed['monitorizacion']||[]).length>0; const metAlerts=[];
     if(cpuV>90) metAlerts.push({ t: esL?'CPU saturada: escala horizontalmente o añade cómputo.':'CPU saturated: scale out or add compute.' });
@@ -4777,7 +4836,7 @@ class Component extends DCLogic {
       themeIcon: S.theme==='dark'?'☀':'☾', themeLabel: S.theme==='dark'?(t.themeLight):(t.themeDark),
       reset:()=>this.reset(),
       share:()=>this.shareLink(), shareLabel: S.copied? t.copied : t.share,
-      shareBg: S.copied? 'rgba(34,197,94,0.16)' : 'var(--panel-alt)', shareColor: S.copied? '#22c55e' : 'var(--text-muted)', shareBorder: S.copied? 'rgba(34,197,94,0.5)' : 'var(--border-strong)',
+      shareBg: S.copied? 'rgba(34,197,94,0.16)' : 'var(--panel-alt)', shareColor: S.copied? '#2f9e5e' : 'var(--text-muted)', shareBorder: S.copied? 'rgba(34,197,94,0.5)' : 'var(--border-strong)',
       achList, achLabel: achCount+'/'+achDefs.length, achCount, toggleAch:()=>this.setState(s=>({ showAchievements:!s.showAchievements, achConfirm:false })), showAchievements:S.showAchievements, closeAch:()=>this.setState({showAchievements:false, achConfirm:false}), stopProp:(e)=>{ if(e)e.stopPropagation(); },
       achConfirm:S.achConfirm, askResetAch:()=>this.askResetAch(), doResetAch:()=>this.doResetAch(), cancelResetAch:()=>this.cancelResetAch(),
       toastShow: !!S.toast, toastIcon: S.toast?S.toast.icon:'', toastName: S.toast?S.toast.name:'',
@@ -4789,7 +4848,7 @@ class Component extends DCLogic {
       toggleContent:()=>this.toggleContent(), closeContent:()=>this.closeContent(), showContent:S.showContent,
       contentDraft:S.contentDraft, onContentDraft:(e)=>this.onContentDraft(e), applyContent:()=>this.applyContent(), clearContent:()=>this.clearContent(), exportContent:()=>this.exportContent(), contentTemplateFill:()=>this.contentTemplate(), importContentFile:(e)=>this.importContentFile(e), stopPropC:(e)=>{ if(e)e.stopPropagation(); },
       contentPieces:this.packPieces().length, contentMissions:this.packMissions().length,
-      contentMsgShow: !!S.contentMsg, contentMsgText: S.contentMsg?S.contentMsg.text:'', contentMsgColor: (S.contentMsg&&S.contentMsg.type==='err')?'#fb7185':'#22c55e', contentMsgBg: (S.contentMsg&&S.contentMsg.type==='err')?this.hexA('#fb7185',0.10):this.hexA('#22c55e',0.10), contentMsgBorder: (S.contentMsg&&S.contentMsg.type==='err')?this.hexA('#fb7185',0.4):this.hexA('#22c55e',0.4),
+      contentMsgShow: !!S.contentMsg, contentMsgText: S.contentMsg?S.contentMsg.text:'', contentMsgColor: (S.contentMsg&&S.contentMsg.type==='err')?'#fb7185':'#2f9e5e', contentMsgBg: (S.contentMsg&&S.contentMsg.type==='err')?this.hexA('#fb7185',0.10):this.hexA('#2f9e5e',0.10), contentMsgBorder: (S.contentMsg&&S.contentMsg.type==='err')?this.hexA('#fb7185',0.4):this.hexA('#2f9e5e',0.4),
       cats:paletteCats, layers, transversals,
       famChips, famAll, searchVal:S.search, onSearch:(e)=>this.onSearch(e), clearSearch:()=>this.clearSearch(), showSearchClear: S.search.length>0,
       paletteEmpty: paletteCats.length===0,
@@ -4797,11 +4856,11 @@ class Component extends DCLogic {
       flowing:S.flowing,
       runFlow:()=>this.runFlow(), flowDisabled,
       flowLabel: S.flowing? t.flowRunning : t.flowLabel,
-      flowBorder: flowDisabled?'var(--border-strong)':'rgba(99,102,241,0.5)',
-      flowBg: flowDisabled?'var(--panel-alt)':'rgba(99,102,241,0.12)',
+      flowBorder: flowDisabled?'var(--border-strong)':'color-mix(in srgb, var(--accent) 50%, transparent)',
+      flowBg: flowDisabled?'var(--panel-alt)':'color-mix(in srgb, var(--accent) 12%, transparent)',
       flowColor: flowDisabled?'var(--text-faint)':'var(--accent)',
       flowCursor: flowDisabled?'not-allowed':'pointer',
-      flowHover: flowDisabled?'':'background:rgba(99,102,241,0.2); border-color:var(--accent);',
+      flowHover: flowDisabled?'':'background:color-mix(in srgb, var(--accent) 20%, transparent); border-color:var(--accent);',
       layersDoneLabel: layerDone+'/'+stackIds.length+' '+t.done,
       layersDoneShort: doneLayers+'/'+allIds.length,
       hasDetail, detail, feedback, placing,
@@ -4811,10 +4870,12 @@ class Component extends DCLogic {
       showGuide: !hasDetail && !hasLayerDetail, checklist,
       // --- navegación y raíles contextuales ---
       goHome:()=>this.goHome(), navGroups, navGroup,
+      toPalette:()=>this.toPalette(), skipMain:()=>this.toCanvas(),
+      pageH1Show: mode!=='home', pageTitle: ((subnav.find(x=>x.current==='page')||{}).label)||({ sandbox:t.cardLearnT, kids:t.cardKidsT })[mode]||t.title,
       subnav, subnavShow: subnav.length>0, subnavLabel: t.subnavLabel,
       gridClass, showPalette: needPalette, showRail: needRail,
       showHome: mode==='home', home,
-      showKids: mode==='kids', kids: this.kidsView(),
+      showKids: mode==='kids', kids: (()=>{ const k=this.kidsView(); k.soloClass=k.towerShow?'':'kids-solo'; return k; })(),
       showDesk: mode==='desk', desk: this.deskView(),
       showEvents: mode==='events', events: this.eventsViewFull(),
       showChecklist: buildingNow, progressParts, nextStep,

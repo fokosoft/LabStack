@@ -67,15 +67,16 @@ function vistaCola() {
         <h1>${UI.oferta.titulo}</h1>
         <p class="oferta-sub">${UI.oferta.sub}</p>
         <p class="oferta-txt">${UI.oferta.txt}</p>
+        <p class="oferta-nota">${T('Un ticket puede contar en más de una función.', 'A ticket can count towards more than one duty.')}</p>
         <div class="funcs">
           ${funcs.map(x => `<button class="func ${app.filtro === x.f.id ? 'on' : ''}" data-act="filtro" data-id="${x.f.id}" aria-pressed="${app.filtro === x.f.id}">
             <span class="func-t">${h(x.f.titulo)}</span><span class="func-bar"><i style="width:${x.total ? x.n / x.total * 100 : 0}%"></i></span><span class="func-n">${x.n}/${x.total}</span></button>`).join('')}
         </div>
       </div>
       <div class="lado">
-        ${UI.guardia ? `<button class="modo" data-act="guardia" aria-expanded="${app.guardiaPanel}"><span class="modo-ic" style="background:var(--bad-tint)">🔔</span><span class="modo-tx"><b>${T('Guardia', 'On call')}</b><small>${T('Averías al azar, sin ticket: sólo las alertas. Como a las tres de la mañana.', 'Random faults, no ticket: just the alerts. Like at three in the morning.')}</small></span></button>
+        ${UI.guardia ? `<button class="modo" data-act="guardia" aria-expanded="${app.guardiaPanel}"><span class="modo-tx"><b>${T('Guardia', 'On call')}</b><small>${T('Averías al azar, sin ticket: sólo las alertas. Como a las tres de la mañana.', 'Random faults, no ticket: just the alerts. Like at three in the morning.')}</small></span></button>
         ${app.guardiaPanel ? panelGuardia() : ''}` : ''}
-        <button class="modo" data-act="libre"><span class="modo-ic" style="background:var(--accent-tint)">🧪</span><span class="modo-tx"><b>${T('Laboratorio libre', 'Free lab')}</b><small>${T('La plataforma sana, sin ticket. Rompe cosas a propósito y mira qué pasa.', 'A healthy platform, no ticket. Break things on purpose and see what happens.')}</small></span></button>
+        <button class="modo" data-act="libre"><span class="modo-tx"><b>${T('Laboratorio libre', 'Free lab')}</b><small>${T('La plataforma sana, sin ticket. Rompe cosas a propósito y mira qué pasa.', 'A healthy platform, no ticket. Break things on purpose and see what happens.')}</small></span></button>
         <div class="card como">
           <h2>${T('Cómo funciona', 'How it works')}</h2>
           <ol>
@@ -85,7 +86,7 @@ function vistaCola() {
       </div>
     </section>
     <section>
-      <div class="cola-cab"><h2>${T('Cola de trabajo', 'Work queue')}</h2><span>${T(`${hechos} de ${P.escenarios.length} resueltos`, `${hechos} of ${P.escenarios.length} resolved`)}</span>${app.filtro ? '<button data-act="filtro" data-id="">' + T('Ver todos', 'Show all') + '</button>' : ''}</div>
+      <div class="cola-cab"><h2>${T('Cola de trabajo', 'Work queue')}</h2><small class="cola-ley">●○○ ${T('dificultad', 'difficulty')}</small><span>${T(`${hechos} de ${P.escenarios.length} resueltos`, `${hechos} of ${P.escenarios.length} resolved`)}</span>${app.filtro ? '<button data-act="filtro" data-id="">' + T('Ver todos', 'Show all') + '</button>' : ''}</div>
       <div class="lista">${lista.map(filaTicket).join('')}</div>
     </section>
     ${UI.importar ? seccionImportadas() : ''}

@@ -253,7 +253,7 @@ The three-rail grid is **not** fixed — each mode shows only the panels it need
 
 This matters pedagogically as well as visually: in `quiz` the palette is hidden **on purpose**, because the palette groups pieces by category and would hand the learner the answer to "which layer does this piece belong to?".
 
-Modes that render into an absolutely-positioned container (`map`, `terminal`, `metrics`, `http`, `deploy`, `incident`) use `top:56px` rather than `inset:0`, to leave room for the `subnav` chip row. If you add another such mode, match that offset.
+Modes that render into an absolutely-positioned container (`map`, `terminal`, `metrics`, `http`, `deploy`, `incident`, `events`, `desk`) carry the class `pane` and use `top:56px`, which only holds because the `subnav` is one scrollable row at every width. Below 1101 px `.pane` goes back into the flow and `main` becomes a flex column with the `subnav` first (`order:-1`); without that the view collapses to a few pixels. A new such mode needs the same class. Inside that flex column `margin:auto` shrinks a block to its content, hence the `width:100%` on `main`'s children.
 
 ### The stack canvas: planes and density
 
@@ -271,6 +271,8 @@ Two scales, and **nothing outside them**:
 - **Radius**: `6 · 10 · 14 · 20 · 99` (was 22 values). `99` is the pill.
 
 `10` is only for labels inside drawings (map nodes, code badges); anything read to understand something is `11` or larger. Text in a family colour goes through `color-mix(in srgb, {{ x }} 45%, var(--text))`: it keeps the hue and reaches 4.5:1 in both themes, while fills and borders keep the pure colour. `--text-faint` is for text; lines use `--line-faint`.
+
+**It must not look machine-generated.** The owner wants the least possible "AI slop" look. That rules out indigo and violet accents, Tailwind slate neutrals, cream or beige backgrounds (the other reflex palette: the detector flags it too), decorative gradients, coloured glows on status dots, and emojis as interface icons outside Kids. Current palette: true neutral grey with one blueprint blue accent (`#1f4fbf`), graphite in dark, muted family colours. The Home shows the room (`#sala-home`, synced by `salaSync()`, decorative and not focusable) instead of template cards.
 
 Every `font-size` and `border-radius` lives inline in the template — there are none in the logic — so slipping in an off-scale value is easy and invisible. Resist it: if a new size feels necessary, the answer is almost always an existing step.
 

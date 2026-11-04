@@ -9,28 +9,28 @@ window.LABSTACK = window.LABSTACK || {};
 window.LABSTACK.categorias = function () {
     return [
       // Familia · Infraestructura física (fríos: azul / acero / cian)
-      { id:'red', color:'#3b82f6', fam:'phys', name:{es:'Redes',en:'Networking'} },
-      { id:'computo', color:'#64748b', fam:'phys', name:{es:'Cómputo físico',en:'Bare-metal compute'} },
-      { id:'almacenamiento', color:'#06b6d4', fam:'phys', name:{es:'Almacenamiento',en:'Storage'} },
+      { id:'red', color:'#3f76c9', fam:'phys', name:{es:'Redes',en:'Networking'} },
+      { id:'computo', color:'#6b7078', fam:'phys', name:{es:'Cómputo físico',en:'Bare-metal compute'} },
+      { id:'almacenamiento', color:'#1f8a9c', fam:'phys', name:{es:'Almacenamiento',en:'Storage'} },
       // Familia · Plataforma / virtualización (verdes: teal / emerald / green)
-      { id:'virtualizacion', color:'#0d9488', fam:'plat', name:{es:'Virtualización',en:'Virtualization'} },
-      { id:'hci', color:'#10b981', fam:'plat', name:{es:'HCI · Nutanix',en:'HCI · Nutanix'} },
-      { id:'so', color:'#22c55e', fam:'plat', name:{es:'Sistema operativo',en:'Operating system'} },
+      { id:'virtualizacion', color:'#1f8578', fam:'plat', name:{es:'Virtualización',en:'Virtualization'} },
+      { id:'hci', color:'#2f9e80', fam:'plat', name:{es:'HCI · Nutanix',en:'HCI · Nutanix'} },
+      { id:'so', color:'#2f9e5e', fam:'plat', name:{es:'Sistema operativo',en:'Operating system'} },
       // Familia · Aplicación / runtime (ámbar)
-      { id:'contenedores', color:'#f59e0b', fam:'app', name:{es:'Contenedores · Docker',en:'Containers · Docker'} },
-      { id:'orquestacion', color:'#d97706', fam:'app', name:{es:'Orquestación · K8s',en:'Orchestration · K8s'} },
-      { id:'mensajeria', color:'#f97316', fam:'app', name:{es:'Mensajería · Eventos',en:'Messaging · Events'} },
+      { id:'contenedores', color:'#d9930f', fam:'app', name:{es:'Contenedores · Docker',en:'Containers · Docker'} },
+      { id:'orquestacion', color:'#b97511', fam:'app', name:{es:'Orquestación · K8s',en:'Orchestration · K8s'} },
+      { id:'mensajeria', color:'#d96a1e', fam:'app', name:{es:'Mensajería · Eventos',en:'Messaging · Events'} },
       // Familia · Datos (rosa)
-      { id:'datos', color:'#ec4899', fam:'data', name:{es:'Bases de datos',en:'Databases'} },
+      { id:'datos', color:'#c9487e', fam:'data', name:{es:'Bases de datos',en:'Databases'} },
       // Familia · Nube (celeste)
-      { id:'nube', color:'#38bdf8', fam:'cloud', name:{es:'Nube',en:'Cloud'} },
+      { id:'nube', color:'#3a93bf', fam:'cloud', name:{es:'Nube',en:'Cloud'} },
       // Familia · Operación transversal (púrpuras)
-      { id:'seguridad', color:'#7c3aed', fam:'ops', name:{es:'Seguridad',en:'Security'} },
-      { id:'cicd', color:'#9333ea', fam:'ops', name:{es:'CI/CD',en:'CI/CD'} },
-      { id:'iac', color:'#c026d3', fam:'ops', name:{es:'IaC · Terraform',en:'IaC · Terraform'} },
-      { id:'monitorizacion', color:'#d946ef', fam:'ops', name:{es:'Monitorización',en:'Monitoring'} },
-      { id:'gobernanza', color:'#a855f7', fam:'ops', name:{es:'Gobierno · Cumplimiento',en:'Governance · Compliance'} },
-      { id:'backup', color:'#6d28d9', fam:'ops', name:{es:'Backup · Recuperación',en:'Backup · Recovery'} },
+      { id:'seguridad', color:'#8a3f6e', fam:'ops', name:{es:'Seguridad',en:'Security'} },
+      { id:'cicd', color:'#75508f', fam:'ops', name:{es:'CI/CD',en:'CI/CD'} },
+      { id:'iac', color:'#a8487a', fam:'ops', name:{es:'IaC · Terraform',en:'IaC · Terraform'} },
+      { id:'monitorizacion', color:'#b85f8f', fam:'ops', name:{es:'Monitorización',en:'Monitoring'} },
+      { id:'gobernanza', color:'#8b6aa8', fam:'ops', name:{es:'Gobierno · Cumplimiento',en:'Governance · Compliance'} },
+      { id:'backup', color:'#5b4a86', fam:'ops', name:{es:'Backup · Recuperación',en:'Backup · Recovery'} },
     ];
 };
 

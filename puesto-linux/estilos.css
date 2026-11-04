@@ -1,24 +1,24 @@
 /* Puesto · estilos compartidos por index.html y soluciones.html */
 :root{
-  --bg:#eef2f7; --panel:#ffffff; --panel-2:#f6f9fc; --border:#e4eaf2; --border-strong:#cdd7e3;
-  --text:#0f172a; --muted:#475569; --faint:#566479;
-  --accent:#4f46e5; --accent-tint:rgba(99,102,241,.10); --accent-2:#8b5cf6; --accent-solid:#4f46e5;
+  --bg:#ececec; --panel:#fbfbfb; --panel-2:#f5f5f5; --border:#dcdcdc; --border-strong:#c4c4c4;
+  --text:#16181a; --muted:#46494c; --faint:#55585a;
+  --accent:#1f4fbf; --accent-tint:rgba(31,79,191,.10); --accent-2:#b4531a; --accent-solid:#1f4fbf;
   --ok:#15803d; --ok-tint:rgba(22,163,74,.12); --warn:#a84b08; --warn-tint:rgba(217,119,6,.13);
   --bad:#b91c1c; --bad-tint:rgba(220,38,38,.10); --info:#0369a1; --info-tint:rgba(2,132,199,.11);
-  --shadow:0 1px 2px rgba(15,23,42,.05), 0 10px 28px -14px rgba(15,23,42,.18);
-  --header:#ffffff;
+  --shadow:0 1px 2px rgba(0,0,0,.07);
+  --header:#fbfbfb;
   --term-bg:#0a0f1c; --term-panel:#101729; --term-border:#1c2640; --term-text:#d6deeb; --term-dim:#7d8ba1;
   --term-red:#ff7b7b; --term-amber:#f7b955; --term-green:#5ee08a; --term-blue:#7aa2f7; --term-prompt:#8bd5ca;
   color-scheme: light;
 }
 body.oscuro{
-  --bg:#0b1120; --panel:#131c2e; --panel-2:#18233a; --border:#22304a; --border-strong:#30425f;
-  --text:#e2e8f0; --muted:#a3b1c6; --faint:#8a98ad;
-  --accent:#8b95fa; --accent-tint:rgba(129,140,248,.16); --accent-2:#a78bfa;
+  --bg:#15181c; --panel:#1c2025; --panel-2:#21262c; --border:#2d333a; --border-strong:#3e454e;
+  --text:#e9e7e1; --muted:#b0b1ac; --faint:#979a95;
+  --accent:#8fb0f5; --accent-tint:rgba(143,176,245,.14); --accent-2:#e0925a; --accent-solid:#2a59c9;
   --ok:#22c55e; --ok-tint:rgba(34,197,94,.15); --warn:#f59e0b; --warn-tint:rgba(245,158,11,.16);
   --bad:#f87171; --bad-tint:rgba(248,113,113,.15); --info:#38bdf8; --info-tint:rgba(56,189,248,.15);
-  --shadow:0 1px 2px rgba(0,0,0,.3), 0 12px 30px -14px rgba(0,0,0,.6);
-  --header:#0f172a;
+  --shadow:0 1px 2px rgba(0,0,0,.4);
+  --header:#15181c;
   color-scheme: dark;
 }
 *{box-sizing:border-box}
@@ -54,7 +54,7 @@ button{font:inherit;color:inherit;cursor:pointer}
 .func.on{border-color:var(--accent);background:var(--accent-tint)}
 .func-t{font-weight:600;font-size:13px}
 .func-bar{height:6px;border-radius:99px;background:var(--border);overflow:hidden}
-.func-bar i{display:block;height:100%;background:linear-gradient(90deg,var(--accent),var(--accent-2));border-radius:99px}
+.func-bar i{display:block;height:100%;background:var(--accent);border-radius:99px}
 .func-n{font-size:12px;color:var(--muted);text-align:right;font-variant-numeric:tabular-nums}
 .lado{display:grid;gap:12px;align-content:start}
 .modo{display:grid;grid-template-columns:44px minmax(0,1fr);gap:12px;align-items:center;text-align:left;padding:14px 16px;border-radius:14px;border:1px solid var(--border);background:var(--panel);box-shadow:var(--shadow)}
@@ -434,3 +434,19 @@ a.btn{text-decoration:none;color:var(--text)} a.btn.primario-in{color:#fff}
 .av-card.av-error{border-left-color:var(--bad);background:var(--bad-tint)}
 .aviso-legal{max-width:1200px;margin:8px auto 24px;padding:0 18px;font-size:11px;color:var(--faint);text-align:center}
 .host.ancho{grid-template-columns:10px 112px minmax(0,1fr)} .host.ancho b{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+
+/* ------------------------------------------------ móvil: la barra parte, la cola va delante y se toca con el dedo */
+@media (max-width:760px){
+  .top{height:auto;min-height:56px;flex-wrap:wrap;gap:6px 8px;padding:8px 12px;position:static}
+  .top-sp{display:none}
+  .marca{flex:1 1 100%}
+  .top a,.top .icono{min-height:36px;display:inline-flex;align-items:center}
+  .cola-wrap{display:flex;flex-direction:column;padding:14px 12px 40px}
+  .cola-wrap > .hero{order:2;margin-top:18px}
+  .host{min-height:44px}
+}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+.term-in:focus-within{outline:1px solid var(--term-blue);outline-offset:-1px}
+.oferta-nota{margin:0 0 6px;font-size:12px;color:var(--faint)}
+.cola-ley{font-size:12px;color:var(--faint)}
+.term-in{padding-top:8px;padding-bottom:8px}
